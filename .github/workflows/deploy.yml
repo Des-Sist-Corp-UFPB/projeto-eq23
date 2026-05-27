@@ -221,7 +221,7 @@ jobs:
       # exit-code: '1' → falha o job se encontrar HIGH/CRITICAL (com correção disponível).
       # ignore-unfixed: true → não falha por vulns sem patch ainda — apenas as que têm solução.
       - name: Trivy — scan de vulnerabilidades na imagem Docker
-        uses: aquasecurity/trivy-action@v0.2.1
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: mercado:scan
           format: table
@@ -248,8 +248,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy docker-compose via scp
-        uses: appleboy/scp-action@master
+      - name: Copiar docker-compose.prod.yml para o servidor
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: dsc.rodrigor.com
           username: ghactions
@@ -261,12 +261,17 @@ jobs:
       # envs: passa variáveis de ambiente do Actions para o script remoto.
       # script_stop: true → para imediatamente se qualquer comando falhar (set -e).
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          IMAGE_FULL: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          port: 8123
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: dsc.rodrigor.com
+          username: ghactions
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          envs: GHCR_TOKEN,GHCR_USER,IMAGE_FULL
+          script_stop: true
           script: |
             set -euo pipefail
 

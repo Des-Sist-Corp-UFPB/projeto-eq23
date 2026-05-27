@@ -10,8 +10,8 @@
 #
 #   APP_IMAGE=ghcr.io/usuario/mercado:latest   ← atualizado automaticamente pelo CI/CD
 #   DATABASE_URL=jdbc:postgresql://postgres:5432/eq23
-#   DATABASE_USERNAME=mercado
-#   DATABASE_PASSWORD=<senha-forte-aqui>
+#   DATABASE_USERNAME=eq23
+#   DATABASE_PASSWORD=<senha-aqui>
 #
 # PRIMEIRA EXECUÇÃO (banco de dados):
 #   docker compose -f docker/docker-compose.prod.yml up -d postgres
@@ -69,7 +69,7 @@ services:
     container_name: eq23-app-prod
     environment:
       DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/eq23}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-eq23}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "${SERVER_PORT:-8123}:8080"
