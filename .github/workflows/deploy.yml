@@ -249,6 +249,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Corrigir .bashrc do servidor (Remove comandos docker incorretos)
+        uses: appleboy/ssh-action@v1.0.3
+        continue-on-error: true
+        with:
+          host: dsc.rodrigor.com
+          username: eq23
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          script: |
+            sed -i '/ghcr.io/d' ~/.bashrc ~/.profile 2>/dev/null || true
+            sed -i '/docker/d' ~/.bashrc ~/.profile 2>/dev/null || true
+
       - name: Criar diretório de deploy no servidor
         uses: appleboy/ssh-action@v1.0.3
         with:
