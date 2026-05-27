@@ -34,11 +34,11 @@
 #
 # CONFIGURAÇÃO no servidor (fazer uma vez):
 #   1. Criar usuário: sudo adduser ghactions && sudo usermod -aG docker ghactions
-#   2. Criar diretório: mkdir -p /home/ghactions/mercado/docker
-#   3. Criar o arquivo .env: cp .env.example /home/ghactions/mercado/.env
+#   2. Criar diretório: mkdir -p /home/ghactions/eq23/docker
+#   3. Criar o arquivo .env: cp .env.example /home/ghactions/eq23/.env
 #      e preencher DATABASE_USERNAME e DATABASE_PASSWORD com valores reais.
 #   4. Subir o banco na primeira vez:
-#      cd /home/ghactions/mercado
+#      cd /home/ghactions/eq23
 #      docker compose -f docker/docker-compose.prod.yml up -d postgres
 # =============================================================================
 
@@ -292,7 +292,7 @@ jobs:
           username: ghactions
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           source: docker/docker-compose.prod.yml
-          target: /home/ghactions/mercado/
+          target: /home/ghactions/eq23/
 
       # Script de deploy executado no servidor via SSH.
       # envs: passa variáveis de ambiente do Actions para o script remoto.
@@ -312,7 +312,7 @@ jobs:
           script: |
             set -euo pipefail
 
-            DEPLOY_DIR="/home/ghactions/mercado"
+            DEPLOY_DIR="/home/ghactions/eq23"
             COMPOSE_FILE="$DEPLOY_DIR/docker/docker-compose.prod.yml"
 
             echo "======================================================"
@@ -357,15 +357,18 @@ jobs:
             # Tentamos até 18 vezes (a cada 5s = 90s máximo).
             # O endpoint /actuator/health retorna 200 quando a aplicação está pronta.
             echo "Aguardando a aplicação ficar saudável (máx. 90s)..."
+            PORT=$(grep -E "^SERVER_PORT=" .env || true)
+            PORT=${PORT#*=}
+            PORT=${PORT:-8123}
             for i in $(seq 1 18); do
-              if curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; then
+              if curl -sf "http://localhost:$PORT/actuator/health" > /dev/null 2>&1; then
                 echo "✓ Aplicação saudável! ($(( i * 5 ))s)"
                 break
               fi
               if [ "$i" -eq 18 ]; then
                 echo "✗ ERRO: aplicação não ficou saudável após 90 segundos"
                 echo "--- Últimas 80 linhas do log da aplicação ---"
-                docker logs mercado-app-prod --tail 80
+                docker compose -f "$COMPOSE_FILE" logs --tail 80 app
                 exit 1
               fi
               echo "  aguardando... ($i/18, $(( i * 5 ))s)"
