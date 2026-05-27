@@ -252,7 +252,6 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: dsc.rodrigor.com
-          port: 8123
           username: eq23
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: mkdir -p /home/eq23/app/docker
@@ -261,7 +260,6 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: dsc.rodrigor.com
-          port: 8123
           username: eq23
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           source: docker/docker-compose.prod.yml
@@ -281,7 +279,6 @@ jobs:
           DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         with:
           host: dsc.rodrigor.com
-          port: 8123
           username: eq23
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           envs: GHCR_TOKEN,GHCR_USER,IMAGE_FULL,DB_URL,DB_USERNAME,DB_PASSWORD
