@@ -248,6 +248,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Criar diretório de deploy no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: dsc.rodrigor.com
+          username: ghactions
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          script: mkdir -p /home/ghactions/eq23/docker
+
       - name: Copiar docker-compose.prod.yml para o servidor
         uses: appleboy/scp-action@v0.1.7
         with:
