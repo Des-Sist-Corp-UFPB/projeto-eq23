@@ -266,11 +266,14 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
           IMAGE_FULL: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          DB_URL: ${{ secrets.DATABASE_URL }}
+          DB_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         with:
           host: dsc.rodrigor.com
           username: ghactions
           key: ${{ secrets.SSH_DEPLOY_KEY }}
-          envs: GHCR_TOKEN,GHCR_USER,IMAGE_FULL
+          envs: GHCR_TOKEN,GHCR_USER,IMAGE_FULL,DB_URL,DB_USERNAME,DB_PASSWORD
           script_stop: true
           script: |
             set -euo pipefail
@@ -297,12 +300,25 @@ jobs:
             # O docker-compose.prod.yml usa ${APP_IMAGE} — mantemos o .env atualizado
             # para facilitar operações manuais futuras no servidor.
             cd "$DEPLOY_DIR"
-            if grep -q "^APP_IMAGE=" .env 2>/dev/null; then
-              sed -i "s|^APP_IMAGE=.*|APP_IMAGE=$IMAGE_FULL|" .env
-            else
-              echo "APP_IMAGE=$IMAGE_FULL" >> .env
-            fi
-            echo "✓ .env atualizado com APP_IMAGE=$IMAGE_FULL"
+
+            # ── 3. Gravar/atualizar credenciais no .env ────────────────────
+            # APP_IMAGE é atualizado a cada deploy; as demais variáveis são
+            # escritas na primeira vez e atualizadas se já existirem.
+            _upsert_env() {
+              local key="$1" val="$2"
+              if grep -q "^${key}=" .env 2>/dev/null; then
+                sed -i "s|^${key}=.*|${key}=${val}|" .env
+              else
+                echo "${key}=${val}" >> .env
+              fi
+            }
+
+            _upsert_env APP_IMAGE       "$IMAGE_FULL"
+            _upsert_env DATABASE_URL     "${DB_URL:-jdbc:postgresql://postgres:5432/eq23}"
+            _upsert_env DATABASE_USERNAME "${DB_USERNAME:-eq23}"
+            _upsert_env DATABASE_PASSWORD "$DB_PASSWORD"
+
+            echo "✓ .env atualizado"
 
             # ── 4. Reiniciar APENAS o container da aplicação ──────────────
             # --no-deps:         NÃO reinicia o postgres (banco seguro, dados preservados)
