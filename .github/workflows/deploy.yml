@@ -51,7 +51,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # Imagens Docker DEVEM ser em letras minúsculas
+  IMAGE_NAME: des-sist-corp-ufpb/projeto-eq23
 
 jobs:
   # ============================================================================
