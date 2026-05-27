@@ -33,12 +33,12 @@
 #                     Gratuita em: https://nvd.nist.gov/developers/request-an-api-key
 #
 # CONFIGURAÇÃO no servidor (fazer uma vez):
-#   1. Criar usuário: sudo adduser ghactions && sudo usermod -aG docker ghactions
-#   2. Criar diretório: mkdir -p /home/ghactions/eq23/docker
-#   3. Criar o arquivo .env: cp .env.example /home/ghactions/eq23/.env
+#   1. Garantir que o usuário eq23 está no grupo docker: sudo usermod -aG docker eq23
+#   2. Criar diretório: mkdir -p /home/eq23/app/docker
+#   3. Criar o arquivo .env: cp .env.example /home/eq23/app/.env
 #      e preencher DATABASE_USERNAME e DATABASE_PASSWORD com valores reais.
 #   4. Subir o banco na primeira vez:
-#      cd /home/ghactions/eq23
+#      cd /home/eq23/app
 #      docker compose -f docker/docker-compose.prod.yml up -d postgres
 # =============================================================================
 
@@ -252,18 +252,18 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: dsc.rodrigor.com
-          username: ghactions
+          username: eq23
           key: ${{ secrets.SSH_DEPLOY_KEY }}
-          script: mkdir -p /home/ghactions/eq23/docker
+          script: mkdir -p /home/eq23/app/docker
 
       - name: Copiar docker-compose.prod.yml para o servidor
         uses: appleboy/scp-action@v0.1.7
         with:
           host: dsc.rodrigor.com
-          username: ghactions
+          username: eq23
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           source: docker/docker-compose.prod.yml
-          target: /home/ghactions/eq23/
+          target: /home/eq23/app/
 
       # Script de deploy executado no servidor via SSH.
       # envs: passa variáveis de ambiente do Actions para o script remoto.
@@ -279,14 +279,14 @@ jobs:
           DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         with:
           host: dsc.rodrigor.com
-          username: ghactions
+          username: eq23
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           envs: GHCR_TOKEN,GHCR_USER,IMAGE_FULL,DB_URL,DB_USERNAME,DB_PASSWORD
           script_stop: true
           script: |
             set -euo pipefail
 
-            DEPLOY_DIR="/home/ghactions/eq23"
+            DEPLOY_DIR="/home/eq23/app"
             COMPOSE_FILE="$DEPLOY_DIR/docker/docker-compose.prod.yml"
 
             echo "======================================================"
