@@ -236,7 +236,7 @@ jobs:
       # exit-code: '1' → falha o job se encontrar HIGH/CRITICAL (com correção disponível).
       # ignore-unfixed: true → não falha por vulns sem patch ainda — apenas as que têm solução.
       - name: Trivy — scan de vulnerabilidades na imagem Docker
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v0.2.1
         with:
           image-ref: mercado:scan
           format: table
