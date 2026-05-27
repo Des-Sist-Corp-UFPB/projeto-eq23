@@ -24,7 +24,7 @@ services:
     image: postgres:16-alpine
     container_name: mercado-postgres-dev
     environment:
-      POSTGRES_DB: mercado_dev
+      POSTGRES_DB: eq23
       POSTGRES_USER: mercado
       POSTGRES_PASSWORD: mercado123
     ports:
@@ -32,7 +32,7 @@ services:
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mercado -d mercado_dev"]
+      test: ["CMD-SHELL", "pg_isready -U mercado -d eq23"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,7 +49,7 @@ services:
     container_name: mercado-app-dev
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mercado_dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eq23
       SPRING_DATASOURCE_USERNAME: mercado
       SPRING_DATASOURCE_PASSWORD: mercado123
     ports:
@@ -68,7 +68,7 @@ services:
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
-  # Servidor: postgres | Banco: mercado_dev | Usuário: mercado | Senha: mercado123
+  # Servidor: postgres | Banco: eq23 | Usuário: mercado | Senha: mercado123
   # ---------------------------------------------------------------------------
   adminer:
     image: adminer:latest
