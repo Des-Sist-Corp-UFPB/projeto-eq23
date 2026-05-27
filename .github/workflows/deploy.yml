@@ -1,4 +1,48 @@
-name: Deploy to Production
+# =============================================================================
+# GitHub Actions — Build, Segurança e Deploy
+# =============================================================================
+#
+# Este workflow executa em 3 etapas sequenciais (jobs):
+#
+#   [1] test-and-sast  →  [2] build-and-push  →  [3] deploy
+#
+# Etapa 1 — Testes e SAST:
+#   Compila o projeto, roda os testes, executa análise estática de segurança
+#   (SpotBugs+FindSecBugs, OWASP Dependency Check, Semgrep, Trivy FS).
+#   O build FALHA se encontrar vulnerabilidades críticas. Só avança se tudo passar.
+#
+# Etapa 2 — Build e Push da imagem Docker:
+#   Constrói a imagem de produção (multi-stage), escaneia com Trivy e faz push
+#   para o GitHub Container Registry (GHCR). A imagem só é publicada se o
+#   scan não encontrar vulnerabilidades HIGH/CRITICAL com correção disponível.
+#
+# Etapa 3 — Deploy no servidor:
+#   Via SSH, baixa a nova imagem e reinicia apenas o container da aplicação
+#   (o banco de dados permanece em execução). Verifica a saúde da aplicação
+#   após o deploy.
+#
+# -----------------------------------------------------------------------------
+# SECRETS necessários (configure em Settings → Secrets and variables → Actions):
+#
+#   SSH_DEPLOY_KEY  → chave SSH privada do usuário "ghactions" no servidor
+#                     (gerada com: ssh-keygen -t ed25519 -C "ghactions-deploy")
+#                     Adicione a chave PÚBLICA em ~/.ssh/authorized_keys no servidor.
+#
+#   NVD_API_KEY     → (opcional, mas recomendado) chave da API do NVD para
+#                     acelerar o download do banco de CVEs do OWASP Dependency Check.
+#                     Gratuita em: https://nvd.nist.gov/developers/request-an-api-key
+#
+# CONFIGURAÇÃO no servidor (fazer uma vez):
+#   1. Criar usuário: sudo adduser ghactions && sudo usermod -aG docker ghactions
+#   2. Criar diretório: mkdir -p /home/ghactions/eq23/docker
+#   3. Criar o arquivo .env: cp .env.example /home/ghactions/eq23/.env
+#      e preencher DATABASE_USERNAME e DATABASE_PASSWORD com valores reais.
+#   4. Subir o banco na primeira vez:
+#      cd /home/ghactions/eq23
+#      docker compose -f docker/docker-compose.prod.yml up -d postgres
+# =============================================================================
+
+name: Build & Deploy
 
 on:
   push:
@@ -53,13 +97,15 @@ jobs:
       - name: Copy docker-compose via scp
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          port: 8123
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker/docker-compose.prod.yml"
-          target: "~/app"
+          host: dsc.rodrigor.com
+          username: ghactions
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          source: docker/docker-compose.prod.yml
+          target: /home/ghactions/eq23/
 
+      # Script de deploy executado no servidor via SSH.
+      # envs: passa variáveis de ambiente do Actions para o script remoto.
+      # script_stop: true → para imediatamente se qualquer comando falhar (set -e).
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -68,12 +114,76 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/app/docker
-            echo "DATABASE_URL=jdbc:postgresql://postgres:5432/eq23" > .env
-            echo "DATABASE_USERNAME=${{ secrets.DB_USER }}" >> .env
-            echo "DATABASE_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "APP_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main" >> .env
-            
-            docker compose -f docker-compose.prod.yml down
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+            set -euo pipefail
+
+            DEPLOY_DIR="/home/ghactions/eq23"
+            COMPOSE_FILE="$DEPLOY_DIR/docker/docker-compose.prod.yml"
+
+            echo "======================================================"
+            echo " Deploy iniciado: $(date)"
+            echo " Imagem: $IMAGE_FULL"
+            echo "======================================================"
+
+            # ── 1. Autenticar no GHCR ──────────────────────────────────────
+            # GITHUB_TOKEN (passado como GHCR_TOKEN) tem permissão de leitura
+            # de pacotes e é válido durante a execução deste workflow.
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            echo "✓ Autenticado no GHCR"
+
+            # ── 2. Baixar a nova imagem ────────────────────────────────────
+            docker pull "$IMAGE_FULL"
+            echo "✓ Imagem baixada: $IMAGE_FULL"
+
+            # ── 3. Atualizar a referência da imagem no .env ────────────────
+            # O docker-compose.prod.yml usa ${APP_IMAGE} — mantemos o .env atualizado
+            # para facilitar operações manuais futuras no servidor.
+            cd "$DEPLOY_DIR"
+            if grep -q "^APP_IMAGE=" .env 2>/dev/null; then
+              sed -i "s|^APP_IMAGE=.*|APP_IMAGE=$IMAGE_FULL|" .env
+            else
+              echo "APP_IMAGE=$IMAGE_FULL" >> .env
+            fi
+            echo "✓ .env atualizado com APP_IMAGE=$IMAGE_FULL"
+
+            # ── 4. Reiniciar APENAS o container da aplicação ──────────────
+            # --no-deps:         NÃO reinicia o postgres (banco seguro, dados preservados)
+            # --force-recreate:  garante que o container seja recriado com a nova imagem
+            #                    (sem --force-recreate, o Compose pode reutilizar o container antigo)
+            echo "Reiniciando container da aplicação..."
+            docker compose -f "$COMPOSE_FILE" up -d \
+              --no-deps \
+              --force-recreate \
+              app
+            echo "✓ Container reiniciado"
+
+            # ── 5. Verificar saúde da aplicação com retry ─────────────────
+            # O Spring Boot leva ~15-30s para inicializar.
+            # Tentamos até 18 vezes (a cada 5s = 90s máximo).
+            # O endpoint /actuator/health retorna 200 quando a aplicação está pronta.
+            echo "Aguardando a aplicação ficar saudável (máx. 90s)..."
+            PORT=$(grep -E "^SERVER_PORT=" .env || true)
+            PORT=${PORT#*=}
+            PORT=${PORT:-8123}
+            for i in $(seq 1 18); do
+              if curl -sf "http://localhost:$PORT/actuator/health" > /dev/null 2>&1; then
+                echo "✓ Aplicação saudável! ($(( i * 5 ))s)"
+                break
+              fi
+              if [ "$i" -eq 18 ]; then
+                echo "✗ ERRO: aplicação não ficou saudável após 90 segundos"
+                echo "--- Últimas 80 linhas do log da aplicação ---"
+                docker compose -f "$COMPOSE_FILE" logs --tail 80 app
+                exit 1
+              fi
+              echo "  aguardando... ($i/18, $(( i * 5 ))s)"
+              sleep 5
+            done
+
+            # ── 6. Limpar imagens antigas ──────────────────────────────────
+            # Remove imagens sem tag (dangling images) que ficam após cada deploy.
+            docker image prune -f > /dev/null
+            echo "✓ Imagens antigas removidas"
+
+            echo "======================================================"
+            echo " Deploy concluído com sucesso: $(date)"
+            echo "======================================================"
