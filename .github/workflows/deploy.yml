@@ -54,6 +54,128 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # ============================================================================
+  # JOB 1 — Compilação, testes e análise de segurança (SAST)
+  # Objetivo: garantir qualidade e segurança do código ANTES de criar a imagem.
+  # Princípio: "shift left security" — detectar problemas o mais cedo possível.
+  # ============================================================================
+  test-and-sast:
+    name: Testes e SAST
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Configura o JDK 21 (Temurin = Eclipse Adoptium) e ativa cache do Maven.
+      # O cache é baseado no hash do pom.xml — se não mudar, usa o cache salvo.
+      # Isso reduz o tempo de build de ~5min para ~1min em execuções subsequentes.
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # ── Compilação e testes ────────────────────────────────────────────────
+      # mvn verify: compila, roda testes unitários e de integração (Testcontainers),
+      # e gera o relatório de cobertura JaCoCo.
+      # Os testes de integração usam Testcontainers, que sobe um PostgreSQL real
+      # automaticamente no Docker do runner do GitHub Actions.
+      - name: Compilar e rodar testes
+        run: mvn verify -B
+        # -B: modo batch (sem cores, saída adequada para CI)
+
+      # ── SAST 1: SpotBugs + FindSecBugs ────────────────────────────────────
+      # SpotBugs analisa o BYTECODE compilado (arquivos .class).
+      # FindSecBugs é um plugin que adiciona ~400 regras de segurança ao SpotBugs.
+      # Detecta: SQL Injection, XSS, Path Traversal, criptografia fraca, etc.
+      #
+      # SAST 2: OWASP Dependency Check
+      # Cruza as dependências do projeto com o banco de CVEs do NVD (NIST).
+      # Falha o build se encontrar dependência com CVSS >= 7.0 (HIGH/CRITICAL).
+      # A NVD_API_KEY acelera o download do banco de CVEs (~minutos vs ~horas sem key).
+      - name: SpotBugs + FindSecBugs + OWASP Dependency Check
+        run: |
+          mvn verify -Psecurity -DskipTests -B \
+            -Dowasp.nvd.apiKey=${{ secrets.NVD_API_KEY || '' }}
+        # O perfil "security" está definido no pom.xml e ativa esses dois plugins.
+        # -DskipTests: testes já rodaram no passo anterior, não precisa rodar de novo.
+
+      # ── SAST 3: Semgrep ───────────────────────────────────────────────────
+      # Analisa o CÓDIGO-FONTE com regras baseadas em padrões.
+      # Complementa o SpotBugs (que analisa bytecode) — cada ferramenta detecta
+      # classes diferentes de vulnerabilidades.
+      # p/java: conjunto de regras mantido pela comunidade para Java/Spring.
+      - name: Semgrep — análise estática de código-fonte
+        run: |
+          pip install semgrep --quiet
+          semgrep --config p/java \
+                  --severity ERROR \
+                  --error \
+                  --exclude 'target/' \
+                  src/
+
+      # ── SAST 4: Trivy (filesystem) ────────────────────────────────────────
+      # Escaneia o projeto em busca de vulnerabilidades nas bibliotecas Maven
+      # (lê o pom.xml e os JARs em target/) e por segredos vazados no código.
+      - name: Trivy — scan de dependências e segredos
+        uses: aquasecurity/trivy-action@v0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true    # Ignora vulns sem correção disponível ainda
+          vuln-type: library
+          scanners: vuln,secret   # Verifica vulnerabilidades E segredos no código
+
+      # ── Relatório de dependências desatualizadas ───────────────────────────
+      # Apenas informativo: exibe dependências com versões mais novas disponíveis.
+      # continue-on-error: true → não bloqueia o pipeline, só gera o log.
+      - name: Verificar dependências desatualizadas (relatório)
+        run: mvn versions:display-dependency-updates -Pversions -B
+        continue-on-error: true
+
+      # ── Upload de artefatos (disponíveis na aba "Artifacts" do workflow) ───
+      # Relatórios ficam disponíveis por 15 dias para análise posterior.
+      - name: Upload — Cobertura JaCoCo
+        uses: actions/upload-artifact@v4
+        if: always()    # Faz upload mesmo se o build falhou (para análise do erro)
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          retention-days: 15
+
+      - name: Upload — OWASP Dependency Check
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owasp-report
+          path: |
+            target/dependency-check-report.html
+            target/dependency-check-report.json
+          retention-days: 15
+
+      - name: Upload — SpotBugs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spotbugs-report
+          path: target/spotbugsXml.xml
+          retention-days: 15
+
+  # ============================================================================
+  # JOB 2 — Build da imagem Docker de produção, scan Trivy e push para GHCR
+  #
+  # O GHCR (GitHub Container Registry) hospeda as imagens Docker de forma
+  # integrada ao repositório. A imagem fica em: ghcr.io/USUARIO/REPOSITORIO:TAG
+  #
+  # Sequência:
+  #   1. Build da imagem localmente (sem push) usando o Dockerfile multi-stage
+  #   2. Scan Trivy na imagem construída
+  #   3. Se limpa, faz push para o GHCR com duas tags: sha-COMMIT e latest
+  # ============================================================================
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -77,7 +199,39 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push Docker image
+      # Buildx habilita o BuildKit, que suporta cache avançado (type=gha).
+      # O cache é salvo no Actions Cache entre execuções, acelerando builds.
+      - name: Configurar Docker Buildx (BuildKit)
+        uses: docker/setup-buildx-action@v3
+
+      # Constrói a imagem localmente (load: true = carrega no daemon local, sem push).
+      # Usa o Dockerfile multi-stage de produção em docker/Dockerfile.
+      # cache-from/cache-to: reutiliza camadas do build anterior (muito mais rápido).
+      - name: Build da imagem (sem push — para scan Trivy)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          load: true
+          tags: mercado:scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Escaneia a imagem construída antes de publicar.
+      # exit-code: '1' → falha o job se encontrar HIGH/CRITICAL (com correção disponível).
+      # ignore-unfixed: true → não falha por vulns sem patch ainda — apenas as que têm solução.
+      - name: Trivy — scan de vulnerabilidades na imagem Docker
+        uses: aquasecurity/trivy-action@v0.2.1
+        with:
+          image-ref: mercado:scan
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+
+      # Push para o GHCR apenas após o Trivy passar.
+      # O cache BuildKit torna este segundo build quase instantâneo (camadas reutilizadas).
+      - name: Build e push para o GHCR
         uses: docker/build-push-action@v5
         with:
           context: .
