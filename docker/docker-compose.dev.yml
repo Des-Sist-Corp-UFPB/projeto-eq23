@@ -25,14 +25,14 @@ services:
     container_name: mercado-postgres-dev
     environment:
       POSTGRES_DB: eq23
-      POSTGRES_USER: mercado
-      POSTGRES_PASSWORD: mercado123
+      POSTGRES_USER: eq23
+      POSTGRES_PASSWORD: sJX6LspwEeFN0LIPe8U2
     ports:
       - "5432:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mercado -d eq23"]
+      test: ["CMD-SHELL", "pg_isready -U eq23 -d eq23"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,8 +50,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eq23
-      SPRING_DATASOURCE_USERNAME: mercado
-      SPRING_DATASOURCE_PASSWORD: mercado123
+      SPRING_DATASOURCE_USERNAME: eq23
+      SPRING_DATASOURCE_PASSWORD: sJX6LspwEeFN0LIPe8U2
     ports:
       - "8080:8080"
     volumes:
@@ -68,7 +68,7 @@ services:
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
-  # Servidor: postgres | Banco: eq23 | Usuário: mercado | Senha: mercado123
+  # Servidor: postgres | Banco: eq23 | Usuário: eq23 | Senha: sJX6LspwEeFN0LIPe8U2
   # ---------------------------------------------------------------------------
   adminer:
     image: adminer:latest
