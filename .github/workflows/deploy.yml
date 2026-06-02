@@ -45,14 +45,12 @@ jobs:
             cd ~/projeto-eq23
             echo "Atualizando codigo..."
             git pull origin main
-            echo "Construindo imagem localmente (tag local, sem registry)..."
+            echo "Construindo imagem localmente..."
             docker build -f docker/Dockerfile -t projeto-eq23:latest .
-            echo "Build OK! Atualizando .env..."
-            grep -v '^APP_IMAGE=' .env > .env.tmp 2>/dev/null || true
-            echo "APP_IMAGE=projeto-eq23:latest" >> .env.tmp
-            mv .env.tmp .env
-            echo "Subindo container..."
+            echo "Build OK! Subindo container..."
+            export APP_IMAGE=projeto-eq23:latest
             docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
             docker image prune -f
             echo "Deploy concluido com sucesso!"
+
 
