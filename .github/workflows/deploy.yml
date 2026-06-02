@@ -43,14 +43,13 @@ jobs:
           script: |
             set -e
             cd ~/projeto-eq23
-            echo "Atualizando codigo..."
             git pull origin main
-            echo "Construindo imagem localmente..."
             docker build -f docker/Dockerfile -t projeto-eq23:latest .
-            echo "Build OK! Subindo container..."
-            export APP_IMAGE=projeto-eq23:latest
-            docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
+            docker inspect projeto-eq23:latest > /dev/null || (echo "ERRO: build falhou, imagem nao existe!"; exit 1)
+            echo "Build OK! Imagem criada localmente. Subindo container..."
+            APP_IMAGE=projeto-eq23:latest docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
             docker image prune -f
             echo "Deploy concluido com sucesso!"
+
 
 
