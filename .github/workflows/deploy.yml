@@ -34,6 +34,9 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}
 
+      - name: Carrega imagem no runner (para transferir ao servidor)
+        run: docker pull "${{ env.IMAGE }}"
+
       - name: Configura chave SSH
         run: |
           mkdir -p ~/.ssh
