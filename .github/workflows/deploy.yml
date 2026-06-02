@@ -34,36 +34,31 @@ jobs:
           push: true
           tags: ${{ env.IMAGE }}
 
-      - name: Deploy no servidor
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: dsc.rodrigor.com
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_DEPLOY_KEY }}
-          script: |
-            set -eo pipefail
-            GHCR_USER='${{ github.actor }}'
-            GHCR_TOKEN='${{ secrets.GHCR_PAT }}'
-            APP_IMAGE='${{ env.IMAGE }}'
-            # Diagnóstico (sem expor o token)
-            echo "=== DIAGNOSTICO ==="
-            echo "Usuario GHCR: $GHCR_USER"
-            echo "Token GHCR_PAT presente: $([ -n "$GHCR_TOKEN" ] && echo 'SIM' || echo 'NAO - secret GHCR_PAT nao configurado!')"
-            echo "Imagem alvo: $APP_IMAGE"
-            echo "==================="
-            # Escreve credenciais diretamente no docker config (ignora credential helper)
-            mkdir -p ~/.docker
-            printf '{"auths":{"ghcr.io":{"auth":"%s"}}}' \
-              "$(printf '%s:%s' "$GHCR_USER" "$GHCR_TOKEN" | base64 -w 0)" \
-              > ~/.docker/config.json
-            echo "Config Docker escrito. Tentando pull..."
-            docker pull "$APP_IMAGE"
-            echo "Pull OK! Subindo container..."
-            cd ~/projeto-eq23
-            grep -v '^APP_IMAGE=' .env > .env.tmp 2>/dev/null || true
-            echo "APP_IMAGE=$APP_IMAGE" >> .env.tmp
-            mv .env.tmp .env
-            docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
-            docker image prune -f
-            echo "Deploy concluido com sucesso!"
+      - name: Configura chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan dsc.rodrigor.com >> ~/.ssh/known_hosts 2>/dev/null
 
+      - name: Transfere imagem e faz deploy (sem autenticacao no servidor)
+        run: |
+          # Envia a imagem diretamente via pipe SSH — sem precisar de login no GHCR no servidor
+          docker save "${{ env.IMAGE }}" | gzip | \
+          ssh -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=no \
+              "${{ secrets.SSH_USERNAME }}@dsc.rodrigor.com" \
+              "
+              set -e
+              echo 'Carregando imagem Docker...'
+              docker load
+              echo 'Imagem carregada! Atualizando .env...'
+              cd ~/projeto-eq23
+              grep -v '^APP_IMAGE=' .env > .env.tmp 2>/dev/null || true
+              echo 'APP_IMAGE=${{ env.IMAGE }}' >> .env.tmp
+              mv .env.tmp .env
+              echo 'Subindo container...'
+              docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
+              docker image prune -f
+              echo 'Deploy concluido com sucesso!'
+              "
