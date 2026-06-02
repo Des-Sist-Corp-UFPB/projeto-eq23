@@ -40,24 +40,30 @@ jobs:
           host: dsc.rodrigor.com
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
-          envs: GHCR_USER,GHCR_TOKEN,APP_IMAGE
           script: |
             set -eo pipefail
-            # Escreve credenciais diretamente no config.json (ignora credential helper)
+            GHCR_USER='${{ github.actor }}'
+            GHCR_TOKEN='${{ secrets.GHCR_PAT }}'
+            APP_IMAGE='${{ env.IMAGE }}'
+            # Diagnóstico (sem expor o token)
+            echo "=== DIAGNOSTICO ==="
+            echo "Usuario GHCR: $GHCR_USER"
+            echo "Token GHCR_PAT presente: $([ -n "$GHCR_TOKEN" ] && echo 'SIM' || echo 'NAO - secret GHCR_PAT nao configurado!')"
+            echo "Imagem alvo: $APP_IMAGE"
+            echo "==================="
+            # Escreve credenciais diretamente no docker config (ignora credential helper)
             mkdir -p ~/.docker
             printf '{"auths":{"ghcr.io":{"auth":"%s"}}}' \
               "$(printf '%s:%s' "$GHCR_USER" "$GHCR_TOKEN" | base64 -w 0)" \
               > ~/.docker/config.json
-            # Pull direto da imagem (sem depender do docker compose para autenticar)
+            echo "Config Docker escrito. Tentando pull..."
             docker pull "$APP_IMAGE"
+            echo "Pull OK! Subindo container..."
             cd ~/projeto-eq23
-            # Atualiza APP_IMAGE no .env do servidor
             grep -v '^APP_IMAGE=' .env > .env.tmp 2>/dev/null || true
             echo "APP_IMAGE=$APP_IMAGE" >> .env.tmp
             mv .env.tmp .env
             docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
             docker image prune -f
-        env:
-          GHCR_USER: ${{ github.actor }}
-          GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
-          APP_IMAGE: ${{ env.IMAGE }}
+            echo "Deploy concluido com sucesso!"
+
