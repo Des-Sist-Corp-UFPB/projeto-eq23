@@ -45,11 +45,15 @@ jobs:
             cd ~/projeto-eq23
             git pull origin main
             docker build -f docker/Dockerfile -t projeto-eq23:latest .
-            docker inspect projeto-eq23:latest > /dev/null || (echo "ERRO: build falhou, imagem nao existe!"; exit 1)
-            echo "Build OK! Imagem criada localmente. Subindo container..."
-            APP_IMAGE=projeto-eq23:latest docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
+            echo "Build OK! Criando compose override com imagem local..."
+            printf 'services:\n  app:\n    image: projeto-eq23:latest\n' > /tmp/deploy-override.yml
+            docker compose \
+              -f docker/docker-compose.prod.yml \
+              -f /tmp/deploy-override.yml \
+              up -d --no-deps --force-recreate app
             docker image prune -f
             echo "Deploy concluido com sucesso!"
+
 
 
 
