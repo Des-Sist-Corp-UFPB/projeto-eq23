@@ -30,6 +30,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: docker/Dockerfile
           push: true
           tags: ${{ env.IMAGE }}
 
@@ -39,4 +40,12 @@ jobs:
           host: dsc.rodrigor.com
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
-          script: echo "deploy"
+          script: |
+            set -e
+            cd ~/projeto-eq23
+            echo "APP_IMAGE=${{ env.IMAGE }}" > .env.image
+            cat .env.image >> .env 2>/dev/null || true
+            grep -v '^APP_IMAGE=' .env > .env.tmp && cat .env.image >> .env.tmp && mv .env.tmp .env
+            docker compose -f docker/docker-compose.prod.yml pull app
+            docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
+            docker image prune -f
