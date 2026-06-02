@@ -43,14 +43,18 @@ jobs:
           envs: GHCR_USER,GHCR_TOKEN,APP_IMAGE
           script: |
             set -eo pipefail
-            # Autentica no GitHub Container Registry com PAT (funciona de servidores externos)
-            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            # Escreve credenciais diretamente no config.json (ignora credential helper)
+            mkdir -p ~/.docker
+            printf '{"auths":{"ghcr.io":{"auth":"%s"}}}' \
+              "$(printf '%s:%s' "$GHCR_USER" "$GHCR_TOKEN" | base64 -w 0)" \
+              > ~/.docker/config.json
+            # Pull direto da imagem (sem depender do docker compose para autenticar)
+            docker pull "$APP_IMAGE"
             cd ~/projeto-eq23
             # Atualiza APP_IMAGE no .env do servidor
             grep -v '^APP_IMAGE=' .env > .env.tmp 2>/dev/null || true
             echo "APP_IMAGE=$APP_IMAGE" >> .env.tmp
             mv .env.tmp .env
-            docker compose -f docker/docker-compose.prod.yml pull app
             docker compose -f docker/docker-compose.prod.yml up -d --no-deps --force-recreate app
             docker image prune -f
         env:
