@@ -42,8 +42,8 @@ jobs:
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           envs: GHCR_USER,GHCR_TOKEN,APP_IMAGE
           script: |
-            set -e
-            # Autentica no GitHub Container Registry
+            set -eo pipefail
+            # Autentica no GitHub Container Registry com PAT (funciona de servidores externos)
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             cd ~/projeto-eq23
             # Atualiza APP_IMAGE no .env do servidor
@@ -55,5 +55,5 @@ jobs:
             docker image prune -f
         env:
           GHCR_USER: ${{ github.actor }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
           APP_IMAGE: ${{ env.IMAGE }}
