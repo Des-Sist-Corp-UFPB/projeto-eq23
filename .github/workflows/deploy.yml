@@ -44,15 +44,22 @@ jobs:
             set -e
             cd ~/projeto-eq23
             git pull origin main
+            
+            echo "Limpando container antigo para evitar tentativa de pull do GHCR..."
+            docker rm -f eq23-app-prod || true
+            
             docker build -f docker/Dockerfile -t projeto-eq23:latest .
+            
             echo "Build OK! Criando compose override com imagem local..."
             printf 'services:\n  app:\n    image: projeto-eq23:latest\n' > /tmp/deploy-override.yml
             docker compose \
               -f docker/docker-compose.prod.yml \
               -f /tmp/deploy-override.yml \
               up -d --no-deps --force-recreate app
+            
             docker image prune -f
             echo "Deploy concluido com sucesso!"
+
 
 
 
