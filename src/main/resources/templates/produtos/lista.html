@@ -63,16 +63,6 @@
             <!-- Campo de busca com debounce via HTMX -->
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <!--
-                      Campo de busca com HTMX:
-
-                      hx-get="/produtos/fragmento-tabela"       → URL que retorna o fragmento da tabela
-                      hx-trigger="keyup changed delay:400ms"    → dispara após 400ms sem digitar
-                                                                   (debounce — evita requisição a cada tecla)
-                      hx-target="#tabela-container"             → substitui apenas o container da tabela
-                      hx-swap="innerHTML"                       → substitui o conteúdo interno
-                      name="busca"                              → o valor do campo é enviado como query param
-                    -->
                     <div class="input-group">
                         <span class="input-group-text">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -82,19 +72,39 @@
                         </span>
                         <input type="search"
                                name="busca"
+                               id="campoBusca"
                                class="form-control"
                                placeholder="Buscar por nome..."
                                th:value="${busca}"
                                hx-get="/produtos/fragmento-tabela"
                                hx-trigger="keyup changed delay:400ms, search"
                                hx-target="#tabela-container"
-                               hx-swap="innerHTML"/>
+                               hx-swap="innerHTML"
+                               hx-include="#filtroCategoria"/>
                     </div>
                 </div>
-                <div class="col-md-6 text-end">
-                    <!-- Total de resultados exibido após busca -->
+                <div class="col-md-4">
+                    <!-- Filtro por categoria via HTMX -->
+                    <select id="filtroCategoria"
+                            name="categoriaId"
+                            class="form-select"
+                            hx-get="/produtos/fragmento-tabela"
+                            hx-trigger="change"
+                            hx-target="#tabela-container"
+                            hx-swap="innerHTML"
+                            hx-include="#campoBusca">
+                        <option value="">Todas as categorias</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.id}"
+                                th:text="${cat.nome}"
+                                th:selected="${categoriaId != null and categoriaId == cat.id}">
+                            Categoria
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end d-flex align-items-center justify-content-end">
                     <span class="text-muted small" th:if="${produtos != null}">
-                        <span th:text="${produtos.totalElements}">0</span> produto(s) encontrado(s)
+                        <span th:text="${produtos.totalElements}">0</span> produto(s)
                     </span>
                 </div>
             </div>

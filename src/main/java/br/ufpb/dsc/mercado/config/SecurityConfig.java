@@ -118,10 +118,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         // URL da página de login customizada (em vez da padrão do Spring Security)
                         .loginPage("/login")
-                        // Após login bem-sucedido, redireciona para /produtos
-                        // O segundo parâmetro (true) força sempre ir para esta URL,
-                        // ignorando a URL que o usuário tentou acessar antes do login
-                        .defaultSuccessUrl("/produtos", true)
+                        // Após login bem-sucedido, redireciona para o dashboard
+                        .defaultSuccessUrl("/", true)
                         // A página de login deve ser acessível sem autenticação
                         .permitAll()
                 )
@@ -139,9 +137,9 @@ public class SecurityConfig {
                 // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
                 // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
                 .csrf(csrf -> csrf
-                        // Desabilita CSRF apenas para os endpoints de produtos (usados pelo HTMX)
+                        // Desabilita CSRF apenas para os endpoints usados pelo HTMX (PUT/DELETE)
                         // ALTERNATIVA SEGURA: configure HTMX para enviar o token CSRF nos headers
-                        .ignoringRequestMatchers("/produtos/**")
+                        .ignoringRequestMatchers("/produtos/**", "/categorias/**")
                 );
 
         return http.build();

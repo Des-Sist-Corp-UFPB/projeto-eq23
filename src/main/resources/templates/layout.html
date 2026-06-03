@@ -49,6 +49,13 @@
         .htmx-request.htmx-indicator {
             display: inline-block;
         }
+        /* Toast container */
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 1100;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +84,17 @@
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
+                    <a class="nav-link"
+                       th:classappend="${requestURI != null and requestURI == '/'} ? 'active'"
+                       th:href="@{/}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                             class="bi bi-house me-1" viewBox="0 0 16 16">
+                            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+                        </svg>
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
                     <!--
                       th:classappend adiciona a classe "active" dinamicamente se a URL atual
                       começa com /produtos — indica visualmente a página atual.
@@ -84,7 +102,23 @@
                     <a class="nav-link"
                        th:classappend="${requestURI != null and requestURI.startsWith('/produtos')} ? 'active'"
                        th:href="@{/produtos}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                             class="bi bi-box-seam me-1" viewBox="0 0 16 16">
+                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                        </svg>
                         Produtos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:classappend="${requestURI != null and requestURI.startsWith('/categorias')} ? 'active'"
+                       th:href="@{/categorias}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                             class="bi bi-tags me-1" viewBox="0 0 16 16">
+                            <path d="M3 2v4.586l7 7L14.586 9l-7-7zm2 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                            <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 1 1-1h5.086a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0z"/>
+                        </svg>
+                        Categorias
                     </a>
                 </li>
             </ul>
@@ -187,7 +221,14 @@
 <div id="modal-container"></div>
 
 <!--
-  Script para abrir o modal automaticamente após o HTMX injetá-lo no DOM.
+  Container de Toasts — fixo no canto inferior direito.
+  Os toasts são criados dinamicamente pelo JavaScript abaixo
+  quando o HTMX recebe o header HX-Trigger na resposta.
+-->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!--
+  Script para abrir o modal automaticamente após o HTMX injectá-lo no DOM.
   htmx:afterSwap é disparado após o HTMX substituir o conteúdo.
 -->
 <script>
@@ -198,6 +239,52 @@
             if (modalEl) {
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
+            }
+        }
+    });
+
+    /**
+     * Exibe um Toast Bootstrap com a mensagem informada.
+     * Criado dinamicamente e auto-removido após fechar.
+     *
+     * @param {string} mensagem - Texto a exibir no toast
+     * @param {string} tipo - Classe Bootstrap: 'success', 'danger', 'warning', 'info'
+     */
+    function mostrarToast(mensagem, tipo) {
+        tipo = tipo || 'success';
+        const container = document.getElementById('toast-container');
+        const id = 'toast-' + Date.now();
+        const html = `
+            <div id="${id}" class="toast align-items-center text-white bg-${tipo} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3500">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold">
+                        ${mensagem}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+        const toastEl = document.getElementById(id);
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        // Remove o elemento do DOM após ser ocultado
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    }
+
+    // Escuta respostas HTMX bem-sucedidas e verifica o header HX-Trigger
+    // O controller adiciona "toastMensagem" no model, que o Thymeleaf renderiza
+    // como um atributo de dados no fragmento retornado
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        // Verifica se o HTMX recebeu o header de trigger customizado
+        const trigger = evt.detail.xhr.getResponseHeader('HX-Trigger');
+        if (trigger) {
+            try {
+                const data = JSON.parse(trigger);
+                if (data.showToast) {
+                    mostrarToast(data.showToast, data.toastType || 'success');
+                }
+            } catch(e) {
+                // header simples (string), não JSON
             }
         }
     });

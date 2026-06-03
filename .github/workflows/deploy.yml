@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Prepara nome da imagem (lowercase)
-        run: echo "IMAGE=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest" >> $GITHUB_ENV
+        run: echo "IMAGE=ghcr.io/des-sist-corp-ufpb/eq23:latest" >> $GITHUB_ENV
 
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v3
@@ -30,37 +30,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker/Dockerfile
           push: true
           tags: ${{ env.IMAGE }}
 
-      - name: Deploy no servidor (build local na maquina)
+      - name: Deploy no servidor
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: dsc.rodrigor.com
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
-          script: |
-            set -e
-            cd ~/projeto-eq23
-            git pull origin main
-            
-            echo "Limpando container antigo para evitar tentativa de pull do GHCR..."
-            docker rm -f eq23-app-prod || true
-            
-            docker build -f docker/Dockerfile -t projeto-eq23:latest .
-            
-            echo "Build OK! Criando compose override com imagem local..."
-            printf 'services:\n  app:\n    image: projeto-eq23:latest\n' > /tmp/deploy-override.yml
-            docker compose \
-              -f docker/docker-compose.prod.yml \
-              -f /tmp/deploy-override.yml \
-              up -d --no-deps --force-recreate app
-            
-            docker image prune -f
-            echo "Deploy concluido com sucesso!"
-
-
-
-
-
+          script: echo "deploy"

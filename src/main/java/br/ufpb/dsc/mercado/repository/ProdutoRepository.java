@@ -4,7 +4,10 @@ import br.ufpb.dsc.mercado.domain.Produto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
 
 /**
  * Repositório Spring Data JPA para a entidade {@link Produto}.
@@ -65,4 +68,42 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
      * @return página de produtos que correspondem ao critério de busca
      */
     Page<Produto> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+
+    /**
+     * Filtra produtos por categoria.
+     *
+     * @param categoriaId ID da categoria
+     * @param pageable    configuração de paginação
+     * @return página de produtos da categoria
+     */
+    Page<Produto> findByCategoriaId(Long categoriaId, Pageable pageable);
+
+    /**
+     * Filtra produtos por nome E categoria simultaneamente.
+     *
+     * @param nome        texto parcial do nome
+     * @param categoriaId ID da categoria
+     * @param pageable    configuração de paginação
+     * @return página de produtos filtrados
+     */
+    Page<Produto> findByNomeContainingIgnoreCaseAndCategoriaId(String nome, Long categoriaId, Pageable pageable);
+
+    /**
+     * Conta produtos com estoque zerado (quantidade = 0).
+     * Usado no dashboard para indicar alerta de estoque.
+     *
+     * @return quantidade de produtos sem estoque
+     */
+    long countByQuantidade(int quantidade);
+
+    /**
+     * Calcula o valor total do estoque: soma de (preço * quantidade) de todos os produtos.
+     *
+     * <p>Usa JPQL com expressão aritmética. Retorna {@code BigDecimal} para precisão monetária.
+     * Retorna {@code null} se não houver produtos — o service trata com {@code coalesce}.
+     *
+     * @return valor total do estoque ou {@code null} se sem produtos
+     */
+    @Query("SELECT COALESCE(SUM(p.preco * p.quantidade), 0) FROM Produto p")
+    BigDecimal calcularValorTotalEstoque();
 }

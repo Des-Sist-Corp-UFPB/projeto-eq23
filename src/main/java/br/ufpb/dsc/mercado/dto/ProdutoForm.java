@@ -27,9 +27,11 @@ import java.math.BigDecimal;
  * pelo Spring quando o controller recebe os dados com {@code @Valid} ou {@code @Validated}.
  * Se alguma regra falhar, o Spring lança {@code MethodArgumentNotValidException}.
  *
- * @param nome      nome do produto — obrigatório, entre 2 e 120 caracteres
- * @param descricao descrição opcional — máximo 2000 caracteres
- * @param preco     preço do produto — obrigatório, não negativo, máximo 2 casas decimais
+ * @param nome        nome do produto — obrigatório, entre 2 e 120 caracteres
+ * @param descricao   descrição opcional — máximo 2000 caracteres
+ * @param preco       preço do produto — obrigatório, não negativo, máximo 2 casas decimais
+ * @param quantidade  quantidade em estoque — obrigatória, mínimo 0
+ * @param categoriaId ID da categoria (opcional) — pode ser nulo para produtos sem categoria
  *
  * @author DSC - UFPB Campus IV
  */
@@ -59,7 +61,19 @@ public record ProdutoForm(
         @NotNull(message = "O preço é obrigatório")
         @DecimalMin(value = "0.00", message = "O preço não pode ser negativo")
         @Digits(integer = 8, fraction = 2, message = "Preço deve ter no máximo 8 dígitos inteiros e 2 decimais")
-        BigDecimal preco
+        BigDecimal preco,
+
+        /**
+         * Quantidade em estoque. Mínimo 0 (sem estoque).
+         */
+        @NotNull(message = "A quantidade é obrigatória")
+        @Min(value = 0, message = "A quantidade não pode ser negativa")
+        Integer quantidade,
+
+        /**
+         * ID da categoria. Opcional — pode ser nulo para produtos sem categoria.
+         */
+        Long categoriaId
 
 ) {
 }

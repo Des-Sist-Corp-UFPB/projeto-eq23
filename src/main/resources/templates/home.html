@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<!--
+  Dashboard principal — página inicial da aplicação.
+  Exibe cards com estatísticas do sistema.
+-->
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::main})}">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+<main>
+
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Dashboard</h1>
+        <p class="text-muted mb-0">Visão geral do estoque e catálogo</p>
+    </div>
+
+    <!-- Cards de estatísticas -->
+    <div class="row g-4 mb-5">
+
+        <!-- Card: Total de Produtos -->
+        <div class="col-sm-6 col-xl-3">
+            <a th:href="@{/produtos}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 card-dashboard">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3 p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                                 class="bi bi-box-seam" viewBox="0 0 16 16">
+                                <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Total de Produtos</p>
+                            <h2 class="h4 mb-0 fw-bold" th:text="${totalProdutos}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Total de Categorias -->
+        <div class="col-sm-6 col-xl-3">
+            <a th:href="@{/categorias}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 card-dashboard">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="icon-box bg-info bg-opacity-10 text-info rounded-3 p-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                                 class="bi bi-tags" viewBox="0 0 16 16">
+                                <path d="M3 2v4.586l7 7L14.586 9l-7-7zm2 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 1 1-1h5.086a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Categorias</p>
+                            <h2 class="h4 mb-0 fw-bold" th:text="${totalCategorias}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Produtos sem Estoque -->
+        <div class="col-sm-6 col-xl-3">
+            <a th:href="@{/produtos}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 card-dashboard"
+                     th:classappend="${produtosSemEstoque > 0} ? 'border-start border-danger border-4'">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="icon-box rounded-3 p-3"
+                             th:classappend="${produtosSemEstoque > 0} ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                                 class="bi bi-exclamation-triangle" viewBox="0 0 16 16"
+                                 th:if="${produtosSemEstoque > 0}">
+                                <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+                                <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                                 class="bi bi-check-circle" viewBox="0 0 16 16"
+                                 th:unless="${produtosSemEstoque > 0}">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Sem Estoque</p>
+                            <h2 class="h4 mb-0 fw-bold"
+                                th:classappend="${produtosSemEstoque > 0} ? 'text-danger'"
+                                th:text="${produtosSemEstoque}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card: Valor Total do Estoque -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="icon-box bg-success bg-opacity-10 text-success rounded-3 p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                             class="bi bi-currency-dollar" viewBox="0 0 16 16">
+                            <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Valor em Estoque</p>
+                        <h2 class="h5 mb-0 fw-bold text-success">
+                            R$ <span th:text="${#numbers.formatDecimal(valorTotalEstoque, 1, 'POINT', 2, 'COMMA')}">0,00</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Atalhos rápidos -->
+    <div class="row g-3">
+        <div class="col-12">
+            <h2 class="h5 text-muted mb-3">Atalhos Rápidos</h2>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <a th:href="@{/produtos}" class="btn btn-outline-primary w-100 py-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                     class="bi bi-box-seam d-block mx-auto mb-1" viewBox="0 0 16 16">
+                    <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                </svg>
+                Gerenciar Produtos
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <a th:href="@{/categorias}" class="btn btn-outline-info w-100 py-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                     class="bi bi-tags d-block mx-auto mb-1" viewBox="0 0 16 16">
+                    <path d="M3 2v4.586l7 7L14.586 9l-7-7zm2 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                    <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 1 1-1h5.086a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0z"/>
+                </svg>
+                Gerenciar Categorias
+            </a>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <a th:href="@{/produtos(categoriaId='')}" class="btn btn-outline-secondary w-100 py-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                     class="bi bi-search d-block mx-auto mb-1" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+                Buscar Produtos
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<!-- Estilo específico do dashboard -->
+<style>
+    .card-dashboard {
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .card-dashboard:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    }
+    .icon-box {
+        flex-shrink: 0;
+    }
+</style>
+
+</body>
+</html>

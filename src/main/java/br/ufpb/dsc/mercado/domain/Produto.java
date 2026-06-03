@@ -6,6 +6,9 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+// Importação explicitada para documentar que usamos @ManyToOne com FetchType.LAZY
+import static jakarta.persistence.FetchType.LAZY;
+
 /**
  * Entidade JPA que representa um produto no sistema.
  *
@@ -83,6 +86,29 @@ public class Produto {
     private BigDecimal preco;
 
     /**
+     * Quantidade em estoque.
+     *
+     * <p>Valor inteiro >= 0. Zero indica que o produto está sem estoque.
+     * {@code @Min(0)} garante que nunca seja armazenado um valor negativo.
+     */
+    @NotNull(message = "A quantidade é obrigatória")
+    @Min(value = 0, message = "A quantidade não pode ser negativa")
+    @Column(name = "quantidade", nullable = false)
+    private Integer quantidade;
+
+    /**
+     * Categoria do produto.
+     *
+     * <p>{@code @ManyToOne} indica que muitos produtos podem ter a mesma categoria.
+     * {@code FetchType.LAZY} evita carregar a categoria do banco a cada consulta de produto
+     * (carregamento sob demanda — só busca no banco quando {@code getCategoria()} é chamado).
+     * {@code nullable = true} — produto pode existir sem categoria.
+     */
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "categoria_id", nullable = true)
+    private Categoria categoria;
+
+    /**
      * Data e hora de criação do registro.
      *
      * <p>{@code Instant} representa um ponto no tempo em UTC — a melhor prática para armazenar
@@ -148,6 +174,24 @@ public class Produto {
         this.nome = nome;
         this.descricao = descricao;
         this.preco = preco;
+        this.quantidade = 0;
+    }
+
+    /**
+     * Construtor conveniente para criação de produtos com quantidade e categoria.
+     *
+     * @param nome       nome do produto
+     * @param descricao  descrição opcional
+     * @param preco      preço do produto
+     * @param quantidade quantidade em estoque
+     * @param categoria  categoria opcional
+     */
+    public Produto(String nome, String descricao, BigDecimal preco, Integer quantidade, Categoria categoria) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.preco = preco;
+        this.quantidade = quantidade != null ? quantidade : 0;
+        this.categoria = categoria;
     }
 
     // =========================================================================
@@ -186,6 +230,22 @@ public class Produto {
         this.preco = preco;
     }
 
+    public Integer getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
+
     public Instant getCriadoEm() {
         return criadoEm;
     }
@@ -204,6 +264,6 @@ public class Produto {
 
     @Override
     public String toString() {
-        return "Produto{id=" + id + ", nome='" + nome + "', preco=" + preco + "}";
+        return "Produto{id=" + id + ", nome='" + nome + "', preco=" + preco + ", quantidade=" + quantidade + "}";
     }
 }

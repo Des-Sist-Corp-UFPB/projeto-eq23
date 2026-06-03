@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <!--
   Fragmento de uma linha da tabela de produtos.
+  Atualizado com coluna de Estoque (badge colorido) e Categoria.
 
   Este fragmento representa um <tr> único na tabela.
   É utilizado em dois contextos:
   1. Renderização inicial: incluído pelo tabela.html via th:each para cada produto.
   2. Respostas HTMX: retornado pelo controller após criar (POST) ou atualizar (PUT) um produto,
      para que o HTMX insira ou substitua a linha na tabela sem recarregar a página.
-
-  O id="produto-{id}" no <tr> é fundamental para o HTMX:
-  - Na criação: hx-swap="beforeend" no tbody adiciona esta linha ao final.
-  - Na atualização: hx-target="#produto-{id}" hx-swap="outerHTML" substitui a linha existente.
-  - Na exclusão: hx-target="#produto-{id}" hx-swap="outerHTML" + body vazio remove a linha.
 -->
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <body>
 
 <!--
-  th:fragment="linha(produto)" define o fragmento com parâmetro.
-  Quando chamado via th:insert, o produto é passado explicitamente:
-    th:insert="~{produtos/fragments/linha :: linha(produto=${produto})}"
-  Quando retornado pelo controller, o produto já está no Model como "produto".
+  th:fragment="linha" — a variável "produto" é injetada pelo model do controller
+  ou passada explicitamente via th:insert com parâmetro.
 -->
 <tr th:fragment="linha"
     th:id="'produto-' + ${produto.id}">
@@ -33,10 +27,19 @@
         <span class="fw-semibold" th:text="${produto.nome}">Nome do Produto</span>
     </td>
 
+    <!-- Categoria -->
+    <td>
+        <span th:if="${produto.categoria != null}"
+              class="badge bg-secondary"
+              th:text="${produto.categoria.nome}">Categoria</span>
+        <span th:unless="${produto.categoria != null}"
+              class="text-muted fst-italic small">—</span>
+    </td>
+
     <!-- Descrição (truncada se muito longa) -->
     <td>
         <span th:if="${produto.descricao != null and !produto.descricao.isEmpty()}"
-              th:text="${#strings.abbreviate(produto.descricao, 80)}"
+              th:text="${#strings.abbreviate(produto.descricao, 60)}"
               th:title="${produto.descricao}"
               class="text-muted small">
             Descrição do produto...
@@ -49,13 +52,27 @@
 
     <!-- Preço formatado como moeda brasileira -->
     <td class="text-end">
-        <span class="badge bg-success fs-6">
-            <!--
-              #numbers.formatDecimal: utilitário Thymeleaf para formatação numérica.
-              Parâmetros: valor, mínimo de dígitos inteiros, separador de milhar, casas decimais, separador decimal.
-              Resultado: R$ 1.234,56
-            -->
+        <span class="fw-semibold text-success">
             R$ <span th:text="${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}">0,00</span>
+        </span>
+    </td>
+
+    <!--
+      Estoque com badge colorido:
+      - 0 unidades → badge vermelho (danger) — sem estoque
+      - 1 a 5 unidades → badge amarelo (warning) — estoque baixo
+      - > 5 unidades → badge verde (success) — estoque ok
+    -->
+    <td class="text-center">
+        <span th:if="${produto.quantidade == 0}"
+              class="badge bg-danger">Sem estoque</span>
+        <span th:if="${produto.quantidade > 0 and produto.quantidade <= 5}"
+              class="badge bg-warning text-dark">
+            <span th:text="${produto.quantidade}">0</span> un.
+        </span>
+        <span th:if="${produto.quantidade > 5}"
+              class="badge bg-success">
+            <span th:text="${produto.quantidade}">0</span> un.
         </span>
     </td>
 
@@ -65,10 +82,6 @@
 
             <!--
               Botão Editar — HTMX carrega o formulário preenchido no modal.
-
-              hx-get="/produtos/{id}/editar"  → busca o fragmento do formulário com os dados do produto
-              hx-target="#modal-container"    → insere no container do modal (definido no layout)
-              hx-swap="innerHTML"             → substitui o conteúdo do container
             -->
             <button type="button"
                     class="btn btn-outline-primary"
@@ -84,11 +97,6 @@
 
             <!--
               Botão Excluir — HTMX envia DELETE e remove a linha da tabela.
-
-              hx-delete="/produtos/{id}"      → envia requisição DELETE para o endpoint
-              hx-target="#produto-{id}"       → alvo é a própria linha (this tr)
-              hx-swap="outerHTML"             → substitui o elemento inteiro (com body vazio = remove)
-              hx-confirm                      → exibe diálogo de confirmação nativo do browser
             -->
             <button type="button"
                     class="btn btn-outline-danger"

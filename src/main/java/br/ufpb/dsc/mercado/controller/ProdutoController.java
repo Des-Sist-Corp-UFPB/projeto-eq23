@@ -3,6 +3,7 @@ package br.ufpb.dsc.mercado.controller;
 import br.ufpb.dsc.mercado.domain.Produto;
 import br.ufpb.dsc.mercado.dto.ProdutoForm;
 import br.ufpb.dsc.mercado.exception.ProdutoNaoEncontradoException;
+import br.ufpb.dsc.mercado.service.CategoriaService;
 import br.ufpb.dsc.mercado.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -47,9 +48,11 @@ public class ProdutoController {
     private static final String HEADER_HTMX = "HX-Request";
 
     private final ProdutoService produtoService;
+    private final CategoriaService categoriaService;
 
-    public ProdutoController(ProdutoService produtoService) {
+    public ProdutoController(ProdutoService produtoService, CategoriaService categoriaService) {
         this.produtoService = produtoService;
+        this.categoriaService = categoriaService;
     }
 
     // =========================================================================
@@ -62,26 +65,30 @@ public class ProdutoController {
      * <p>Verifica o header {@code HX-Request} para decidir se retorna a página
      * completa (primeira carga) ou apenas o fragmento da tabela (atualização via HTMX).
      *
-     * @param busca   texto de busca opcional (vindo do campo de pesquisa)
-     * @param pagina  número da página (começa em 0)
-     * @param htmx    header HTMX — presente quando a requisição vem do HTMX
-     * @param model   modelo do Thymeleaf com dados para o template
+     * @param busca       texto de busca opcional (vindo do campo de pesquisa)
+     * @param categoriaId ID da categoria para filtro (opcional)
+     * @param pagina      número da página (começa em 0)
+     * @param htmx        header HTMX — presente quando a requisição vem do HTMX
+     * @param model       modelo do Thymeleaf com dados para o template
      * @return nome do template ou fragmento a ser renderizado
      */
     @GetMapping
     public String listar(
             @RequestParam(name = "busca", required = false, defaultValue = "") String busca,
+            @RequestParam(name = "categoriaId", required = false) Long categoriaId,
             @RequestParam(name = "pagina", defaultValue = "0") int pagina,
             @RequestHeader(value = HEADER_HTMX, required = false) String htmx,
             Model model) {
 
         // Cria configuração de paginação: página atual, tamanho e ordenação por nome
         PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("nome").ascending());
-        Page<Produto> produtos = produtoService.buscar(busca, pageRequest);
+        Page<Produto> produtos = produtoService.buscar(busca, categoriaId, pageRequest);
 
         model.addAttribute("produtos", produtos);
         model.addAttribute("busca", busca);
+        model.addAttribute("categoriaId", categoriaId);
         model.addAttribute("paginaAtual", pagina);
+        model.addAttribute("categorias", categoriaService.listarTodas());
 
         // Se for requisição HTMX, retorna apenas o fragmento da tabela (mais eficiente)
         // O HTMX substitui apenas o elemento alvo, sem recarregar toda a página
@@ -97,22 +104,25 @@ public class ProdutoController {
      * Endpoint dedicado para o HTMX atualizar apenas o fragmento da tabela.
      * Útil para o campo de busca com {@code hx-trigger="keyup changed delay:400ms"}.
      *
-     * @param busca  texto de busca
-     * @param pagina número da página
-     * @param model  modelo Thymeleaf
+     * @param busca       texto de busca
+     * @param categoriaId ID da categoria para filtro (opcional)
+     * @param pagina      número da página
+     * @param model       modelo Thymeleaf
      * @return fragmento da tabela
      */
     @GetMapping("/fragmento-tabela")
     public String fragmentoTabela(
             @RequestParam(name = "busca", required = false, defaultValue = "") String busca,
+            @RequestParam(name = "categoriaId", required = false) Long categoriaId,
             @RequestParam(name = "pagina", defaultValue = "0") int pagina,
             Model model) {
 
         PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("nome").ascending());
-        Page<Produto> produtos = produtoService.buscar(busca, pageRequest);
+        Page<Produto> produtos = produtoService.buscar(busca, categoriaId, pageRequest);
 
         model.addAttribute("produtos", produtos);
         model.addAttribute("busca", busca);
+        model.addAttribute("categoriaId", categoriaId);
         model.addAttribute("paginaAtual", pagina);
 
         // Sempre retorna apenas o fragmento (este endpoint é exclusivo do HTMX)
@@ -137,8 +147,9 @@ public class ProdutoController {
     @GetMapping("/novo")
     public String novoForm(Model model) {
         // Passa um form vazio para o Thymeleaf vincular com th:object
-        model.addAttribute("form", new ProdutoForm(null, null, null));
+        model.addAttribute("form", new ProdutoForm(null, null, null, 0, null));
         model.addAttribute("produto", null); // sem produto = modo criação
+        model.addAttribute("categorias", categoriaService.listarTodas());
         return "produtos/fragments/form :: modal";
     }
 
@@ -158,9 +169,17 @@ public class ProdutoController {
     public String editarForm(@PathVariable Long id, Model model) {
         Produto produto = produtoService.buscarPorId(id);
         // Converte entidade para form (preenche os campos do formulário)
-        ProdutoForm form = new ProdutoForm(produto.getNome(), produto.getDescricao(), produto.getPreco());
+        Long categoriaId = produto.getCategoria() != null ? produto.getCategoria().getId() : null;
+        ProdutoForm form = new ProdutoForm(
+                produto.getNome(),
+                produto.getDescricao(),
+                produto.getPreco(),
+                produto.getQuantidade(),
+                categoriaId
+        );
         model.addAttribute("form", form);
         model.addAttribute("produto", produto); // com produto = modo edição
+        model.addAttribute("categorias", categoriaService.listarTodas());
         return "produtos/fragments/form :: modal";
     }
 
@@ -196,11 +215,13 @@ public class ProdutoController {
         // Se houver erros de validação, retorna o formulário com as mensagens de erro
         if (bindingResult.hasErrors()) {
             model.addAttribute("produto", null);
+            model.addAttribute("categorias", categoriaService.listarTodas());
             return "produtos/fragments/form :: modal";
         }
 
         Produto novoProduto = produtoService.criar(form);
         model.addAttribute("produto", novoProduto);
+        model.addAttribute("toastMensagem", "Produto criado com sucesso!");
 
         // Retorna apenas a linha da tabela para ser inserida via HTMX (hx-swap="beforeend")
         return "produtos/fragments/linha :: linha";
@@ -238,11 +259,13 @@ public class ProdutoController {
             // Recarrega o produto para o formulário saber que está em modo edição
             Produto produto = produtoService.buscarPorId(id);
             model.addAttribute("produto", produto);
+            model.addAttribute("categorias", categoriaService.listarTodas());
             return "produtos/fragments/form :: modal";
         }
 
         Produto produtoAtualizado = produtoService.atualizar(id, form);
         model.addAttribute("produto", produtoAtualizado);
+        model.addAttribute("toastMensagem", "Produto atualizado!");
 
         // Retorna a linha atualizada para substituir a linha antiga (hx-swap="outerHTML")
         return "produtos/fragments/linha :: linha";

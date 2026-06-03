@@ -155,6 +155,48 @@
                             <div class="form-text">Valor em reais com até 2 casas decimais.</div>
                         </div>
 
+                        <!-- Linha com Quantidade e Categoria lado a lado -->
+                        <div class="row">
+                            <!-- Campo Quantidade -->
+                            <div class="col-md-4 mb-3">
+                                <label for="quantidade" class="form-label fw-semibold">
+                                    Estoque <span class="text-danger">*</span>
+                                </label>
+                                <input type="number"
+                                       th:field="*{quantidade}"
+                                       class="form-control"
+                                       th:classappend="${#fields.hasErrors('quantidade')} ? 'is-invalid'"
+                                       placeholder="0"
+                                       min="0"
+                                       required/>
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('quantidade')}"
+                                     th:errors="*{quantidade}">
+                                    Erro na quantidade
+                                </div>
+                                <div class="form-text">Unidades em estoque.</div>
+                            </div>
+
+                            <!-- Campo Categoria -->
+                            <div class="col-md-8 mb-3">
+                                <label for="categoriaId" class="form-label fw-semibold">Categoria</label>
+                                <select th:field="*{categoriaId}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('categoriaId')} ? 'is-invalid'">
+                                    <option value="">-- Sem categoria --</option>
+                                    <option th:each="cat : ${categorias}"
+                                            th:value="${cat.id}"
+                                            th:text="${cat.nome}">Categoria</option>
+                                </select>
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('categoriaId')}"
+                                     th:errors="*{categoriaId}">
+                                    Erro na categoria
+                                </div>
+                                <div class="form-text">Opcional.</div>
+                            </div>
+                        </div>
+
                         <!-- Informações do produto em modo edição -->
                         <div th:if="${produto != null}" class="alert alert-light border small">
                             <div class="row">

@@ -1,8 +1,10 @@
 package br.ufpb.dsc.mercado.service;
 
+import br.ufpb.dsc.mercado.domain.Categoria;
 import br.ufpb.dsc.mercado.domain.Produto;
 import br.ufpb.dsc.mercado.dto.ProdutoForm;
 import br.ufpb.dsc.mercado.exception.ProdutoNaoEncontradoException;
+import br.ufpb.dsc.mercado.repository.CategoriaRepository;
 import br.ufpb.dsc.mercado.repository.ProdutoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,7 @@ public class ProdutoService {
 
     // Injeção de dependência via construtor — prática recomendada pelo Spring e mais testável
     private final ProdutoRepository produtoRepository;
+    private final CategoriaRepository categoriaRepository;
 
     /**
      * Construtor com injeção de dependência.
@@ -48,10 +51,12 @@ public class ProdutoService {
      * A injeção via construtor é preferível à injeção via campo ({@code @Autowired} no campo)
      * porque torna as dependências explícitas e facilita os testes unitários com Mockito.
      *
-     * @param produtoRepository repositório JPA de produtos
+     * @param produtoRepository   repositório JPA de produtos
+     * @param categoriaRepository repositório JPA de categorias
      */
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, CategoriaRepository categoriaRepository) {
         this.produtoRepository = produtoRepository;
+        this.categoriaRepository = categoriaRepository;
     }
 
     /**
@@ -70,16 +75,26 @@ public class ProdutoService {
     /**
      * Busca produtos pelo nome (parcial, sem distinção de maiúsculas/minúsculas).
      * Se a busca estiver vazia, retorna todos os produtos.
+     * Se a categoriaId for informada, filtra também por categoria.
      *
-     * @param busca    texto para filtrar por nome (pode ser nulo ou vazio)
-     * @param pageable configuração de paginação
+     * @param busca       texto para filtrar por nome (pode ser nulo ou vazio)
+     * @param categoriaId ID da categoria para filtro (pode ser nulo)
+     * @param pageable    configuração de paginação
      * @return página de produtos filtrados
      */
-    public Page<Produto> buscar(String busca, Pageable pageable) {
-        if (!StringUtils.hasText(busca)) {
+    public Page<Produto> buscar(String busca, Long categoriaId, Pageable pageable) {
+        boolean temBusca = StringUtils.hasText(busca);
+        boolean temCategoria = categoriaId != null;
+
+        if (temBusca && temCategoria) {
+            return produtoRepository.findByNomeContainingIgnoreCaseAndCategoriaId(busca.trim(), categoriaId, pageable);
+        } else if (temBusca) {
+            return produtoRepository.findByNomeContainingIgnoreCase(busca.trim(), pageable);
+        } else if (temCategoria) {
+            return produtoRepository.findByCategoriaId(categoriaId, pageable);
+        } else {
             return produtoRepository.findAll(pageable);
         }
-        return produtoRepository.findByNomeContainingIgnoreCase(busca.trim(), pageable);
     }
 
     /**
@@ -108,10 +123,13 @@ public class ProdutoService {
      */
     @Transactional
     public Produto criar(ProdutoForm form) {
+        Categoria categoria = resolverCategoria(form.categoriaId());
         Produto produto = new Produto(
                 form.nome(),
                 form.descricao(),
-                form.preco()
+                form.preco(),
+                form.quantidade(),
+                categoria
         );
         // O método save() do JpaRepository faz o INSERT e retorna a entidade com o ID gerado
         return produtoRepository.save(produto);
@@ -138,6 +156,8 @@ public class ProdutoService {
         produto.setNome(form.nome());
         produto.setDescricao(form.descricao());
         produto.setPreco(form.preco());
+        produto.setQuantidade(form.quantidade());
+        produto.setCategoria(resolverCategoria(form.categoriaId()));
         // Não precisa chamar save() explicitamente — o JPA (dirty checking) detecta a mudança
         // e executa o UPDATE automaticamente ao final da transação
         return produtoRepository.save(produto);
@@ -159,5 +179,23 @@ public class ProdutoService {
             throw new ProdutoNaoEncontradoException(id);
         }
         produtoRepository.deleteById(id);
+    }
+
+    // =========================================================================
+    // MÉTODOS AUXILIARES PRIVADOS
+    // =========================================================================
+
+    /**
+     * Resolve a categoria a partir do ID fornecido no formulário.
+     * Retorna {@code null} se o ID for nulo (produto sem categoria).
+     *
+     * @param categoriaId ID da categoria (pode ser nulo)
+     * @return categoria encontrada ou {@code null}
+     */
+    private Categoria resolverCategoria(Long categoriaId) {
+        if (categoriaId == null) {
+            return null;
+        }
+        return categoriaRepository.findById(categoriaId).orElse(null);
     }
 }
