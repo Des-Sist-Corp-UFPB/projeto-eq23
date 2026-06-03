@@ -112,13 +112,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- === OBJECT STORAGE: AWS S3 / MinIO === -->
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-            <version>2.20.162</version>
-        </dependency>
-
         <!-- === TESTES === -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
