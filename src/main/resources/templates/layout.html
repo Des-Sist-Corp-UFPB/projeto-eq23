@@ -52,26 +52,72 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .navbar {
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            background-color: rgba(255, 255, 255, 0.9) !important;
-            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            z-index: 1040;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
         }
 
-        .navbar-brand {
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
             font-weight: 700;
+            font-size: 1.25rem;
             letter-spacing: -0.025em;
             color: #1e293b !important;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+        }
+
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .sidebar .nav-item {
+            margin-bottom: 0.25rem;
         }
         
-        .nav-link {
+        .sidebar .nav-link {
             font-weight: 500;
             color: #64748b !important;
-            transition: color 0.15s ease;
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem;
+            display: flex;
+            align-items: center;
         }
         
-        .nav-link:hover, .nav-link.active {
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
             color: #1e293b !important;
+            background-color: #f1f5f9;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
         }
 
         .card {
@@ -111,138 +157,96 @@
 </head>
 <body>
 
-<!-- ============================================================
-     NAVBAR — Barra de navegação principal
-     ============================================================ -->
-<nav class="navbar navbar-expand-lg sticky-top mb-5">
-    <div class="container">
-        <!-- Marca / Logo -->
-        <a class="navbar-brand d-flex align-items-center" th:href="@{/produtos}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#2563eb"
-                 class="bi bi-lightning-charge-fill me-2" viewBox="0 0 16 16">
-                <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
-            </svg>
-            SparkTech
-        </a>
+<aside class="sidebar">
+    <!-- Marca / Logo -->
+    <a class="sidebar-brand" th:href="@{/produtos}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2563eb"
+             class="bi bi-lightning-charge-fill me-2" viewBox="0 0 16 16">
+            <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+        </svg>
+        SparkTech
+    </a>
 
-        <!-- Botão hamburger para mobile -->
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navbarMain">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <!-- Links de navegação -->
+    <ul class="sidebar-nav">
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${requestURI != null and requestURI == '/'} ? 'active'"
+               th:href="@{/}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-house me-2" viewBox="0 0 16 16">
+                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+                </svg>
+                Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${requestURI != null and requestURI.startsWith('/produtos')} ? 'active'"
+               th:href="@{/produtos}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-box-seam me-2" viewBox="0 0 16 16">
+                    <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                </svg>
+                Produtos
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${requestURI != null and requestURI.startsWith('/categorias')} ? 'active'"
+               th:href="@{/categorias}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-tags me-2" viewBox="0 0 16 16">
+                    <path d="M3 2v4.586l7 7L14.586 9l-7-7zm2 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                    <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 1 1-1h5.086a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0z"/>
+                </svg>
+                Categorias
+            </a>
+        </li>
+    </ul>
 
-        <!-- Links de navegação -->
-        <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link"
-                       th:classappend="${requestURI != null and requestURI == '/'} ? 'active'"
-                       th:href="@{/}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                             class="bi bi-house me-1" viewBox="0 0 16 16">
-                            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
-                        </svg>
-                        Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <!--
-                      th:classappend adiciona a classe "active" dinamicamente se a URL atual
-                      começa com /produtos — indica visualmente a página atual.
-                    -->
-                    <a class="nav-link"
-                       th:classappend="${requestURI != null and requestURI.startsWith('/produtos')} ? 'active'"
-                       th:href="@{/produtos}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                             class="bi bi-box-seam me-1" viewBox="0 0 16 16">
-                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
-                        </svg>
-                        Produtos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link"
-                       th:classappend="${requestURI != null and requestURI.startsWith('/categorias')} ? 'active'"
-                       th:href="@{/categorias}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                             class="bi bi-tags me-1" viewBox="0 0 16 16">
-                            <path d="M3 2v4.586l7 7L14.586 9l-7-7zm2 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
-                            <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 1 1-1h5.086a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0z"/>
-                        </svg>
-                        Categorias
-                    </a>
-                </li>
-            </ul>
-
-            <!-- Área do usuário logado (direita da navbar) -->
-            <ul class="navbar-nav">
-                <!--
-                  sec:authorize="isAuthenticated()" — dialeto do Thymeleaf Security.
-                  Este bloco só é renderizado se o usuário estiver autenticado.
-                  Requer a dependência: thymeleaf-extras-springsecurity6
-                -->
-                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-                    <a class="nav-link dropdown-toggle" href="#"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                             fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                        </svg>
-                        <!--
-                          sec:authentication="name" exibe o username do usuário autenticado.
-                          Outros valores disponíveis: principal, authorities, details
-                        -->
-                        <span sec:authentication="name">Usuário</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <!--
-                              Formulário de logout — POST é obrigatório pelo Spring Security (proteção CSRF).
-                              O Spring Security intercepta POST /logout e invalida a sessão.
-                            -->
-                            <form th:action="@{/logout}" method="post" class="d-inline">
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                         fill="currentColor" class="bi bi-box-arrow-right me-1" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-                                    </svg>
-                                    Sair
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
+    <!-- Área do usuário logado (rodapé da sidebar) -->
+    <div class="sidebar-bottom" sec:authorize="isAuthenticated()">
+        <div class="dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                     fill="currentColor" class="bi bi-person-circle me-2" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                </svg>
+                <span sec:authentication="name" class="fw-semibold text-dark">Usuário</span>
+            </a>
+            <ul class="dropdown-menu w-100 shadow-sm border-0">
+                <li>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="dropdown-item text-danger d-flex align-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                 fill="currentColor" class="bi bi-box-arrow-right me-2" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                            </svg>
+                            Sair
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>
     </div>
-</nav>
+</aside>
 
-<!-- ============================================================
-     CONTEÚDO PRINCIPAL — injetado pelas páginas filhas
-     ============================================================ -->
-<main class="container">
-    <!--
-      th:replace="${content}" injeta o conteúdo específico de cada página.
-      O Thymeleaf substitui este elemento pelo bloco <main> da página filha.
-    -->
-    <th:block th:replace="${content}">
-        <!-- Conteúdo padrão (não deve aparecer se usado corretamente) -->
-    </th:block>
-</main>
+<div class="main-content">
+    <!-- CONTEÚDO PRINCIPAL — injetado pelas páginas filhas -->
+    <main class="container-fluid flex-grow-1">
+        <th:block th:replace="${content}"></th:block>
+    </main>
 
-<!-- ============================================================
-     RODAPÉ
-     ============================================================ -->
-<footer class="mt-5 py-4 border-top" style="background-color: transparent;">
-    <div class="container text-center text-muted small">
+    <!-- RODAPÉ -->
+    <footer class="mt-5 py-4 text-center text-muted small mt-auto">
         <p class="mb-0">
-            DSC — Desenvolvimento de Sistemas Corporativos |
-            Prof. Rodrigo Rebouças | UFPB Campus IV
+            SparkTech — Sistema de Gestão Inteligente
         </p>
-    </div>
-</footer>
+    </footer>
+</div>
 
 <!-- ============================================================
      SCRIPTS — ao final do body para não bloquear o carregamento
