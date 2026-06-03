@@ -25,5 +25,5 @@ aws:
     region: us-east-1
     bucket: eq23
     access-key: eq23
-    secret-key: ${MINIO_SECRET}
+    secret-key: ${MINIO_SECRET:senha_temporaria_para_nao_quebrar}
 
