@@ -41,30 +41,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /**
-     * Define o serviço de usuários em memória.
-     *
-     * <p><strong>ATENÇÃO — APENAS PARA DESENVOLVIMENTO E DEMONSTRAÇÃO.</strong><br>
-     * Em produção, substitua por um {@code UserDetailsService} que busca usuários do banco
-     * de dados (ex.: via Spring Data JPA) e utilize senhas armazenadas com BCrypt.
-     *
-     * <p>{@code User.builder()} é um fluent builder do Spring Security para criar usuários.
-     * O password DEVE ser codificado — nunca passe a senha em texto puro.
-     *
-     * @param encoder codificador de senhas (injetado automaticamente pelo Spring)
-     * @return gerenciador de usuários em memória
-     */
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails admin = User.builder()
-                .username("admin")
-                // encode() aplica BCrypt na senha — o hash muda a cada chamada mas a verificação funciona
-                .password(encoder.encode("admin123"))
-                // ROLE_ADMIN é adicionado automaticamente; "roles" é um atalho para "authorities"
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(admin);
-    }
 
     /**
      * Define o algoritmo de codificação de senhas.
