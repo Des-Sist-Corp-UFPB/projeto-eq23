@@ -33,21 +33,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Estilo customizado minimalista premium -->
+    <!-- Estilo customizado minimalista premium (Tema Escuro Glassmorphism) -->
     <style>
         :root {
             --bs-font-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
             --font-title: 'Outfit', system-ui, -apple-system, sans-serif;
-            --bs-body-bg: #f8fafc;
-            --bs-body-color: #0f172a;
+            --bs-body-bg: #090d16;
+            --bs-body-color: #f1f5f9;
             --bs-primary: #6366f1;
             --bs-primary-hover: #4f46e5;
-            --bs-border-color: rgba(226, 232, 240, 0.8);
+            --bs-border-color: rgba(255, 255, 255, 0.08);
             --bs-border-radius: 1rem;
-            --custom-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.03), 0 4px 6px -2px rgba(15, 23, 42, 0.01), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 10px 10px -5px rgba(15, 23, 42, 0.02);
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.6);
+            --custom-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+            --glass-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            --glass-bg: rgba(17, 24, 39, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.06);
         }
         
         body {
@@ -56,13 +56,19 @@
             color: var(--bs-body-color);
             -webkit-font-smoothing: antialiased;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
-                radial-gradient(at 50% 0%, rgba(14, 165, 233, 0.03) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 100%);
             background-attachment: fixed;
         }
 
         h1, h2, h3, h4, h5, h6, .sidebar-brand {
             font-family: var(--font-title);
+            color: #ffffff;
+        }
+
+        .text-muted {
+            color: #94a3b8 !important;
         }
 
         /* Custom Scrollbar */
@@ -74,11 +80,11 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #334155;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #475569;
         }
 
         .sidebar {
@@ -87,15 +93,15 @@
             position: fixed;
             top: 0;
             left: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-right: 1px solid var(--bs-border-color);
             z-index: 1040;
-            padding: 2rem 1.25rem;
+            padding: 2.5rem 1.25rem;
             display: flex;
             flex-direction: column;
-            box-shadow: 4px 0 24px rgba(15, 23, 42, 0.015);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
         }
 
         .main-content {
@@ -110,7 +116,7 @@
             font-weight: 800;
             font-size: 1.4rem;
             letter-spacing: -0.03em;
-            color: #0f172a !important;
+            color: #ffffff !important;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -136,7 +142,7 @@
         
         .sidebar .nav-link {
             font-weight: 500;
-            color: #475569 !important;
+            color: #94a3b8 !important;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 0.75rem;
             padding: 0.75rem 1rem;
@@ -150,8 +156,8 @@
         }
 
         .sidebar .nav-link:hover {
-            color: #0f172a !important;
-            background-color: rgba(241, 245, 249, 0.8);
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.05);
             transform: translateX(4px);
         }
 
@@ -186,12 +192,44 @@
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
         }
 
+        .table {
+            color: #e2e8f0;
+        }
+
+        .table-light {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .table-light th {
+            background-color: transparent !important;
+            color: #ffffff !important;
+        }
+
         .table-hover tbody tr {
             transition: background-color 0.2s ease, transform 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .table-hover tbody tr:hover {
-            background-color: rgba(241, 245, 249, 0.5) !important;
+            background-color: rgba(255, 255, 255, 0.03) !important;
+        }
+
+        .dropdown-menu {
+            background-color: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-item {
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
         }
         
         .btn {
@@ -199,7 +237,7 @@
             font-weight: 600;
             padding: 0.55rem 1.25rem;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
             font-size: 0.92rem;
         }
 
@@ -220,31 +258,101 @@
         }
 
         .btn-outline-primary {
-            border-color: #6366f1;
-            color: #6366f1;
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #818cf8;
         }
 
         .btn-outline-primary:hover {
             background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             border-color: transparent;
+            color: #ffffff;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-outline-secondary {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* Estilização de modais em modo escuro */
+        .modal-content {
+            background-color: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, #1e1b4b 0%, #111827 100%) !important;
+        }
+
+        .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         /* Estilização refinada de formulários */
         .form-control, .form-select {
             border-radius: 0.75rem;
-            border: 1px solid #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 0.6rem 1rem;
             font-size: 0.95rem;
             transition: all 0.2s ease-in-out;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(15, 23, 42, 0.6);
+            color: #ffffff;
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
         }
 
         .form-control:focus, .form-select:focus {
             border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
-            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            background-color: rgba(15, 23, 42, 0.8);
+            color: #ffffff;
+        }
+
+        .input-group-text {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        /* Paginação */
+        .page-link {
+            background-color: rgba(15, 23, 42, 0.4);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            transition: all 0.2s ease;
+        }
+
+        .page-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border-color: transparent;
+            color: #ffffff;
+        }
+
+        .page-item.disabled .page-link {
+            background-color: rgba(15, 23, 42, 0.2);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #475569;
         }
 
         /* Transições Fluidas de Entrada para o HTMX */
@@ -333,7 +441,7 @@
         </li>
         <li class="nav-item">
             <a class="nav-link"
-               th:classappend="${requestURI != null and requestURI.startsWith('/chamados')} ? 'active'"
+               th:classappend="${requestURI != null and requestURI.startsWith('/chamados') and requestURI != '/chamados/abrir'} ? 'active'"
                th:href="@{/chamados}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                      class="bi bi-ticket-detailed me-2" viewBox="0 0 16 16">
@@ -341,6 +449,18 @@
                     <path d="M0 4.5A1.5 1.5 0 0 1 1.5 3h13A1.5 1.5 0 0 1 16 4.5V6a.5.5 0 0 1-.5.5 1.5 1.5 0 0 0 0 3 .5.5 0 0 1 .5.5v1.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5V10a.5.5 0 0 1 .5-.5 1.5 1.5 0 0 0 0-3A.5.5 0 0 1 0 6V4.5ZM1.5 4a.5.5 0 0 0-.5.5v1.05a2.5 2.5 0 0 1 0 4.9v1.05a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-1.05a2.5 2.5 0 0 1 0-4.9V4.5a.5.5 0 0 0-.5-.5h-13Z"/>
                 </svg>
                 Chamados
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               th:classappend="${requestURI != null and requestURI == '/chamados/abrir'} ? 'active'"
+               th:href="@{/chamados/abrir}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-plus-circle me-2" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                Solicitar Suporte
             </a>
         </li>
     </ul>
@@ -354,7 +474,7 @@
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                 </svg>
-                <span sec:authentication="name" class="fw-semibold text-dark">Usuário</span>
+                <span sec:authentication="name" class="fw-semibold text-light">Usuário</span>
             </a>
             <ul class="dropdown-menu w-100 shadow-sm border-0">
                 <li>
@@ -426,7 +546,15 @@
   Script para abrir o modal automaticamente após o HTMX injectá-lo no DOM.
   htmx:afterSwap é disparado após o HTMX substituir o conteúdo.
 -->
-<script>
+<script th:inline="javascript">
+    // Exibe toast ao carregar a página se houver mensagem no model (ex: após redirecionamento)
+    document.addEventListener('DOMContentLoaded', function() {
+        const msg = /*[[${toastMensagem}]]*/ null;
+        if (msg) {
+            mostrarToast(msg, 'success');
+        }
+    });
+
     // Abre o modal Bootstrap após o HTMX injetar o HTML no #modal-container
     document.body.addEventListener('htmx:afterSwap', function(evt) {
         if (evt.detail.target.id === 'modal-container') {

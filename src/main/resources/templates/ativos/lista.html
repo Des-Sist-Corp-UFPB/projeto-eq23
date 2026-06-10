@@ -36,7 +36,7 @@
 
             <!-- Campo de busca com debounce via HTMX -->
             <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-10">
                     <div class="input-group">
                         <span class="input-group-text">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -53,28 +53,8 @@
                                hx-get="/ativos/fragmento-tabela"
                                hx-trigger="keyup changed delay:400ms, search"
                                hx-target="#tabela-container"
-                               hx-swap="innerHTML"
-                               hx-include="#filtroCategoria"/>
+                               hx-swap="innerHTML"/>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <!-- Filtro por categoria via HTMX -->
-                    <select id="filtroCategoria"
-                            name="categoriaId"
-                            class="form-select"
-                            hx-get="/ativos/fragmento-tabela"
-                            hx-trigger="change"
-                            hx-target="#tabela-container"
-                            hx-swap="innerHTML"
-                            hx-include="#campoBusca">
-                        <option value="">Todas as categorias</option>
-                        <option th:each="cat : ${categorias}"
-                                th:value="${cat.id}"
-                                th:text="${cat.nome}"
-                                th:selected="${categoriaId != null and categoriaId == cat.id}">
-                            Categoria
-                        </option>
-                    </select>
                 </div>
                 <div class="col-md-2 text-end d-flex align-items-center justify-content-end">
                     <span class="text-muted small" th:if="${ativos != null}">

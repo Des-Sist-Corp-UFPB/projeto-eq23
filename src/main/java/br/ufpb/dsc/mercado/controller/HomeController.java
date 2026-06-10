@@ -20,8 +20,6 @@ public class HomeController {
     public String home(Model model) {
         model.addAttribute("totalProdutos", dashboardService.totalAtivos());
         model.addAttribute("totalCategorias", dashboardService.totalCategorias());
-        model.addAttribute("produtosSemEstoque", dashboardService.ativosSemEstoque());
-        model.addAttribute("valorTotalEstoque", dashboardService.valorTotalEstoque());
         model.addAttribute("totalChamadosAbertos", dashboardService.totalChamadosAbertos());
         model.addAttribute("totalChamadosEmAtendimento", dashboardService.totalChamadosEmAtendimento());
         return "home";

@@ -4,7 +4,6 @@ import br.ufpb.dsc.mercado.repository.AtivoRepository;
 import br.ufpb.dsc.mercado.repository.ChamadoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,15 +25,6 @@ public class DashboardService {
 
     public long totalCategorias() {
         return categoriaService.contarTotal();
-    }
-
-    public long ativosSemEstoque() {
-        return ativoRepository.countByQuantidade(0);
-    }
-
-    public BigDecimal valorTotalEstoque() {
-        BigDecimal total = ativoRepository.calcularValorTotalEstoque();
-        return total != null ? total : BigDecimal.ZERO;
     }
 
     public long totalChamadosAbertos() {

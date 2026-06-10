@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -33,10 +32,10 @@ class AtivoServiceTest {
 
     @BeforeEach
     void setUp() {
-        ativoExistente = new Ativo("Notebook Dell", "XPS 13", new BigDecimal("7999.99"), 1, null, "SN-DELL-1234", "ATIVO");
+        ativoExistente = new Ativo("Notebook Dell", "XPS 13", "SN-DELL-1234", "ATIVO");
         ativoExistente.setId(1L);
 
-        formValido = new AtivoForm("Notebook Thinkpad", "T14 Gen 3", new BigDecimal("6500.00"), 2, null, "SN-THINK-5678", "ATIVO");
+        formValido = new AtivoForm("Notebook Thinkpad", "T14 Gen 3", "SN-THINK-5678", "ATIVO");
     }
 
     @Test
@@ -68,7 +67,7 @@ class AtivoServiceTest {
     @Test
     @DisplayName("criar: deve salvar e retornar o novo ativo")
     void criar_comFormValido_deveSalvarERetornarAtivo() {
-        Ativo ativoSalvo = new Ativo(formValido.nome(), formValido.descricao(), formValido.preco(), formValido.quantidade(), null, formValido.numeroSerie(), formValido.status());
+        Ativo ativoSalvo = new Ativo(formValido.nome(), formValido.descricao(), formValido.numeroSerie(), formValido.status());
         ativoSalvo.setId(2L);
         when(ativoRepository.save(any(Ativo.class))).thenReturn(ativoSalvo);
 
@@ -77,7 +76,6 @@ class AtivoServiceTest {
         assertThat(resultado).isNotNull();
         assertThat(resultado.getId()).isEqualTo(2L);
         assertThat(resultado.getNome()).isEqualTo("Notebook Thinkpad");
-        assertThat(resultado.getPreco()).isEqualByComparingTo("6500.00");
 
         verify(ativoRepository, times(1)).save(any(Ativo.class));
     }
@@ -88,12 +86,11 @@ class AtivoServiceTest {
         when(ativoRepository.findById(1L)).thenReturn(Optional.of(ativoExistente));
         when(ativoRepository.save(any(Ativo.class))).thenReturn(ativoExistente);
 
-        AtivoForm formAtualizado = new AtivoForm("Notebook Dell Pro", "XPS 13 Developer Edition", new BigDecimal("8299.99"), 1, null, "SN-DELL-1234", "ATIVO");
+        AtivoForm formAtualizado = new AtivoForm("Notebook Dell Pro", "XPS 13 Developer Edition", "SN-DELL-1234", "ATIVO");
 
         Ativo resultado = ativoService.atualizar(1L, formAtualizado);
 
         assertThat(resultado.getNome()).isEqualTo("Notebook Dell Pro");
-        assertThat(resultado.getPreco()).isEqualByComparingTo("8299.99");
 
         verify(ativoRepository).findById(1L);
         verify(ativoRepository).save(any(Ativo.class));

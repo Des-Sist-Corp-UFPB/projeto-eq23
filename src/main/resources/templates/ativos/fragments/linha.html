@@ -10,16 +10,7 @@
 
     <!-- Nome -->
     <td>
-        <span class="fw-semibold text-dark" th:text="${ativo.nome}">Nome do Ativo</span>
-    </td>
-
-    <!-- Categoria -->
-    <td>
-        <span th:if="${ativo.categoria != null}"
-              class="badge bg-secondary"
-              th:text="${ativo.categoria.nome}">Categoria</span>
-        <span th:unless="${ativo.categoria != null}"
-              class="text-muted fst-italic small">—</span>
+        <span class="fw-semibold text-light" th:text="${ativo.nome}">Nome do Ativo</span>
     </td>
 
     <!-- Número de série -->
@@ -29,16 +20,6 @@
         <span th:unless="${ativo.numeroSerie != null and !ativo.numeroSerie.isEmpty()}"
               class="text-muted fst-italic small">—</span>
     </td>
-
-    <!-- Valor / Preço -->
-    <td>
-        <span class="fw-semibold">
-            R$ <span th:text="${#numbers.formatDecimal(ativo.preco, 1, 'POINT', 2, 'COMMA')}">0,00</span>
-        </span>
-    </td>
-
-    <!-- Quantidade -->
-    <td th:text="${ativo.quantidade}">0</td>
 
     <!-- Status badge -->
     <td class="text-center">

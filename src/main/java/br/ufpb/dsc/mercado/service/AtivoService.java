@@ -1,10 +1,8 @@
 package br.ufpb.dsc.mercado.service;
 
-import br.ufpb.dsc.mercado.domain.Categoria;
 import br.ufpb.dsc.mercado.domain.Ativo;
 import br.ufpb.dsc.mercado.dto.AtivoForm;
 import br.ufpb.dsc.mercado.exception.AtivoNaoEncontradoException;
-import br.ufpb.dsc.mercado.repository.CategoriaRepository;
 import br.ufpb.dsc.mercado.repository.AtivoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,27 +15,20 @@ import org.springframework.util.StringUtils;
 public class AtivoService {
 
     private final AtivoRepository ativoRepository;
-    private final CategoriaRepository categoriaRepository;
 
-    public AtivoService(AtivoRepository ativoRepository, CategoriaRepository categoriaRepository) {
+    public AtivoService(AtivoRepository ativoRepository) {
         this.ativoRepository = ativoRepository;
-        this.categoriaRepository = categoriaRepository;
     }
 
     public Page<Ativo> listar(Pageable pageable) {
         return ativoRepository.findAll(pageable);
     }
 
-    public Page<Ativo> buscar(String busca, Long categoriaId, Pageable pageable) {
+    public Page<Ativo> buscar(String busca, Pageable pageable) {
         boolean temBusca = StringUtils.hasText(busca);
-        boolean temCategoria = categoriaId != null;
 
-        if (temBusca && temCategoria) {
-            return ativoRepository.findByNomeContainingIgnoreCaseAndCategoriaId(busca.trim(), categoriaId, pageable);
-        } else if (temBusca) {
+        if (temBusca) {
             return ativoRepository.findByNomeContainingIgnoreCase(busca.trim(), pageable);
-        } else if (temCategoria) {
-            return ativoRepository.findByCategoriaId(categoriaId, pageable);
         } else {
             return ativoRepository.findAll(pageable);
         }
@@ -50,13 +41,9 @@ public class AtivoService {
 
     @Transactional
     public Ativo criar(AtivoForm form) {
-        Categoria categoria = resolverCategoria(form.categoriaId());
         Ativo ativo = new Ativo(
                 form.nome(),
                 form.descricao(),
-                form.preco(),
-                form.quantidade(),
-                categoria,
                 form.numeroSerie(),
                 form.status()
         );
@@ -68,9 +55,6 @@ public class AtivoService {
         Ativo ativo = buscarPorId(id);
         ativo.setNome(form.nome());
         ativo.setDescricao(form.descricao());
-        ativo.setPreco(form.preco());
-        ativo.setQuantidade(form.quantidade());
-        ativo.setCategoria(resolverCategoria(form.categoriaId()));
         ativo.setNumeroSerie(form.numeroSerie());
         ativo.setStatus(form.status());
         return ativoRepository.save(ativo);
@@ -82,12 +66,5 @@ public class AtivoService {
             throw new AtivoNaoEncontradoException(id);
         }
         ativoRepository.deleteById(id);
-    }
-
-    private Categoria resolverCategoria(Long categoriaId) {
-        if (categoriaId == null) {
-            return null;
-        }
-        return categoriaRepository.findById(categoriaId).orElse(null);
     }
 }

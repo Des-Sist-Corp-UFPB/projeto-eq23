@@ -2,9 +2,7 @@ package br.ufpb.dsc.mercado.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import java.math.BigDecimal;
 import java.time.Instant;
-import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Table(name = "ativo")
@@ -23,19 +21,7 @@ public class Ativo {
     @Column(name = "descricao", columnDefinition = "TEXT")
     private String descricao;
 
-    @NotNull(message = "O preço/valor é obrigatório")
-    @DecimalMin(value = "0.00", message = "O valor não pode ser negativo")
-    @Column(name = "preco", nullable = false, precision = 10, scale = 2)
-    private BigDecimal preco;
 
-    @NotNull(message = "A quantidade é obrigatória")
-    @Min(value = 0, message = "A quantidade não pode ser negativa")
-    @Column(name = "quantidade", nullable = false)
-    private Integer quantidade;
-
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "categoria_id", nullable = true)
-    private Categoria categoria;
 
     @Size(max = 50, message = "O número de série pode ter no máximo 50 caracteres")
     @Column(name = "numero_serie", length = 50)
@@ -69,12 +55,9 @@ public class Ativo {
     public Ativo() {
     }
 
-    public Ativo(String nome, String descricao, BigDecimal preco, Integer quantidade, Categoria categoria, String numeroSerie, String status) {
+    public Ativo(String nome, String descricao, String numeroSerie, String status) {
         this.nome = nome;
         this.descricao = descricao;
-        this.preco = preco;
-        this.quantidade = quantidade != null ? quantidade : 0;
-        this.categoria = categoria;
         this.numeroSerie = numeroSerie;
         this.status = status != null ? status : "ATIVO";
     }
@@ -89,14 +72,7 @@ public class Ativo {
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public BigDecimal getPreco() { return preco; }
-    public void setPreco(BigDecimal preco) { this.preco = preco; }
 
-    public Integer getQuantidade() { return quantidade; }
-    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
-
-    public Categoria getCategoria() { return categoria; }
-    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 
     public String getNumeroSerie() { return numeroSerie; }
     public void setNumeroSerie(String numeroSerie) { this.numeroSerie = numeroSerie; }

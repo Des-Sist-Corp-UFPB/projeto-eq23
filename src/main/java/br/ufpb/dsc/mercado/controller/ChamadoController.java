@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/chamados")
@@ -61,6 +62,31 @@ public class ChamadoController {
         }
 
         return "chamados/lista";
+    }
+
+    @GetMapping("/abrir")
+    public String abrirForm(Model model) {
+        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null));
+        model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+        return "chamados/abrir";
+    }
+
+    @PostMapping("/abrir")
+    public String abrirCriar(
+            @Valid @ModelAttribute("form") ChamadoForm form,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+            return "chamados/abrir";
+        }
+
+        chamadoService.criar(form, usuarioLogado);
+        redirectAttributes.addFlashAttribute("toastMensagem", "Chamado aberto com sucesso!");
+        return "redirect:/chamados";
     }
 
     @GetMapping("/novo")

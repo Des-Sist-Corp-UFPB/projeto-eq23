@@ -10,7 +10,7 @@
 
     <!-- Título / Ativo -->
     <td>
-        <div class="fw-semibold text-dark" th:text="${chamado.titulo}">Título do Chamado</div>
+        <div class="fw-semibold text-light" th:text="${chamado.titulo}">Título do Chamado</div>
         <div class="small text-muted" th:if="${chamado.ativo != null}">
             Ativo: <span th:text="${chamado.ativo.nome}">Ativo</span>
         </div>

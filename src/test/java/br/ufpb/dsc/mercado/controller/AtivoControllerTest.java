@@ -46,7 +46,7 @@ class AtivoControllerTest {
     void setUp() {
         ativoRepository.deleteAll();
         ativoCadastrado = ativoRepository.save(
-                new Ativo("Arroz Integral", "Arroz integral tipo 1", new BigDecimal("8.99"), 10, null, "SN123", "ATIVO")
+                new Ativo("Arroz Integral", "Arroz integral tipo 1", "SN123", "ATIVO")
         );
     }
 
@@ -89,8 +89,6 @@ class AtivoControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("nome", "Feijão Preto")
                         .param("descricao", "Feijão preto premium")
-                        .param("preco", "7.50")
-                        .param("quantidade", "5")
                         .param("numeroSerie", "SN999")
                         .param("status", "ATIVO"))
                 .andExpect(status().isOk())
@@ -106,8 +104,7 @@ class AtivoControllerTest {
         mockMvc.perform(post("/ativos")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("nome", "")
-                        .param("preco", "-1.00"))
+                        .param("nome", ""))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ativos/fragments/form :: modal"))
                 .andExpect(model().hasErrors());

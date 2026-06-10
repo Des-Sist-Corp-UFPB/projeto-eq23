@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::main})}">
+<head>
+    <title>Solicitar Suporte — SparkTech</title>
+</head>
+<body>
+
+<main>
+    <div class="row justify-content-center my-4">
+        <div class="col-lg-8">
+            <!-- Cabeçalho -->
+            <div class="mb-4 text-center text-lg-start">
+                <h1 class="h3 mb-1 text-white">Solicitar Suporte</h1>
+                <p class="text-muted mb-0">Abra um chamado para relatar um problema ou solicitar manutenção em seus ativos</p>
+            </div>
+
+            <!-- Card Formulário Glassmorphism -->
+            <div class="card shadow-lg">
+                <div class="card-body p-4 p-md-5">
+                    <form th:action="@{/chamados/abrir}" th:object="${form}" method="post">
+                        
+                        <!-- Erros globais -->
+                        <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                            <h6 class="alert-heading fw-bold">Por favor, corrija os erros abaixo:</h6>
+                            <ul class="mb-0 small">
+                                <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Erro</li>
+                            </ul>
+                        </div>
+
+                        <!-- Título do Chamado -->
+                        <div class="mb-4">
+                            <label for="titulo" class="form-label fw-semibold text-light">
+                                Título do Chamado <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   id="titulo"
+                                   th:field="*{titulo}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('titulo')} ? 'is-invalid'"
+                                   placeholder="Ex.: Monitor piscando sem parar ou Lentidão no sistema"
+                                   maxlength="100"
+                                   required
+                                   autofocus/>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('titulo')}"
+                                 th:errors="*{titulo}">
+                                Erro no título
+                            </div>
+                            <div class="form-text text-muted small">Forneça um resumo claro e conciso do problema.</div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Prioridade -->
+                            <div class="col-md-6 mb-4">
+                                <label for="prioridade" class="form-label fw-semibold text-light">
+                                    Prioridade <span class="text-danger">*</span>
+                                </label>
+                                <select id="prioridade"
+                                        th:field="*{prioridade}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('prioridade')} ? 'is-invalid'"
+                                        required>
+                                    <option value="BAIXA">Baixa</option>
+                                    <option value="MEDIA" selected>Média</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="CRITICA">Crítica (Interrupção total)</option>
+                                </select>
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('prioridade')}"
+                                     th:errors="*{prioridade}">
+                                    Erro na prioridade
+                                </div>
+                            </div>
+
+                            <!-- Ativo Relacionado -->
+                            <div class="col-md-6 mb-4">
+                                <label for="ativoId" class="form-label fw-semibold text-light">Ativo Relacionado</label>
+                                <select id="ativoId"
+                                        th:field="*{ativoId}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('ativoId')} ? 'is-invalid'">
+                                    <option value="">-- Nenhum ativo específico --</option>
+                                    <option th:each="ativo : ${ativos}"
+                                            th:value="${ativo.id}"
+                                            th:text="${ativo.nome + ' (S/N: ' + (ativo.numeroSerie != null ? ativo.numeroSerie : 'N/D') + ')'}">
+                                        Ativo
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('ativoId')}"
+                                     th:errors="*{ativoId}">
+                                    Erro no ativo
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Descrição Detalhada -->
+                        <div class="mb-4">
+                            <label for="descricao" class="form-label fw-semibold text-light">
+                                Descrição Detalhada <span class="text-danger">*</span>
+                            </label>
+                            <textarea id="descricao"
+                                      th:field="*{descricao}"
+                                      class="form-control"
+                                      th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'"
+                                      rows="5"
+                                      placeholder="Descreva o problema de forma detalhada. Se possível, inclua passos para reproduzir o problema."
+                                      required></textarea>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('descricao')}"
+                                 th:errors="*{descricao}">
+                                Erro na descrição
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+                            <a th:href="@{/chamados}" class="btn btn-outline-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                </svg>
+                                Voltar para a lista
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send-fill me-1" viewBox="0 0 16 16">
+                                    <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
+                                </svg>
+                                Enviar Solicitação
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
