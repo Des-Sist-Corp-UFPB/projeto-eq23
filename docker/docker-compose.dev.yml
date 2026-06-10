@@ -28,7 +28,7 @@ services:
       POSTGRES_USER: eq23
       POSTGRES_PASSWORD: sJX6LspwEeFN0LIPe8U2
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
