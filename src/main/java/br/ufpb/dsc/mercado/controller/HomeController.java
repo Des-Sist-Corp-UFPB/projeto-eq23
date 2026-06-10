@@ -19,7 +19,6 @@ public class HomeController {
     @GetMapping
     public String home(Model model) {
         model.addAttribute("totalProdutos", dashboardService.totalAtivos());
-        model.addAttribute("totalCategorias", dashboardService.totalCategorias());
         model.addAttribute("totalChamadosAbertos", dashboardService.totalChamadosAbertos());
         model.addAttribute("totalChamadosEmAtendimento", dashboardService.totalChamadosEmAtendimento());
         return "home";

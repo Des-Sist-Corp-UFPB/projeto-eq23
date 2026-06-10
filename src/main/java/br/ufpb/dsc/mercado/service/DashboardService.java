@@ -10,21 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class DashboardService {
 
     private final AtivoRepository ativoRepository;
-    private final CategoriaService categoriaService;
     private final ChamadoRepository chamadoRepository;
 
-    public DashboardService(AtivoRepository ativoRepository, CategoriaService categoriaService, ChamadoRepository chamadoRepository) {
+    public DashboardService(AtivoRepository ativoRepository, ChamadoRepository chamadoRepository) {
         this.ativoRepository = ativoRepository;
-        this.categoriaService = categoriaService;
         this.chamadoRepository = chamadoRepository;
     }
 
     public long totalAtivos() {
         return ativoRepository.count();
-    }
-
-    public long totalCategorias() {
-        return categoriaService.contarTotal();
     }
 
     public long totalChamadosAbertos() {

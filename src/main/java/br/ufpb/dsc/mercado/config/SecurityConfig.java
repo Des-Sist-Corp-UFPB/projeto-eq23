@@ -115,7 +115,7 @@ public class SecurityConfig {
                 // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
                 .csrf(csrf -> csrf
                         // Desabilita CSRF apenas para os endpoints usados pelo HTMX
-                        .ignoringRequestMatchers("/ativos/**", "/categorias/**", "/chamados/**")
+                        .ignoringRequestMatchers("/ativos/**", "/chamados/**")
                 );
 
         return http.build();
