@@ -2,5 +2,5 @@
 -- Senha: admin123
 -- Hash gerado com BCrypt strength 10, verificado e válido:
 UPDATE usuario
-SET senha = '$2a$10$2sQmUdo3nOqkVc/guq5wA.hsLf8r99ZMcMRfbejJ0msz04QadYAbe'
+SET senha = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'
 WHERE username = 'admin';
