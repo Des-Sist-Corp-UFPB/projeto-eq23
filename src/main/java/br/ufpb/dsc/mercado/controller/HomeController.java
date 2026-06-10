@@ -6,14 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * Controller responsável pela página inicial (dashboard).
- *
- * <p>Exibe estatísticas gerais do sistema: total de produtos, categorias,
- * produtos sem estoque e valor total do estoque.
- *
- * @author DSC - UFPB Campus IV
- */
 @Controller
 @RequestMapping("/")
 public class HomeController {
@@ -24,18 +16,14 @@ public class HomeController {
         this.dashboardService = dashboardService;
     }
 
-    /**
-     * Exibe o dashboard principal.
-     *
-     * @param model modelo Thymeleaf com as estatísticas
-     * @return template do dashboard
-     */
     @GetMapping
     public String home(Model model) {
-        model.addAttribute("totalProdutos", dashboardService.totalProdutos());
+        model.addAttribute("totalProdutos", dashboardService.totalAtivos());
         model.addAttribute("totalCategorias", dashboardService.totalCategorias());
-        model.addAttribute("produtosSemEstoque", dashboardService.produtosSemEstoque());
+        model.addAttribute("produtosSemEstoque", dashboardService.ativosSemEstoque());
         model.addAttribute("valorTotalEstoque", dashboardService.valorTotalEstoque());
+        model.addAttribute("totalChamadosAbertos", dashboardService.totalChamadosAbertos());
+        model.addAttribute("totalChamadosEmAtendimento", dashboardService.totalChamadosEmAtendimento());
         return "home";
     }
 }

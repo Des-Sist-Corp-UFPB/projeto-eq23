@@ -1,27 +1,10 @@
 <!DOCTYPE html>
-<!--
-  Página principal de listagem de produtos.
-
-  Herança de layout com Thymeleaf — padrão correto:
-  - th:replace="~{layout :: layout(~{::main})}" deve estar no elemento <html>,
-    NÃO em um elemento <main> ou <div> interno.
-  - Motivo: se th:replace estiver em um <main> e o seletor for ~{::main},
-    o Thymeleaf captura TODOS os elementos <main> do template — incluindo o
-    que tem th:replace — causando recursão infinita de layouts.
-  - Com th:replace no <html>: o seletor ~{::main} captura apenas o único <main>
-    do template, sem recursão.
-
-  Padrão HTMX usado nesta página:
-  - Campo de busca: atualiza apenas a tabela sem recarregar a página inteira
-  - Botão Novo Produto: carrega o formulário modal via AJAX
-  - A tabela é um fragmento separado para poder ser atualizada independentemente
--->
 <html lang="pt-BR"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout :: layout(~{::main})}">
 <head>
-    <title>Produtos</title>
+    <title>Ativos</title>
 </head>
 <body>
 
@@ -29,19 +12,11 @@
     <!-- Cabeçalho da página -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1">Produtos</h1>
-            <p class="text-muted mb-0">Gerencie o catálogo de produtos</p>
+            <h1 class="h3 mb-1">Ativos</h1>
+            <p class="text-muted mb-0">Gerencie o inventário de ativos de TI</p>
         </div>
-        <!--
-          Botão que aciona o HTMX para carregar o formulário de novo produto.
-
-          hx-get="/produtos/novo"       → faz GET para o endpoint que retorna o fragmento do formulário
-          hx-target="#modal-container"  → insere a resposta no div #modal-container (definido no layout)
-          hx-swap="innerHTML"           → substitui o conteúdo interno do target
-          hx-indicator="#spinner"       → exibe o spinner enquanto a requisição está em andamento
-        -->
         <button class="btn btn-primary"
-                hx-get="/produtos/novo"
+                hx-get="/ativos/novo"
                 hx-target="#modal-container"
                 hx-swap="innerHTML"
                 hx-indicator="#spinner">
@@ -49,8 +24,7 @@
                  class="bi bi-plus-lg me-1" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
             </svg>
-            Novo Produto
-            <!-- Spinner visível durante requisições HTMX (htmx-indicator) -->
+            Novo Ativo
             <span id="spinner" class="spinner-border spinner-border-sm htmx-indicator ms-1"
                   role="status" aria-hidden="true"></span>
         </button>
@@ -76,7 +50,7 @@
                                class="form-control"
                                placeholder="Buscar por nome..."
                                th:value="${busca}"
-                               hx-get="/produtos/fragmento-tabela"
+                               hx-get="/ativos/fragmento-tabela"
                                hx-trigger="keyup changed delay:400ms, search"
                                hx-target="#tabela-container"
                                hx-swap="innerHTML"
@@ -88,7 +62,7 @@
                     <select id="filtroCategoria"
                             name="categoriaId"
                             class="form-select"
-                            hx-get="/produtos/fragmento-tabela"
+                            hx-get="/ativos/fragmento-tabela"
                             hx-trigger="change"
                             hx-target="#tabela-container"
                             hx-swap="innerHTML"
@@ -103,24 +77,14 @@
                     </select>
                 </div>
                 <div class="col-md-2 text-end d-flex align-items-center justify-content-end">
-                    <span class="text-muted small" th:if="${produtos != null}">
-                        <span th:text="${produtos.totalElements}">0</span> produto(s)
+                    <span class="text-muted small" th:if="${ativos != null}">
+                        <span th:text="${ativos.totalElements}">0</span> ativo(s)
                     </span>
                 </div>
             </div>
 
-            <!--
-              Container da tabela — o HTMX substitui o conteúdo deste div
-              quando o usuário busca ou quando a tabela precisa ser atualizada.
-              O fragmento retornado pelo servidor é inserido aqui.
-            -->
             <div id="tabela-container">
-                <!--
-                  Inclui o fragmento da tabela.
-                  th:insert inclui o fragmento dentro deste elemento (mantendo o div).
-                  Alternativa: th:replace substituiria o próprio div pelo fragmento.
-                -->
-                <th:block th:insert="~{produtos/fragments/tabela :: tabela}"></th:block>
+                <th:block th:insert="~{ativos/fragments/tabela :: tabela}"></th:block>
             </div>
 
         </div>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<th:block th:fragment="modal">
+
+    <!-- Modal Bootstrap -->
+    <div class="modal fade" id="produtoModal" tabindex="-1"
+         aria-labelledby="chamadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Cabeçalho do modal -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="chamadoModalLabel">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                             class="bi me-2" viewBox="0 0 16 16"
+                             th:classappend="${chamado == null} ? 'bi-plus-circle' : 'bi-pencil-square'">
+                            <path th:if="${chamado == null}"
+                                  d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path th:if="${chamado == null}"
+                                  d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
+                        <span th:text="${chamado == null} ? 'Abrir Chamado' : 'Editar Chamado'">
+                            Chamado
+                        </span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <form th:object="${form}"
+                      th:attr="
+                        hx-post=${chamado == null ? '/chamados' : null},
+                        hx-put=${chamado != null ? '/chamados/' + chamado.id : null},
+                        hx-target=${chamado == null ? '#lista-chamados' : '#chamado-' + chamado.id},
+                        hx-swap=${chamado == null ? 'beforeend' : 'outerHTML'}"
+                      hx-on--after-request="if(event.detail.successful) { bootstrap.Modal.getInstance(document.getElementById('produtoModal')).hide(); }">
+
+                    <div class="modal-body">
+
+                        <!-- Alertas de erro de validação global -->
+                        <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                            <ul class="mb-0">
+                                <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Erro</li>
+                            </ul>
+                        </div>
+
+                        <!-- Campo Título -->
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label fw-semibold">
+                                Título do Chamado <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   th:field="*{titulo}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('titulo')} ? 'is-invalid'"
+                                   placeholder="Ex.: Lentidão extrema no Notebook ou sem acesso à rede"
+                                   maxlength="100"
+                                   required/>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('titulo')}"
+                                 th:errors="*{titulo}">
+                                Erro no título
+                            </div>
+                        </div>
+
+                        <!-- Campo Descrição -->
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label fw-semibold">
+                                Descrição Detalhada <span class="text-danger">*</span>
+                            </label>
+                            <textarea th:field="*{descricao}"
+                                      class="form-control"
+                                      th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'"
+                                      rows="4"
+                                      placeholder="Descreva o problema com detalhes, informando o que ocorre..."
+                                      required></textarea>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('descricao')}"
+                                 th:errors="*{descricao}">
+                                Erro na descrição
+                            </div>
+                        </div>
+
+                        <!-- Linha com Ativo e Prioridade -->
+                        <div class="row">
+                            <!-- Campo Ativo -->
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoId" class="form-label fw-semibold">Ativo Relacionado</label>
+                                <select th:field="*{ativoId}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('ativoId')} ? 'is-invalid'">
+                                    <option value="">-- Sem ativo específico --</option>
+                                    <option th:each="at : ${ativos}"
+                                            th:value="${at.id}"
+                                            th:text="${at.nome} + ' (SN: ' + ${at.numeroSerie} + ')'">Ativo</option>
+                                </select>
+                            </div>
+
+                            <!-- Campo Prioridade -->
+                            <div class="col-md-6 mb-3">
+                                <label for="prioridade" class="form-label fw-semibold">Prioridade <span class="text-danger">*</span></label>
+                                <select th:field="*{prioridade}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('prioridade')} ? 'is-invalid'"
+                                        required>
+                                    <option value="BAIXA">Baixa</option>
+                                    <option value="MEDIA">Média</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="CRITICA">Crítica</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Opções administrativas (somente para Admin/Técnico ou em modo de edição) -->
+                        <div class="row" sec:authorize="hasAnyRole('ADMIN', 'TECNICO')">
+                            <!-- Campo Técnico (Visível/Editável apenas para Admin/Técnico) -->
+                            <div class="col-md-6 mb-3">
+                                <label for="tecnicoId" class="form-label fw-semibold">Técnico Responsável</label>
+                                <select th:field="*{tecnicoId}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('tecnicoId')} ? 'is-invalid'">
+                                    <option value="">-- Não atribuído --</option>
+                                    <option th:each="usr : ${usuarios}"
+                                            th:if="${#strings.contains(usr.authorities, 'ROLE_TECNICO') or #strings.contains(usr.authorities, 'ROLE_ADMIN')}"
+                                            th:value="${usr.id}"
+                                            th:text="${usr.nome}">Técnico</option>
+                                </select>
+                            </div>
+
+                            <!-- Campo Status (Visível/Editável apenas para Admin/Técnico) -->
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label fw-semibold">Status do Chamado</label>
+                                <select th:field="*{status}"
+                                        class="form-select"
+                                        th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'">
+                                    <option value="ABERTO">Aberto</option>
+                                    <option value="EM_ATENDIMENTO">Em Atendimento</option>
+                                    <option value="RESOLVIDO">Resolvido</option>
+                                    <option value="FECHADO">Fechado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Atribuir cliente em modo administrativo se necessário -->
+                        <div class="mb-3" sec:authorize="hasRole('ADMIN')" th:if="${chamado != null}">
+                            <label for="clienteId" class="form-label fw-semibold">Solicitante (Cliente)</label>
+                            <select th:field="*{clienteId}"
+                                    class="form-select"
+                                    th:classappend="${#fields.hasErrors('clienteId')} ? 'is-invalid'">
+                                <option th:each="usr : ${usuarios}"
+                                        th:value="${usr.id}"
+                                        th:text="${usr.nome}">Cliente</option>
+                            </select>
+                        </div>
+
+                        <!-- Metadados de Auditoria -->
+                        <div th:if="${chamado != null}" class="alert alert-light border small">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <strong>Criado em:</strong>
+                                    <span th:text="${#temporals.format(chamado.criadoEm.atZone(T(java.time.ZoneId).systemDefault()).toLocalDateTime(), 'dd/MM/yyyy HH:mm')}">
+                                        00/00/0000
+                                    </span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <strong>Atualizado em:</strong>
+                                    <span th:text="${#temporals.format(chamado.atualizadoEm.atZone(T(java.time.ZoneId).systemDefault()).toLocalDateTime(), 'dd/MM/yyyy HH:mm')}">
+                                        00/00/0000
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /modal-body -->
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                 fill="currentColor" class="bi bi-check-lg me-1" viewBox="0 0 16 16">
+                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+                            </svg>
+                            <span th:text="${chamado == null} ? 'Abrir Chamado' : 'Salvar Alterações'">
+                                Salvar
+                            </span>
+                            <span class="spinner-border spinner-border-sm htmx-indicator ms-1"
+                                  role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                </form>
+
+            </div><!-- /modal-content -->
+        </div><!-- /modal-dialog -->
+    </div><!-- /modal -->
+
+</th:block>
+
+</body>
+</html>
