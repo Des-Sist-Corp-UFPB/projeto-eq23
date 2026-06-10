@@ -114,9 +114,8 @@ public class SecurityConfig {
                 // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
                 // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
                 .csrf(csrf -> csrf
-                        // Desabilita CSRF apenas para os endpoints usados pelo HTMX (PUT/DELETE)
-                        // ALTERNATIVA SEGURA: configure HTMX para enviar o token CSRF nos headers
-                        .ignoringRequestMatchers("/produtos/**", "/categorias/**")
+                        // Desabilita CSRF apenas para os endpoints usados pelo HTMX
+                        .ignoringRequestMatchers("/ativos/**", "/categorias/**", "/chamados/**")
                 );
 
         return http.build();
