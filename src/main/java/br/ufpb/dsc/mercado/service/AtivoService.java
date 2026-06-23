@@ -15,9 +15,11 @@ import org.springframework.util.StringUtils;
 public class AtivoService {
 
     private final AtivoRepository ativoRepository;
+    private final LogAuditoriaService logAuditoriaService;
 
-    public AtivoService(AtivoRepository ativoRepository) {
+    public AtivoService(AtivoRepository ativoRepository, LogAuditoriaService logAuditoriaService) {
         this.ativoRepository = ativoRepository;
+        this.logAuditoriaService = logAuditoriaService;
     }
 
     public Page<Ativo> listar(Pageable pageable) {
@@ -47,7 +49,9 @@ public class AtivoService {
                 form.numeroSerie(),
                 form.status()
         );
-        return ativoRepository.save(ativo);
+        Ativo salvo = ativoRepository.save(ativo);
+        logAuditoriaService.registrar("CRIAR", "Ativo", salvo.getId(), "Criado ativo: " + salvo.getNome());
+        return salvo;
     }
 
     @Transactional
@@ -57,14 +61,16 @@ public class AtivoService {
         ativo.setDescricao(form.descricao());
         ativo.setNumeroSerie(form.numeroSerie());
         ativo.setStatus(form.status());
-        return ativoRepository.save(ativo);
+        Ativo salvo = ativoRepository.save(ativo);
+        logAuditoriaService.registrar("ATUALIZAR", "Ativo", salvo.getId(), "Atualizado ativo: " + salvo.getNome());
+        return salvo;
     }
 
     @Transactional
     public void excluir(Long id) {
-        if (!ativoRepository.existsById(id)) {
-            throw new AtivoNaoEncontradoException(id);
-        }
+        Ativo ativo = ativoRepository.findById(id)
+                .orElseThrow(() -> new AtivoNaoEncontradoException(id));
+        logAuditoriaService.registrar("EXCLUIR", "Ativo", id, "Excluído ativo: " + ativo.getNome());
         ativoRepository.deleteById(id);
     }
 }

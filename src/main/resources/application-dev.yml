@@ -18,6 +18,8 @@ spring:
     enabled: true
     # Localização dos scripts de migração SQL
     locations: classpath:db/migration
+  thymeleaf:
+    cache: false
 
 logging:
   level:
