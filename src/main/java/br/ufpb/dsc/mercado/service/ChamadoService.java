@@ -21,12 +21,14 @@ public class ChamadoService {
     private final AtivoRepository ativoRepository;
     private final UsuarioRepository usuarioRepository;
     private final LogAuditoriaService logAuditoriaService;
+    private final EmailService emailService;
 
-    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService) {
+    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService, EmailService emailService) {
         this.chamadoRepository = chamadoRepository;
         this.ativoRepository = ativoRepository;
         this.usuarioRepository = usuarioRepository;
         this.logAuditoriaService = logAuditoriaService;
+        this.emailService = emailService;
     }
 
     public Page<Chamado> listar(Pageable pageable) {
@@ -63,6 +65,10 @@ public class ChamadoService {
         );
         Chamado salvo = chamadoRepository.save(chamado);
         logAuditoriaService.registrar("CRIAR", "Chamado", salvo.getId(), "Criado chamado: " + salvo.getTitulo());
+        
+        // Disparar notificação por e-mail (síncrono ou assíncrono dependendo da impl)
+        emailService.enviarNotificacaoChamadoCriado(salvo);
+        
         return salvo;
     }
 

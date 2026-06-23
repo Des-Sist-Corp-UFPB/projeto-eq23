@@ -25,3 +25,10 @@ logging:
   level:
     br.ufpb.dsc.mercado: DEBUG
     org.springframework.web: DEBUG
+
+app:
+  email:
+    api-url: ${EMAIL_API_URL:https://api.resend.com/emails}
+    api-key: ${EMAIL_API_KEY:}
+    from: ${EMAIL_FROM:onboarding@resend.dev}
+    to: ${EMAIL_TO:suporte@sparktech.com}

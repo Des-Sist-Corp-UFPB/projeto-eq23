@@ -38,6 +38,9 @@ class ChamadoServiceTest {
     @Mock
     private LogAuditoriaService logAuditoriaService;
 
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private ChamadoService chamadoService;
 
@@ -86,7 +89,7 @@ class ChamadoServiceTest {
     }
 
     @Test
-    @DisplayName("criar: deve salvar chamado e registrar auditoria")
+    @DisplayName("criar: deve salvar chamado, registrar auditoria e enviar e-mail")
     void criar_deveSalvarERegistrarAuditoria() {
         when(ativoRepository.findById(1L)).thenReturn(Optional.of(ativo));
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(cliente));
@@ -94,6 +97,7 @@ class ChamadoServiceTest {
         Chamado chamadoSalvo = new Chamado("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", ativo, null, cliente);
         chamadoSalvo.setId(10L);
         when(chamadoRepository.save(any(Chamado.class))).thenReturn(chamadoSalvo);
+        doNothing().when(emailService).enviarNotificacaoChamadoCriado(any(Chamado.class));
 
         Chamado resultado = chamadoService.criar(formValido, cliente);
 
@@ -102,6 +106,7 @@ class ChamadoServiceTest {
 
         verify(chamadoRepository).save(any(Chamado.class));
         verify(logAuditoriaService).registrar(eq("CRIAR"), eq("Chamado"), eq(10L), anyString());
+        verify(emailService).enviarNotificacaoChamadoCriado(any(Chamado.class));
     }
 
     @Test
