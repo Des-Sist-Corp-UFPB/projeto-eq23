@@ -76,7 +76,9 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Por enquanto, todos os usuários têm a mesma permissão "USER"
+        if ("admin".equalsIgnoreCase(username)) {
+            return List.of(() -> "ROLE_ADMIN", () -> "ROLE_USER");
+        }
         return List.of(() -> "ROLE_USER");
     }
 

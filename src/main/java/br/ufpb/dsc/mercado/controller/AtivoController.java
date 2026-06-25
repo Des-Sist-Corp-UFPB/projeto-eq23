@@ -9,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import br.ufpb.dsc.mercado.domain.Usuario;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -64,15 +67,24 @@ public class AtivoController {
         return "ativos/fragments/tabela :: tabela";
     }
 
+    private void verificarAcesso(Usuario usuario) {
+        if (usuario == null || usuario.getAuthorities().stream()
+                .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()))) {
+            throw new AccessDeniedException("Não autorizado para realizar esta ação");
+        }
+    }
+
     @GetMapping("/novo")
-    public String novoForm(Model model) {
+    public String novoForm(@AuthenticationPrincipal Usuario usuarioLogado, Model model) {
+        verificarAcesso(usuarioLogado);
         model.addAttribute("form", new AtivoForm("", "", "", "ATIVO"));
         model.addAttribute("ativo", null);
         return "ativos/fragments/form :: modal";
     }
 
     @GetMapping("/{id}/editar")
-    public String editarForm(@PathVariable Long id, Model model) {
+    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado, Model model) {
+        verificarAcesso(usuarioLogado);
         Ativo ativo = ativoService.buscarPorId(id);
         AtivoForm form = new AtivoForm(
                 ativo.getNome(),
@@ -89,8 +101,10 @@ public class AtivoController {
     public String criar(
             @Valid @ModelAttribute("form") AtivoForm form,
             BindingResult bindingResult,
+            @AuthenticationPrincipal Usuario usuarioLogado,
             Model model) {
 
+        verificarAcesso(usuarioLogado);
         if (bindingResult.hasErrors()) {
             model.addAttribute("ativo", null);
             return "ativos/fragments/form :: modal";
@@ -108,8 +122,10 @@ public class AtivoController {
             @PathVariable Long id,
             @Valid @ModelAttribute("form") AtivoForm form,
             BindingResult bindingResult,
+            @AuthenticationPrincipal Usuario usuarioLogado,
             Model model) {
 
+        verificarAcesso(usuarioLogado);
         if (bindingResult.hasErrors()) {
             Ativo ativo = ativoService.buscarPorId(id);
             model.addAttribute("ativo", ativo);
@@ -125,7 +141,8 @@ public class AtivoController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado) {
+        verificarAcesso(usuarioLogado);
         try {
             ativoService.excluir(id);
             return ResponseEntity.ok().build();

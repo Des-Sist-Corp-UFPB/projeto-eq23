@@ -109,13 +109,13 @@ public class SecurityConfig {
                 )
 
                 // === CSRF (Cross-Site Request Forgery) ===
-                // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
-                // O Spring Security protege adicionando um token único em formulários.
-                // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
-                // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
-                .csrf(csrf -> csrf
-                        // Desabilita CSRF apenas para os endpoints usados pelo HTMX
-                        .ignoringRequestMatchers("/ativos/**", "/chamados/**")
+                // Habilitado globalmente. A integração com HTMX é feita via cabeçalhos injetados nas requisições.
+                //
+                // === HEADERS DE SEGURANÇA E CSP ===
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';")
+                        )
                 );
 
         return http.build();

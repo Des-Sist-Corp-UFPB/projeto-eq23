@@ -18,6 +18,9 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- CSRF Token Meta Tags -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
     <title th:text="${titulo != null ? titulo + ' — SparkTech' : 'SparkTech'}">SparkTech</title>
 
     <!--
@@ -534,6 +537,15 @@
   htmx:afterSwap é disparado após o HTMX substituir o conteúdo.
 -->
 <script th:inline="javascript">
+    // Configura o HTMX para incluir o token CSRF em todas as requisições AJAX
+    document.body.addEventListener('htmx:configRequest', function(evt) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+        if (csrfToken && csrfHeader) {
+            evt.detail.headers[csrfHeader] = csrfToken;
+        }
+    });
+
     // Exibe toast ao carregar a página se houver mensagem no model (ex: após redirecionamento)
     document.addEventListener('DOMContentLoaded', function() {
         const msg = /*[[${toastMensagem}]]*/ null;

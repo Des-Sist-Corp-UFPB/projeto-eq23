@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -98,9 +99,25 @@ public class ChamadoController {
         return "chamados/fragments/form :: modal";
     }
 
+    private void verificarAcessoChamado(Chamado chamado, Usuario usuarioLogado) {
+        if (usuarioLogado == null) {
+            throw new AccessDeniedException("Não autenticado");
+        }
+        boolean isAdmin = usuarioLogado.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()));
+        boolean isCliente = chamado.getCliente() != null && chamado.getCliente().getId().equals(usuarioLogado.getId());
+        boolean isTecnico = chamado.getTecnico() != null && chamado.getTecnico().getId().equals(usuarioLogado.getId());
+
+        if (!isAdmin && !isCliente && !isTecnico) {
+            throw new AccessDeniedException("Não autorizado a acessar ou modificar este chamado");
+        }
+    }
+
     @GetMapping("/{id}/editar")
-    public String editarForm(@PathVariable Long id, Model model) {
+    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado, Model model) {
         Chamado chamado = chamadoService.buscarPorId(id);
+        verificarAcessoChamado(chamado, usuarioLogado);
+
         Long ativoId = chamado.getAtivo() != null ? chamado.getAtivo().getId() : null;
         Long tecnicoId = chamado.getTecnico() != null ? chamado.getTecnico().getId() : null;
         Long clienteId = chamado.getCliente() != null ? chamado.getCliente().getId() : null;
@@ -148,10 +165,13 @@ public class ChamadoController {
             @PathVariable Long id,
             @Valid @ModelAttribute("form") ChamadoForm form,
             BindingResult bindingResult,
+            @AuthenticationPrincipal Usuario usuarioLogado,
             Model model) {
 
+        Chamado chamado = chamadoService.buscarPorId(id);
+        verificarAcessoChamado(chamado, usuarioLogado);
+
         if (bindingResult.hasErrors()) {
-            Chamado chamado = chamadoService.buscarPorId(id);
             model.addAttribute("chamado", chamado);
             model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
             model.addAttribute("usuarios", usuarioRepository.findAll());
@@ -169,10 +189,14 @@ public class ChamadoController {
     public String alterarStatus(
             @PathVariable Long id,
             @RequestParam("status") String status,
+            @AuthenticationPrincipal Usuario usuarioLogado,
             Model model) {
         
-        Chamado chamado = chamadoService.alterarStatus(id, status);
-        model.addAttribute("chamado", chamado);
+        Chamado chamado = chamadoService.buscarPorId(id);
+        verificarAcessoChamado(chamado, usuarioLogado);
+
+        Chamado chamadoAtualizado = chamadoService.alterarStatus(id, status);
+        model.addAttribute("chamado", chamadoAtualizado);
         model.addAttribute("toastMensagem", "Status alterado para " + status);
         return "chamados/fragments/linha :: linha";
     }
@@ -181,18 +205,24 @@ public class ChamadoController {
     public String atribuirTecnico(
             @PathVariable Long id,
             @RequestParam("tecnicoId") Long tecnicoId,
+            @AuthenticationPrincipal Usuario usuarioLogado,
             Model model) {
         
-        Chamado chamado = chamadoService.atribuirTecnico(id, tecnicoId);
-        model.addAttribute("chamado", chamado);
+        Chamado chamado = chamadoService.buscarPorId(id);
+        verificarAcessoChamado(chamado, usuarioLogado);
+
+        Chamado chamadoAtualizado = chamadoService.atribuirTecnico(id, tecnicoId);
+        model.addAttribute("chamado", chamadoAtualizado);
         model.addAttribute("toastMensagem", "Técnico atribuído com sucesso!");
         return "chamados/fragments/linha :: linha";
     }
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado) {
         try {
+            Chamado chamado = chamadoService.buscarPorId(id);
+            verificarAcessoChamado(chamado, usuarioLogado);
             chamadoService.excluir(id);
             return ResponseEntity.ok().build();
         } catch (ChamadoNaoEncontradoException e) {
