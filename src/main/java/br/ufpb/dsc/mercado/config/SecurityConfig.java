@@ -41,6 +41,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService;
+
+    public SecurityConfig(@org.springframework.context.annotation.Lazy br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService) {
+        this.customOidcUserService = customOidcUserService;
+    }
+
+    public SecurityConfig() {
+        this.customOidcUserService = null;
+    }
+
 
     /**
      * Define o algoritmo de codificação de senhas.
@@ -100,6 +110,17 @@ public class SecurityConfig {
                         // A página de login deve ser acessível sem autenticação
                         .permitAll()
                 )
+
+                // === OAUTH2 LOGIN (GOOGLE) ===
+                .oauth2Login(oauth2 -> {
+                    oauth2.loginPage("/login");
+                    if (customOidcUserService != null) {
+                        oauth2.userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOidcUserService)
+                        );
+                    }
+                    oauth2.defaultSuccessUrl("/", true);
+                })
 
                 // === LOGOUT ===
                 .logout(logout -> logout

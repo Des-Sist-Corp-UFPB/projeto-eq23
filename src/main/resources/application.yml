@@ -3,6 +3,16 @@ spring:
     name: mercado
   profiles:
     active: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:dummy-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:dummy-secret}
+            scope:
+              - email
+              - profile
 
 # Actuator - monitoramento da aplicação
 # Acesse: http://localhost:8080/actuator/health
