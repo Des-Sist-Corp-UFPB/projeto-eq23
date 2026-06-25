@@ -24,6 +24,9 @@ class AtivoServiceTest {
     @Mock
     private AtivoRepository ativoRepository;
 
+    @Mock
+    private LogAuditoriaService logAuditoriaService;
+
     @InjectMocks
     private AtivoService ativoService;
 
@@ -78,6 +81,7 @@ class AtivoServiceTest {
         assertThat(resultado.getNome()).isEqualTo("Notebook Thinkpad");
 
         verify(ativoRepository, times(1)).save(any(Ativo.class));
+        verify(logAuditoriaService, times(1)).registrar(eq("CRIAR"), eq("Ativo"), eq(2L), anyString());
     }
 
     @Test
@@ -94,6 +98,7 @@ class AtivoServiceTest {
 
         verify(ativoRepository).findById(1L);
         verify(ativoRepository).save(any(Ativo.class));
+        verify(logAuditoriaService, times(1)).registrar(eq("ATUALIZAR"), eq("Ativo"), eq(1L), anyString());
     }
 
     @Test
@@ -105,30 +110,33 @@ class AtivoServiceTest {
                 .isInstanceOf(AtivoNaoEncontradoException.class);
 
         verify(ativoRepository, never()).save(any());
+        verify(logAuditoriaService, never()).registrar(any(), any(), any(), any());
     }
 
     @Test
     @DisplayName("excluir: deve deletar ativo quando ID existe")
     void excluir_quandoAtivoExiste_deveDeletar() {
-        when(ativoRepository.existsById(1L)).thenReturn(true);
+        when(ativoRepository.findById(1L)).thenReturn(Optional.of(ativoExistente));
         doNothing().when(ativoRepository).deleteById(1L);
 
         assertThatCode(() -> ativoService.excluir(1L))
                 .doesNotThrowAnyException();
 
-        verify(ativoRepository).existsById(1L);
+        verify(ativoRepository).findById(1L);
         verify(ativoRepository).deleteById(1L);
+        verify(logAuditoriaService, times(1)).registrar(eq("EXCLUIR"), eq("Ativo"), eq(1L), anyString());
     }
 
     @Test
     @DisplayName("excluir: deve lançar exceção quando ativo não existe")
     void excluir_quandoAtivoNaoExiste_deveLancarExcecao() {
-        when(ativoRepository.existsById(99L)).thenReturn(false);
+        when(ativoRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> ativoService.excluir(99L))
                 .isInstanceOf(AtivoNaoEncontradoException.class)
                 .hasMessageContaining("99");
 
         verify(ativoRepository, never()).deleteById(any());
+        verify(logAuditoriaService, never()).registrar(any(), any(), any(), any());
     }
 }
