@@ -20,11 +20,15 @@ public class ChamadoService {
     private final ChamadoRepository chamadoRepository;
     private final AtivoRepository ativoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final LogAuditoriaService logAuditoriaService;
+    private final EmailService emailService;
 
-    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository) {
+    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService, EmailService emailService) {
         this.chamadoRepository = chamadoRepository;
         this.ativoRepository = ativoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.logAuditoriaService = logAuditoriaService;
+        this.emailService = emailService;
     }
 
     public Page<Chamado> listar(Pageable pageable) {
@@ -59,7 +63,13 @@ public class ChamadoService {
                 tecnico,
                 clienteEntidade
         );
-        return chamadoRepository.save(chamado);
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("CRIAR", "Chamado", salvo.getId(), "Criado chamado: " + salvo.getTitulo());
+        
+        // Disparar notificação por e-mail (síncrono ou assíncrono dependendo da impl)
+        emailService.enviarNotificacaoChamadoCriado(salvo);
+        
+        return salvo;
     }
 
     @Transactional
@@ -73,14 +83,19 @@ public class ChamadoService {
         }
         chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);
         chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);
-        return chamadoRepository.save(chamado);
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("ATUALIZAR", "Chamado", salvo.getId(), "Atualizado chamado: " + salvo.getTitulo());
+        return salvo;
     }
 
     @Transactional
     public Chamado alterarStatus(Long id, String status) {
         Chamado chamado = buscarPorId(id);
+        String statusAntigo = chamado.getStatus();
         chamado.setStatus(status);
-        return chamadoRepository.save(chamado);
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("ALTERAR_STATUS", "Chamado", salvo.getId(), "Status alterado de " + statusAntigo + " para " + status);
+        return salvo;
     }
 
     @Transactional
@@ -91,14 +106,16 @@ public class ChamadoService {
         if (tecnico != null && "ABERTO".equals(chamado.getStatus())) {
             chamado.setStatus("EM_ATENDIMENTO");
         }
-        return chamadoRepository.save(chamado);
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("ATRIBUIR_TECNICO", "Chamado", salvo.getId(), "Técnico atribuído: " + (tecnico != null ? tecnico.getNome() : "Nenhum"));
+        return salvo;
     }
 
     @Transactional
     public void excluir(Long id) {
-        if (!chamadoRepository.existsById(id)) {
-            throw new ChamadoNaoEncontradoException(id);
-        }
+        Chamado chamado = chamadoRepository.findById(id)
+                .orElseThrow(() -> new ChamadoNaoEncontradoException(id));
+        logAuditoriaService.registrar("EXCLUIR", "Chamado", id, "Excluído chamado: " + chamado.getTitulo());
         chamadoRepository.deleteById(id);
     }
 }
