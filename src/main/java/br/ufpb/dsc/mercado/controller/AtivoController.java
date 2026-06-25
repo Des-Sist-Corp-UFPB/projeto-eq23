@@ -88,7 +88,7 @@ public class AtivoController {
     public String novoForm(@AuthenticationPrincipal Object principal, Model model) {
         Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
-        model.addAttribute("form", new AtivoForm("", "", "", "ATIVO", java.util.Collections.emptyList()));
+        model.addAttribute("form", new AtivoForm("", "", "", "ATIVO", java.util.List.of(new br.ufpb.dsc.mercado.dto.PatrimonioItemForm("", ""))));
         model.addAttribute("ativo", null);
         return "ativos/fragments/form :: modal";
     }
