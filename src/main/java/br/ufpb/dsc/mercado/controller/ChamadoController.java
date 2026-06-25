@@ -5,6 +5,7 @@ import br.ufpb.dsc.mercado.domain.Usuario;
 import br.ufpb.dsc.mercado.dto.ChamadoForm;
 import br.ufpb.dsc.mercado.exception.ChamadoNaoEncontradoException;
 import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import br.ufpb.dsc.mercado.repository.PatrimonioRepository;
 import br.ufpb.dsc.mercado.service.AtivoService;
 import br.ufpb.dsc.mercado.service.ChamadoService;
 import jakarta.validation.Valid;
@@ -30,11 +31,13 @@ public class ChamadoController {
     private final ChamadoService chamadoService;
     private final AtivoService ativoService;
     private final UsuarioRepository usuarioRepository;
+    private final PatrimonioRepository patrimonioRepository;
 
-    public ChamadoController(ChamadoService chamadoService, AtivoService ativoService, UsuarioRepository usuarioRepository) {
+    public ChamadoController(ChamadoService chamadoService, AtivoService ativoService, UsuarioRepository usuarioRepository, PatrimonioRepository patrimonioRepository) {
         this.chamadoService = chamadoService;
         this.ativoService = ativoService;
         this.usuarioRepository = usuarioRepository;
+        this.patrimonioRepository = patrimonioRepository;
     }
 
     @GetMapping
@@ -69,8 +72,9 @@ public class ChamadoController {
 
     @GetMapping("/abrir")
     public String abrirForm(Model model) {
-        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null));
+        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null, null));
         model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+        model.addAttribute("patrimonios", patrimonioRepository.findAll());
         return "chamados/abrir";
     }
 
@@ -85,6 +89,7 @@ public class ChamadoController {
         Usuario usuarioLogado = getUsuarioLogado(principal);
         if (bindingResult.hasErrors()) {
             model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+            model.addAttribute("patrimonios", patrimonioRepository.findAll());
             return "chamados/abrir";
         }
 
@@ -95,9 +100,10 @@ public class ChamadoController {
 
     @GetMapping("/novo")
     public String novoForm(Model model) {
-        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null));
+        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null, null));
         model.addAttribute("chamado", null);
         model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+        model.addAttribute("patrimonios", patrimonioRepository.findAll());
         model.addAttribute("usuarios", usuarioRepository.findAll());
         return "chamados/fragments/form :: modal";
     }
@@ -135,7 +141,7 @@ public class ChamadoController {
         Long ativoId = chamado.getAtivo() != null ? chamado.getAtivo().getId() : null;
         Long tecnicoId = chamado.getTecnico() != null ? chamado.getTecnico().getId() : null;
         Long clienteId = chamado.getCliente() != null ? chamado.getCliente().getId() : null;
-
+        Long patrimonioId = chamado.getPatrimonio() != null ? chamado.getPatrimonio().getId() : null;
         ChamadoForm form = new ChamadoForm(
                 chamado.getTitulo(),
                 chamado.getDescricao(),
@@ -143,12 +149,14 @@ public class ChamadoController {
                 chamado.getStatus(),
                 ativoId,
                 tecnicoId,
-                clienteId
+                clienteId,
+                patrimonioId
         );
 
         model.addAttribute("form", form);
         model.addAttribute("chamado", chamado);
         model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+        model.addAttribute("patrimonios", patrimonioRepository.findAll());
         model.addAttribute("usuarios", usuarioRepository.findAll());
         return "chamados/fragments/form :: modal";
     }
@@ -164,6 +172,7 @@ public class ChamadoController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("chamado", null);
             model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
+            model.addAttribute("patrimonios", patrimonioRepository.findAll());
             model.addAttribute("usuarios", usuarioRepository.findAll());
             return "chamados/fragments/form :: modal";
         }

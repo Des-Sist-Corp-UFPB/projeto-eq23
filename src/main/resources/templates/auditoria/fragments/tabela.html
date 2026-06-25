@@ -27,7 +27,7 @@
                             <div class="avatar-sm me-2 rounded-circle bg-secondary d-flex align-items-center justify-content-center text-light fw-bold" 
                                  style="width: 28px; height: 28px; font-size: 0.8rem; background-color: rgba(255,255,255,0.1) !important;"
                                  th:text="${#strings.substring(log.usuario, 0, 1).toUpperCase()}">U</div>
-                            <span th:text="${log.usuario}">usuario</span>
+                            <span class="text-danger fw-medium" th:text="${log.usuario}">usuario</span>
                         </div>
                     </td>
                     <td>

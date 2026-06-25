@@ -85,16 +85,17 @@
 
                         <!-- Linha com Ativo e Prioridade -->
                         <div class="row">
-                            <!-- Campo Ativo -->
+                            <!-- Campo Patrimônio -->
                             <div class="col-md-6 mb-3">
-                                <label for="ativoId" class="form-label fw-semibold">Ativo Relacionado</label>
-                                <select th:field="*{ativoId}"
+                                <label for="patrimonioId" class="form-label fw-semibold">Equipamento (Patrimônio) <span class="text-danger">*</span></label>
+                                <select th:field="*{patrimonioId}"
                                         class="form-select"
-                                        th:classappend="${#fields.hasErrors('ativoId')} ? 'is-invalid'">
-                                    <option value="">-- Sem ativo específico --</option>
-                                    <option th:each="at : ${ativos}"
-                                            th:value="${at.id}"
-                                            th:text="${at.nome} + ' (SN: ' + ${at.numeroSerie} + ')'">Ativo</option>
+                                        th:classappend="${#fields.hasErrors('patrimonioId')} ? 'is-invalid'"
+                                        required>
+                                    <option value="">-- Selecione o Patrimônio --</option>
+                                    <option th:each="pat : ${patrimonios}"
+                                            th:value="${pat.id}"
+                                            th:text="${pat.codigo} + ' - ' + ${pat.ativo.nome} + ' (SN: ' + ${pat.numeroSerie} + ')'">Patrimônio</option>
                                 </select>
                             </div>
 

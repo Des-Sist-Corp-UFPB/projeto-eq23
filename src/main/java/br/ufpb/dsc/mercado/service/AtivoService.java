@@ -49,6 +49,13 @@ public class AtivoService {
                 form.numeroSerie(),
                 form.status()
         );
+        if (form.patrimonios() != null) {
+            for (var pForm : form.patrimonios()) {
+                if (org.springframework.util.StringUtils.hasText(pForm.codigo()) && org.springframework.util.StringUtils.hasText(pForm.numeroSerie())) {
+                    ativo.addPatrimonio(new br.ufpb.dsc.mercado.domain.Patrimonio(pForm.codigo().trim(), pForm.numeroSerie().trim(), ativo));
+                }
+            }
+        }
         Ativo salvo = ativoRepository.save(ativo);
         logAuditoriaService.registrar("CRIAR", "Ativo", salvo.getId(), "Criado ativo: " + salvo.getNome());
         return salvo;
@@ -61,6 +68,16 @@ public class AtivoService {
         ativo.setDescricao(form.descricao());
         ativo.setNumeroSerie(form.numeroSerie());
         ativo.setStatus(form.status());
+        
+        ativo.getPatrimonios().clear();
+        if (form.patrimonios() != null) {
+            for (var pForm : form.patrimonios()) {
+                if (org.springframework.util.StringUtils.hasText(pForm.codigo()) && org.springframework.util.StringUtils.hasText(pForm.numeroSerie())) {
+                    ativo.addPatrimonio(new br.ufpb.dsc.mercado.domain.Patrimonio(pForm.codigo().trim(), pForm.numeroSerie().trim(), ativo));
+                }
+            }
+        }
+        
         Ativo salvo = ativoRepository.save(ativo);
         logAuditoriaService.registrar("ATUALIZAR", "Ativo", salvo.getId(), "Atualizado ativo: " + salvo.getNome());
         return salvo;

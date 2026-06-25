@@ -88,7 +88,7 @@ public class AtivoController {
     public String novoForm(@AuthenticationPrincipal Object principal, Model model) {
         Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
-        model.addAttribute("form", new AtivoForm("", "", "", "ATIVO"));
+        model.addAttribute("form", new AtivoForm("", "", "", "ATIVO", java.util.Collections.emptyList()));
         model.addAttribute("ativo", null);
         return "ativos/fragments/form :: modal";
     }
@@ -98,11 +98,15 @@ public class AtivoController {
         Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
         Ativo ativo = ativoService.buscarPorId(id);
+        java.util.List<br.ufpb.dsc.mercado.dto.PatrimonioItemForm> patForms = ativo.getPatrimonios().stream()
+                .map(p -> new br.ufpb.dsc.mercado.dto.PatrimonioItemForm(p.getCodigo(), p.getNumeroSerie()))
+                .toList();
         AtivoForm form = new AtivoForm(
                 ativo.getNome(),
                 ativo.getDescricao(),
                 ativo.getNumeroSerie(),
-                ativo.getStatus()
+                ativo.getStatus(),
+                patForms
         );
         model.addAttribute("form", form);
         model.addAttribute("ativo", ativo);

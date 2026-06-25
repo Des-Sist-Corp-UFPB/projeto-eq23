@@ -22,13 +22,15 @@ public class ChamadoService {
     private final UsuarioRepository usuarioRepository;
     private final LogAuditoriaService logAuditoriaService;
     private final EmailService emailService;
+    private final br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository;
 
-    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService, EmailService emailService) {
+    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService, EmailService emailService, br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository) {
         this.chamadoRepository = chamadoRepository;
         this.ativoRepository = ativoRepository;
         this.usuarioRepository = usuarioRepository;
         this.logAuditoriaService = logAuditoriaService;
         this.emailService = emailService;
+        this.patrimonioRepository = patrimonioRepository;
     }
 
     public Page<Chamado> listar(Pageable pageable) {
@@ -50,7 +52,7 @@ public class ChamadoService {
 
     @Transactional
     public Chamado criar(ChamadoForm form, Usuario cliente) {
-        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;
+        br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;
         Usuario tecnico = form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null;
         Usuario clienteEntidade = form.clienteId() != null ? usuarioRepository.findById(form.clienteId()).orElse(cliente) : cliente;
 
@@ -59,7 +61,7 @@ public class ChamadoService {
                 form.descricao(),
                 form.prioridade(),
                 form.status() != null ? form.status() : "ABERTO",
-                ativo,
+                patrimonio,
                 tecnico,
                 clienteEntidade
         );
@@ -81,7 +83,13 @@ public class ChamadoService {
         if (form.status() != null) {
             chamado.setStatus(form.status());
         }
-        chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);
+        
+        br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;
+        chamado.setPatrimonio(patrimonio);
+        if (patrimonio == null) {
+            chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);
+        }
+        
         chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);
         Chamado salvo = chamadoRepository.save(chamado);
         logAuditoriaService.registrar("ATUALIZAR", "Chamado", salvo.getId(), "Atualizado chamado: " + salvo.getTitulo());

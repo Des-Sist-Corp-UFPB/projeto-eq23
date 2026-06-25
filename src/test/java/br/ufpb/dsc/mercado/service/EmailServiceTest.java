@@ -37,7 +37,7 @@ class EmailServiceTest {
         );
 
         Usuario cliente = new Usuario("Gabriel", "gabriel", "senha");
-        Chamado chamado = new Chamado("Impressora Quebrada", "Não liga na tomada", "ALTA", "ABERTO", null, null, cliente);
+        Chamado chamado = new Chamado("Impressora Quebrada", "Não liga na tomada", "ALTA", "ABERTO", (br.ufpb.dsc.mercado.domain.Ativo) null, null, cliente);
         chamado.setId(42L);
 
         // Configura a expectativa do servidor mock
@@ -63,7 +63,7 @@ class EmailServiceTest {
     void mockEmailService_deveExecutarSemErro() {
         MockEmailService mockEmailService = new MockEmailService("from@test.com", "to@test.com");
         Usuario cliente = new Usuario("Gabriel", "gabriel", "senha");
-        Chamado chamado = new Chamado("Impressora Quebrada", "Não liga na tomada", "ALTA", "ABERTO", null, null, cliente);
+        Chamado chamado = new Chamado("Impressora Quebrada", "Não liga na tomada", "ALTA", "ABERTO", (br.ufpb.dsc.mercado.domain.Ativo) null, null, cliente);
         chamado.setId(42L);
 
         assertThatCode(() -> mockEmailService.enviarNotificacaoChamadoCriado(chamado))

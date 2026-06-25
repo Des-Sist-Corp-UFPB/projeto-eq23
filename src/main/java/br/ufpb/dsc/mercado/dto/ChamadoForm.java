@@ -19,6 +19,8 @@ public record ChamadoForm(
 
         Long tecnicoId,
 
-        Long clienteId
+        Long clienteId,
+
+        Long patrimonioId
 ) {
 }

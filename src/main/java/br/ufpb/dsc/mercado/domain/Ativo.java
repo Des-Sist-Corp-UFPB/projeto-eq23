@@ -62,6 +62,9 @@ public class Ativo {
         this.status = status != null ? status : "ATIVO";
     }
 
+    @OneToMany(mappedBy = "ativo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Patrimonio> patrimonios = new java.util.ArrayList<>();
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -71,8 +74,6 @@ public class Ativo {
 
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }
-
-
 
     public String getNumeroSerie() { return numeroSerie; }
     public void setNumeroSerie(String numeroSerie) { this.numeroSerie = numeroSerie; }
@@ -84,5 +85,18 @@ public class Ativo {
     public void setCriadoEm(Instant criadoEm) { this.criadoEm = criadoEm; }
 
     public Instant getAtualizadoEm() { return atualizadoEm; }
-    public void setAtualizadoEm(Instant atualizadoEm) { this.atualizadoEm = atualizadoEm; }
+    public void setAtualizadoEm(Instant updatedTime) { this.atualizadoEm = updatedTime; }
+
+    public java.util.List<Patrimonio> getPatrimonios() { return patrimonios; }
+    public void setPatrimonios(java.util.List<Patrimonio> patrimonios) { this.patrimonios = patrimonios; }
+
+    public void addPatrimonio(Patrimonio p) {
+        patrimonios.add(p);
+        p.setAtivo(this);
+    }
+
+    public void removePatrimonio(Patrimonio p) {
+        patrimonios.remove(p);
+        p.setAtivo(null);
+    }
 }

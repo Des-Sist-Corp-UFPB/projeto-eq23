@@ -39,6 +39,9 @@ class ChamadoServiceTest {
     private LogAuditoriaService logAuditoriaService;
 
     @Mock
+    private br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository;
+
+    @Mock
     private EmailService emailService;
 
     @InjectMocks
@@ -64,7 +67,7 @@ class ChamadoServiceTest {
         chamadoExistente = new Chamado("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", ativo, null, cliente);
         chamadoExistente.setId(10L);
 
-        formValido = new ChamadoForm("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", 1L, null, 1L);
+        formValido = new ChamadoForm("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", 1L, null, 1L, null);
     }
 
     @Test
@@ -91,7 +94,6 @@ class ChamadoServiceTest {
     @Test
     @DisplayName("criar: deve salvar chamado, registrar auditoria e enviar e-mail")
     void criar_deveSalvarERegistrarAuditoria() {
-        when(ativoRepository.findById(1L)).thenReturn(Optional.of(ativo));
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(cliente));
 
         Chamado chamadoSalvo = new Chamado("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", ativo, null, cliente);
@@ -115,7 +117,7 @@ class ChamadoServiceTest {
         when(chamadoRepository.findById(10L)).thenReturn(Optional.of(chamadoExistente));
         when(chamadoRepository.save(any(Chamado.class))).thenReturn(chamadoExistente);
 
-        ChamadoForm formEdicao = new ChamadoForm("Instalação OS - Urgente", "Instalar Linux Rápido", "ALTA", "ABERTO", 1L, null, 1L);
+        ChamadoForm formEdicao = new ChamadoForm("Instalação OS - Urgente", "Instalar Linux Rápido", "ALTA", "ABERTO", 1L, null, 1L, null);
 
         Chamado resultado = chamadoService.atualizar(10L, formEdicao);
 

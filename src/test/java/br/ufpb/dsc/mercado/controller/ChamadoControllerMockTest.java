@@ -38,6 +38,7 @@ class ChamadoControllerMockTest {
     private ChamadoService chamadoService;
     private AtivoService ativoService;
     private UsuarioRepository usuarioRepository;
+    private br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository;
     private Usuario mockUsuario;
 
     @BeforeEach
@@ -45,6 +46,7 @@ class ChamadoControllerMockTest {
         chamadoService = mock(ChamadoService.class);
         ativoService = mock(AtivoService.class);
         usuarioRepository = mock(UsuarioRepository.class);
+        patrimonioRepository = mock(br.ufpb.dsc.mercado.repository.PatrimonioRepository.class);
 
         mockUsuario = new Usuario();
         mockUsuario.setId(1L);
@@ -55,13 +57,14 @@ class ChamadoControllerMockTest {
         Page<Ativo> emptyAtivos = new PageImpl<>(Collections.emptyList());
         when(ativoService.listar(any(Pageable.class))).thenReturn(emptyAtivos);
         when(usuarioRepository.findAll()).thenReturn(Collections.emptyList());
+        when(patrimonioRepository.findAll()).thenReturn(Collections.emptyList());
 
         Chamado defaultChamado = new Chamado();
         defaultChamado.setId(1L);
         defaultChamado.setCliente(mockUsuario);
         when(chamadoService.buscarPorId(anyLong())).thenReturn(defaultChamado);
 
-        ChamadoController chamadoController = new ChamadoController(chamadoService, ativoService, usuarioRepository);
+        ChamadoController chamadoController = new ChamadoController(chamadoService, ativoService, usuarioRepository, patrimonioRepository);
         mockMvc = MockMvcBuilders.standaloneSetup(chamadoController)
                 .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
                     @Override

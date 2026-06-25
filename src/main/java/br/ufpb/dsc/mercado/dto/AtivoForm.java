@@ -15,6 +15,8 @@ public record AtivoForm(
 
         @NotBlank(message = "O status é obrigatório")
         @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
-        String status
+        String status,
+
+        java.util.List<PatrimonioItemForm> patrimonios
 ) {
 }
