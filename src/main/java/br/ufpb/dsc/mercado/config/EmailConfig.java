@@ -12,16 +12,16 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class EmailConfig {
 
-    @Value("${app.email.api-url}")
+    @Value("${app.email.api-url:https://api.resend.com/emails}")
     private String apiUrl;
 
-    @Value("${app.email.api-key}")
+    @Value("${app.email.api-key:}")
     private String apiKey;
 
-    @Value("${app.email.from}")
+    @Value("${app.email.from:onboarding@resend.dev}")
     private String from;
 
-    @Value("${app.email.to}")
+    @Value("${app.email.to:suporte@sparktech.com}")
     private String to;
 
     @Bean
