@@ -23,8 +23,8 @@ public class Ativo {
 
 
 
-    @Size(max = 50, message = "O número de série pode ter no máximo 50 caracteres")
-    @Column(name = "numero_serie", length = 50)
+    @Size(max = 11, message = "O número de série pode ter no máximo 11 caracteres")
+    @Column(name = "numero_serie", length = 11)
     private String numeroSerie;
 
     @NotBlank(message = "O status é obrigatório")

@@ -11,7 +11,7 @@ public record AtivoForm(
         @Size(max = 2000, message = "A descrição pode ter no máximo 2000 caracteres")
         String descricao,
 
-        @Size(max = 50, message = "O número de série pode ter no máximo 50 caracteres")
+        @Size(max = 11, message = "O número de série pode ter no máximo 11 caracteres")
         String numeroSerie,
 
         @NotBlank(message = "O status é obrigatório")
