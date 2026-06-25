@@ -35,10 +35,10 @@ class AtivoServiceTest {
 
     @BeforeEach
     void setUp() {
-        ativoExistente = new Ativo("Notebook Dell", "XPS 13", "SN-DELL-1234", "ATIVO");
+        ativoExistente = new Ativo("Notebook Dell", "XPS 13", "DELL-1234", "ATIVO");
         ativoExistente.setId(1L);
 
-        formValido = new AtivoForm("Notebook Thinkpad", "T14 Gen 3", "SN-THINK-5678", "ATIVO");
+        formValido = new AtivoForm("Notebook Thinkpad", "T14 Gen 3", "THINK-5678", "ATIVO", java.util.Collections.emptyList());
     }
 
     @Test
@@ -90,7 +90,7 @@ class AtivoServiceTest {
         when(ativoRepository.findById(1L)).thenReturn(Optional.of(ativoExistente));
         when(ativoRepository.save(any(Ativo.class))).thenReturn(ativoExistente);
 
-        AtivoForm formAtualizado = new AtivoForm("Notebook Dell Pro", "XPS 13 Developer Edition", "SN-DELL-1234", "ATIVO");
+        AtivoForm formAtualizado = new AtivoForm("Notebook Dell Pro", "XPS 13 Developer Edition", "DELL-1234", "ATIVO", java.util.Collections.emptyList());
 
         Ativo resultado = ativoService.atualizar(1L, formAtualizado);
 

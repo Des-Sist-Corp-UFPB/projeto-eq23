@@ -11,11 +11,14 @@
     <!-- Título / Ativo -->
     <td>
         <div class="fw-semibold text-light" th:text="${chamado.titulo}">Título do Chamado</div>
-        <div class="small text-muted" th:if="${chamado.ativo != null}">
+        <div class="small text-muted" th:if="${chamado.patrimonio != null}">
+            Patrimônio: <span th:text="${chamado.patrimonio.codigo + ' (' + chamado.patrimonio.ativo.nome + ')'}">PAT-001</span>
+        </div>
+        <div class="small text-muted" th:if="${chamado.patrimonio == null and chamado.ativo != null}">
             Ativo: <span th:text="${chamado.ativo.nome}">Ativo</span>
         </div>
-        <div class="small text-muted fst-italic" th:unless="${chamado.ativo != null}">
-            Sem ativo associado
+        <div class="small text-muted fst-italic" th:if="${chamado.patrimonio == null and chamado.ativo == null}">
+            Sem ativo/patrimônio associado
         </div>
     </td>
 

@@ -13,11 +13,18 @@
         <span class="fw-semibold text-light" th:text="${ativo.nome}">Nome do Ativo</span>
     </td>
 
-    <!-- Número de série -->
+    <!-- Número de série e Patrimônio -->
     <td>
-        <code th:if="${ativo.numeroSerie != null and !ativo.numeroSerie.isEmpty()}"
-              th:text="${ativo.numeroSerie}">SN12345</code>
-        <span th:unless="${ativo.numeroSerie != null and !ativo.numeroSerie.isEmpty()}"
+        <div th:if="${ativo.numeroSerie != null and !ativo.numeroSerie.isEmpty()}">
+            <span class="text-muted small">S/N:</span> <code th:text="${ativo.numeroSerie}">SN12345</code>
+        </div>
+        <div th:if="${ativo.patrimonios != null and !ativo.patrimonios.empty}" class="mt-1">
+            <span class="text-muted small">Pat:</span>
+            <span th:each="pat, iterStat : ${ativo.patrimonios}">
+                <code th:text="${pat.codigo}">Y5943</code><span class="text-muted small" th:text="'(' + ${pat.numeroSerie} + ')'"> (SN)</span><span th:if="${!iterStat.last}">, </span>
+            </span>
+        </div>
+        <span th:if="${(ativo.numeroSerie == null or ativo.numeroSerie.isEmpty()) and (ativo.patrimonios == null or ativo.patrimonios.empty)}"
               class="text-muted fst-italic small">—</span>
     </td>
 

@@ -9,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import br.ufpb.dsc.mercado.domain.Usuario;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -64,21 +67,46 @@ public class AtivoController {
         return "ativos/fragments/tabela :: tabela";
     }
 
+    private void verificarAcesso(Usuario usuario) {
+        if (usuario == null || usuario.getAuthorities().stream()
+                .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+            throw new AccessDeniedException("Não autorizado para realizar esta ação");
+        }
+    }
+
+    private Usuario getUsuarioLogado(Object principal) {
+        if (principal instanceof br.ufpb.dsc.mercado.security.CustomOidcUser) {
+            return ((br.ufpb.dsc.mercado.security.CustomOidcUser) principal).getUsuario();
+        }
+        if (principal instanceof Usuario) {
+            return (Usuario) principal;
+        }
+        return null;
+    }
+
     @GetMapping("/novo")
-    public String novoForm(Model model) {
-        model.addAttribute("form", new AtivoForm("", "", "", "ATIVO"));
+    public String novoForm(@AuthenticationPrincipal Object principal, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
+        model.addAttribute("form", new AtivoForm("", "", "", "ATIVO", java.util.List.of(new br.ufpb.dsc.mercado.dto.PatrimonioItemForm("", ""))));
         model.addAttribute("ativo", null);
         return "ativos/fragments/form :: modal";
     }
 
     @GetMapping("/{id}/editar")
-    public String editarForm(@PathVariable Long id, Model model) {
+    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Object principal, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
         Ativo ativo = ativoService.buscarPorId(id);
+        java.util.List<br.ufpb.dsc.mercado.dto.PatrimonioItemForm> patForms = ativo.getPatrimonios().stream()
+                .map(p -> new br.ufpb.dsc.mercado.dto.PatrimonioItemForm(p.getCodigo(), p.getNumeroSerie()))
+                .toList();
         AtivoForm form = new AtivoForm(
                 ativo.getNome(),
                 ativo.getDescricao(),
                 ativo.getNumeroSerie(),
-                ativo.getStatus()
+                ativo.getStatus(),
+                patForms
         );
         model.addAttribute("form", form);
         model.addAttribute("ativo", ativo);
@@ -89,8 +117,11 @@ public class AtivoController {
     public String criar(
             @Valid @ModelAttribute("form") AtivoForm form,
             BindingResult bindingResult,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
         if (bindingResult.hasErrors()) {
             model.addAttribute("ativo", null);
             return "ativos/fragments/form :: modal";
@@ -108,8 +139,11 @@ public class AtivoController {
             @PathVariable Long id,
             @Valid @ModelAttribute("form") AtivoForm form,
             BindingResult bindingResult,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
         if (bindingResult.hasErrors()) {
             Ativo ativo = ativoService.buscarPorId(id);
             model.addAttribute("ativo", ativo);
@@ -125,7 +159,9 @@ public class AtivoController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Object principal) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
         try {
             ativoService.excluir(id);
             return ResponseEntity.ok().build();

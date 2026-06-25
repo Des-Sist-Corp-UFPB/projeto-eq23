@@ -1,5 +1,6 @@
 package br.ufpb.dsc.mercado.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 public record AtivoForm(
@@ -10,11 +11,15 @@ public record AtivoForm(
         @Size(max = 2000, message = "A descrição pode ter no máximo 2000 caracteres")
         String descricao,
 
-        @Size(max = 50, message = "O número de série pode ter no máximo 50 caracteres")
+        @Size(max = 11, message = "O número de série pode ter no máximo 11 caracteres")
         String numeroSerie,
 
         @NotBlank(message = "O status é obrigatório")
         @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
-        String status
+        String status,
+
+        @Valid
+        java.util.List<PatrimonioItemForm> patrimonios
 ) {
 }
+

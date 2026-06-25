@@ -35,6 +35,10 @@ public class Chamado {
     private Ativo ativo;
 
     @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "patrimonio_id", nullable = true)
+    private Patrimonio patrimonio;
+
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "tecnico_id", nullable = true)
     private Usuario tecnico;
 
@@ -80,6 +84,17 @@ public class Chamado {
         this.cliente = cliente;
     }
 
+    public Chamado(String titulo, String descricao, String prioridade, String status, Patrimonio patrimonio, Usuario tecnico, Usuario cliente) {
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.prioridade = prioridade != null ? prioridade : "MEDIA";
+        this.status = status != null ? status : "ABERTO";
+        this.patrimonio = patrimonio;
+        this.ativo = patrimonio != null ? patrimonio.getAtivo() : null;
+        this.tecnico = tecnico;
+        this.cliente = cliente;
+    }
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -110,4 +125,12 @@ public class Chamado {
 
     public Instant getAtualizadoEm() { return atualizadoEm; }
     public void setAtualizadoEm(Instant updated) { this.atualizadoEm = updated; }
+
+    public Patrimonio getPatrimonio() { return patrimonio; }
+    public void setPatrimonio(Patrimonio patrimonio) {
+        this.patrimonio = patrimonio;
+        if (patrimonio != null) {
+            this.ativo = patrimonio.getAtivo();
+        }
+    }
 }

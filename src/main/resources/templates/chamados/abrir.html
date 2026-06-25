@@ -74,24 +74,25 @@
                                 </div>
                             </div>
 
-                            <!-- Ativo Relacionado -->
+                            <!-- Patrimônio Relacionado -->
                             <div class="col-md-6 mb-4">
-                                <label for="ativoId" class="form-label fw-semibold text-light">Ativo Relacionado</label>
-                                <select id="ativoId"
-                                        th:field="*{ativoId}"
+                                <label for="patrimonioId" class="form-label fw-semibold text-light">Equipamento (Patrimônio) <span class="text-danger">*</span></label>
+                                <select id="patrimonioId"
+                                        th:field="*{patrimonioId}"
                                         class="form-select"
-                                        th:classappend="${#fields.hasErrors('ativoId')} ? 'is-invalid'">
-                                    <option value="">-- Nenhum ativo específico --</option>
-                                    <option th:each="ativo : ${ativos}"
-                                            th:value="${ativo.id}"
-                                            th:text="${ativo.nome + ' (S/N: ' + (ativo.numeroSerie != null ? ativo.numeroSerie : 'N/D') + ')'}">
-                                        Ativo
+                                        th:classappend="${#fields.hasErrors('patrimonioId')} ? 'is-invalid'"
+                                        required>
+                                    <option value="">-- Selecione o Patrimônio --</option>
+                                    <option th:each="pat : ${patrimonios}"
+                                            th:value="${pat.id}"
+                                            th:text="${pat.codigo + ' - ' + pat.ativo.nome + ' (S/N: ' + pat.numeroSerie + ')'}">
+                                        Patrimônio
                                     </option>
                                 </select>
                                 <div class="invalid-feedback"
-                                     th:if="${#fields.hasErrors('ativoId')}"
-                                     th:errors="*{ativoId}">
-                                    Erro no ativo
+                                     th:if="${#fields.hasErrors('patrimonioId')}"
+                                     th:errors="*{patrimonioId}">
+                                    Erro no patrimônio
                                 </div>
                             </div>
                         </div>

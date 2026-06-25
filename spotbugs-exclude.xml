@@ -31,4 +31,12 @@
         <Class name="br.ufpb.dsc.mercado.MercadoApplication"/>
     </Match>
 
+    <!--
+      Exclui os avisos EI_EXPOSE_REP e EI_EXPOSE_REP2 para entidades de domínio,
+      uma vez que JPA/Hibernate exigem o armazenamento e retorno de referências mutáveis a outras entidades.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
 </FindBugsFilter>

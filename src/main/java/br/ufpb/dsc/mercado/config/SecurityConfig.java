@@ -41,6 +41,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService;
+
+    public SecurityConfig(@org.springframework.context.annotation.Lazy br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService) {
+        this.customOidcUserService = customOidcUserService;
+    }
+
 
     /**
      * Define o algoritmo de codificação de senhas.
@@ -87,6 +93,7 @@ public class SecurityConfig {
                         // /actuator/health → monitoramento sem autenticação
                         // /ping → endpoint exigido pelo painel da disciplina
                         .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health", "/ping").permitAll()
+                        .requestMatchers("/ativos/**", "/auditoria/**").hasRole("ADMIN")
                         // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )
@@ -101,6 +108,17 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
+                // === OAUTH2 LOGIN (GOOGLE) ===
+                .oauth2Login(oauth2 -> {
+                    oauth2.loginPage("/login");
+                    if (customOidcUserService != null) {
+                        oauth2.userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOidcUserService)
+                        );
+                    }
+                    oauth2.defaultSuccessUrl("/", true);
+                })
+
                 // === LOGOUT ===
                 .logout(logout -> logout
                         // Após logout, redireciona para a página de login com mensagem
@@ -109,13 +127,13 @@ public class SecurityConfig {
                 )
 
                 // === CSRF (Cross-Site Request Forgery) ===
-                // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
-                // O Spring Security protege adicionando um token único em formulários.
-                // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
-                // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
-                .csrf(csrf -> csrf
-                        // Desabilita CSRF apenas para os endpoints usados pelo HTMX
-                        .ignoringRequestMatchers("/ativos/**", "/chamados/**")
+                // Habilitado globalmente. A integração com HTMX é feita via cabeçalhos injetados nas requisições.
+                //
+                // === HEADERS DE SEGURANÇA E CSP ===
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';")
+                        )
                 );
 
         return http.build();
