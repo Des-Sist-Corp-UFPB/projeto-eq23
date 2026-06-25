@@ -52,6 +52,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eq23
       SPRING_DATASOURCE_USERNAME: eq23
       SPRING_DATASOURCE_PASSWORD: sJX6LspwEeFN0LIPe8U2
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:}
     ports:
       - "8080:8080"
     volumes:
