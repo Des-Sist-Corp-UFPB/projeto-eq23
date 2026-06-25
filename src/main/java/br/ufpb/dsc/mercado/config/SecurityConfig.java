@@ -47,10 +47,6 @@ public class SecurityConfig {
         this.customOidcUserService = customOidcUserService;
     }
 
-    public SecurityConfig() {
-        this.customOidcUserService = null;
-    }
-
 
     /**
      * Define o algoritmo de codificação de senhas.
@@ -97,6 +93,7 @@ public class SecurityConfig {
                         // /actuator/health → monitoramento sem autenticação
                         // /ping → endpoint exigido pelo painel da disciplina
                         .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health", "/ping").permitAll()
+                        .requestMatchers("/ativos/**", "/auditoria/**").hasRole("ADMIN")
                         // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )

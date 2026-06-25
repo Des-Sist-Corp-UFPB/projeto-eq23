@@ -48,7 +48,7 @@ public class CustomOidcUser extends Usuario implements OidcUser {
 
     @Override
     public String getName() {
-        return usuario.getUsername();
+        return usuario.getNome();
     }
 
     public Usuario getUsuario() {

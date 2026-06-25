@@ -76,7 +76,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if ("admin".equalsIgnoreCase(username)) {
+        if ("admin".equalsIgnoreCase(username) || "admin@dcx.ufpb.br".equalsIgnoreCase(username)) {
             return List.of(() -> "ROLE_ADMIN", () -> "ROLE_USER");
         }
         return List.of(() -> "ROLE_USER");

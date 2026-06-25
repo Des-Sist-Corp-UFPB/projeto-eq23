@@ -1,6 +1,7 @@
 package br.ufpb.dsc.mercado.controller;
 
 import br.ufpb.dsc.mercado.domain.Ativo;
+import br.ufpb.dsc.mercado.domain.Usuario;
 import br.ufpb.dsc.mercado.dto.AtivoForm;
 import br.ufpb.dsc.mercado.exception.AtivoNaoEncontradoException;
 import br.ufpb.dsc.mercado.service.AtivoService;
@@ -8,11 +9,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Collections;
 
@@ -27,12 +34,33 @@ class AtivoControllerMockTest {
     private MockMvc mockMvc;
     private AtivoService ativoService;
     private AtivoController ativoController;
+    private Usuario mockUsuario;
 
     @BeforeEach
     void setUp() {
         ativoService = mock(AtivoService.class);
         ativoController = new AtivoController(ativoService);
-        mockMvc = MockMvcBuilders.standaloneSetup(ativoController).build();
+
+        mockUsuario = new Usuario();
+        mockUsuario.setId(1L);
+        mockUsuario.setNome("Administrador");
+        mockUsuario.setUsername("admin");
+        mockUsuario.setSenha("admin123");
+
+        mockMvc = MockMvcBuilders.standaloneSetup(ativoController)
+                .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
+                    @Override
+                    public boolean supportsParameter(MethodParameter parameter) {
+                        return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+                    }
+
+                    @Override
+                    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                        return mockUsuario;
+                    }
+                })
+                .build();
     }
 
     @Test

@@ -69,13 +69,24 @@ public class AtivoController {
 
     private void verificarAcesso(Usuario usuario) {
         if (usuario == null || usuario.getAuthorities().stream()
-                .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()))) {
+                .noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
             throw new AccessDeniedException("Não autorizado para realizar esta ação");
         }
     }
 
+    private Usuario getUsuarioLogado(Object principal) {
+        if (principal instanceof br.ufpb.dsc.mercado.security.CustomOidcUser) {
+            return ((br.ufpb.dsc.mercado.security.CustomOidcUser) principal).getUsuario();
+        }
+        if (principal instanceof Usuario) {
+            return (Usuario) principal;
+        }
+        return null;
+    }
+
     @GetMapping("/novo")
-    public String novoForm(@AuthenticationPrincipal Usuario usuarioLogado, Model model) {
+    public String novoForm(@AuthenticationPrincipal Object principal, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
         model.addAttribute("form", new AtivoForm("", "", "", "ATIVO"));
         model.addAttribute("ativo", null);
@@ -83,7 +94,8 @@ public class AtivoController {
     }
 
     @GetMapping("/{id}/editar")
-    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado, Model model) {
+    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Object principal, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
         Ativo ativo = ativoService.buscarPorId(id);
         AtivoForm form = new AtivoForm(
@@ -101,9 +113,10 @@ public class AtivoController {
     public String criar(
             @Valid @ModelAttribute("form") AtivoForm form,
             BindingResult bindingResult,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
         if (bindingResult.hasErrors()) {
             model.addAttribute("ativo", null);
@@ -122,9 +135,10 @@ public class AtivoController {
             @PathVariable Long id,
             @Valid @ModelAttribute("form") AtivoForm form,
             BindingResult bindingResult,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
         if (bindingResult.hasErrors()) {
             Ativo ativo = ativoService.buscarPorId(id);
@@ -141,7 +155,8 @@ public class AtivoController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Object principal) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         verificarAcesso(usuarioLogado);
         try {
             ativoService.excluir(id);

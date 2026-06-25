@@ -419,7 +419,7 @@
                 Dashboard
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
             <a class="nav-link"
                th:classappend="${requestURI != null and requestURI.startsWith('/ativos')} ? 'active'"
                th:href="@{/ativos}">
@@ -454,7 +454,7 @@
                 Solicitar Suporte
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
             <a class="nav-link"
                th:classappend="${requestURI != null and requestURI.startsWith('/auditoria')} ? 'active'"
                th:href="@{/auditoria}">

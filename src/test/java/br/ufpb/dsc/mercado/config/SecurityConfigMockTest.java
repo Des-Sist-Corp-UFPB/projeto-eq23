@@ -17,7 +17,7 @@ class SecurityConfigMockTest {
     @Test
     @DisplayName("SecurityConfig — Deve retornar passwordEncoder")
     void testPasswordEncoder() {
-        SecurityConfig config = new SecurityConfig();
+        SecurityConfig config = new SecurityConfig(null);
         PasswordEncoder encoder = config.passwordEncoder();
         assertNotNull(encoder);
         assertTrue(encoder instanceof BCryptPasswordEncoder);
@@ -26,7 +26,7 @@ class SecurityConfigMockTest {
     @Test
     @DisplayName("SecurityConfig — Deve configurar filterChain")
     void testFilterChain() throws Exception {
-        SecurityConfig config = new SecurityConfig();
+        SecurityConfig config = new SecurityConfig(null);
         HttpSecurity http = mock(HttpSecurity.class, RETURNS_DEEP_STUBS);
         org.springframework.security.web.DefaultSecurityFilterChain chain = mock(org.springframework.security.web.DefaultSecurityFilterChain.class);
         when(http.build()).thenReturn(chain);
@@ -38,7 +38,7 @@ class SecurityConfigMockTest {
     @Test
     @DisplayName("SecurityConfig — Deve obter authenticationManager")
     void testAuthenticationManager() throws Exception {
-        SecurityConfig config = new SecurityConfig();
+        SecurityConfig config = new SecurityConfig(null);
         AuthenticationConfiguration authConfig = mock(AuthenticationConfiguration.class);
         config.authenticationManager(authConfig);
         verify(authConfig, times(1)).getAuthenticationManager();

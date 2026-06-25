@@ -41,17 +41,19 @@ public class ChamadoController {
     public String listar(
             @RequestParam(name = "pagina", defaultValue = "0") int pagina,
             @RequestHeader(value = HEADER_HTMX, required = false) String htmx,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("criadoEm").descending());
         
         Page<Chamado> chamados;
         // Simple authorization check: if user is not ADMIN or TECNICO, list only their tickets
-        if (usuarioLogado.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()))) {
+        if (usuarioLogado != null && usuarioLogado.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()))) {
             chamados = chamadoService.listar(pageRequest);
         } else {
-            chamados = chamadoService.listarPorCliente(usuarioLogado.getId(), pageRequest);
+            Long usuarioId = usuarioLogado != null ? usuarioLogado.getId() : -1L;
+            chamados = chamadoService.listarPorCliente(usuarioId, pageRequest);
         }
 
         model.addAttribute("chamados", chamados);
@@ -76,10 +78,11 @@ public class ChamadoController {
     public String abrirCriar(
             @Valid @ModelAttribute("form") ChamadoForm form,
             BindingResult bindingResult,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             RedirectAttributes redirectAttributes,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         if (bindingResult.hasErrors()) {
             model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
             return "chamados/abrir";
@@ -99,6 +102,16 @@ public class ChamadoController {
         return "chamados/fragments/form :: modal";
     }
 
+    private Usuario getUsuarioLogado(Object principal) {
+        if (principal instanceof br.ufpb.dsc.mercado.security.CustomOidcUser) {
+            return ((br.ufpb.dsc.mercado.security.CustomOidcUser) principal).getUsuario();
+        }
+        if (principal instanceof Usuario) {
+            return (Usuario) principal;
+        }
+        return null;
+    }
+
     private void verificarAcessoChamado(Chamado chamado, Usuario usuarioLogado) {
         if (usuarioLogado == null) {
             throw new AccessDeniedException("Não autenticado");
@@ -114,7 +127,8 @@ public class ChamadoController {
     }
 
     @GetMapping("/{id}/editar")
-    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado, Model model) {
+    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Object principal, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         Chamado chamado = chamadoService.buscarPorId(id);
         verificarAcessoChamado(chamado, usuarioLogado);
 
@@ -143,9 +157,10 @@ public class ChamadoController {
     public String criar(
             @Valid @ModelAttribute("form") ChamadoForm form,
             BindingResult bindingResult,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         if (bindingResult.hasErrors()) {
             model.addAttribute("chamado", null);
             model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
@@ -165,9 +180,10 @@ public class ChamadoController {
             @PathVariable Long id,
             @Valid @ModelAttribute("form") ChamadoForm form,
             BindingResult bindingResult,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
 
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         Chamado chamado = chamadoService.buscarPorId(id);
         verificarAcessoChamado(chamado, usuarioLogado);
 
@@ -189,9 +205,10 @@ public class ChamadoController {
     public String alterarStatus(
             @PathVariable Long id,
             @RequestParam("status") String status,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
         
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         Chamado chamado = chamadoService.buscarPorId(id);
         verificarAcessoChamado(chamado, usuarioLogado);
 
@@ -205,9 +222,10 @@ public class ChamadoController {
     public String atribuirTecnico(
             @PathVariable Long id,
             @RequestParam("tecnicoId") Long tecnicoId,
-            @AuthenticationPrincipal Usuario usuarioLogado,
+            @AuthenticationPrincipal Object principal,
             Model model) {
         
+        Usuario usuarioLogado = getUsuarioLogado(principal);
         Chamado chamado = chamadoService.buscarPorId(id);
         verificarAcessoChamado(chamado, usuarioLogado);
 
@@ -219,8 +237,9 @@ public class ChamadoController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Object principal) {
         try {
+            Usuario usuarioLogado = getUsuarioLogado(principal);
             Chamado chamado = chamadoService.buscarPorId(id);
             verificarAcessoChamado(chamado, usuarioLogado);
             chamadoService.excluir(id);

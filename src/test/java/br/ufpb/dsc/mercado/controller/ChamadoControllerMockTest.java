@@ -52,18 +52,21 @@ class ChamadoControllerMockTest {
         mockUsuario.setUsername("admin");
         mockUsuario.setSenha("admin123");
 
-        // mock default lists
         Page<Ativo> emptyAtivos = new PageImpl<>(Collections.emptyList());
         when(ativoService.listar(any(Pageable.class))).thenReturn(emptyAtivos);
         when(usuarioRepository.findAll()).thenReturn(Collections.emptyList());
+
+        Chamado defaultChamado = new Chamado();
+        defaultChamado.setId(1L);
+        defaultChamado.setCliente(mockUsuario);
+        when(chamadoService.buscarPorId(anyLong())).thenReturn(defaultChamado);
 
         ChamadoController chamadoController = new ChamadoController(chamadoService, ativoService, usuarioRepository);
         mockMvc = MockMvcBuilders.standaloneSetup(chamadoController)
                 .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
                     @Override
                     public boolean supportsParameter(MethodParameter parameter) {
-                        return parameter.getParameterType().equals(Usuario.class) && 
-                               parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+                        return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
                     }
 
                     @Override
@@ -80,6 +83,7 @@ class ChamadoControllerMockTest {
     void listar_DeveRetornarListaView() throws Exception {
         Page<Chamado> page = new PageImpl<>(Collections.emptyList());
         when(chamadoService.listarPorCliente(eq(1L), any(Pageable.class))).thenReturn(page);
+        when(chamadoService.listar(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/chamados"))
                 .andExpect(status().isOk())
