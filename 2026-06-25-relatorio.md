@@ -5,9 +5,9 @@
 | **Data** | 2026-06-25 |
 | **Repositório** | https://github.com/des-sist-corp-ufpb/projeto-eq23 |
 | **Aplicação** | https://eq23.dsc.rodrigor.com |
-| **Período de atividade** | 2026-06-10 → 2026-06-10 |
-| **Total de commits** (sem merges) | 1 |
-| **Integrantes** | Matheus Nelvam Lucas (@MatheusNelvam) |
+| **Período de atividade** | 2026-06-10 → 2026-06-25 |
+| **Total de commits** (sem merges, branch main) | 2 |
+| **Integrantes** | Matheus Nelvam Lucas (@MatheusNelvam), Carlos Daniel Ferreira Da Silva Borba (@dani-ferreira31) |
 
 ---
 
@@ -93,17 +93,24 @@
 
 ### Resumo
 
-| Usuário | Commits | % commits | Linhas adicionadas | Linhas no código atual | % código atual |
-|---------|---------|-----------|-------------------|----------------------|----------------|
-| Matheus Nelvam Lucas (@MatheusNelvam) | 1 | 100% | 11.905 | 3.759 | 100% |
+| Usuário | Commits (main) | Commits (GitHub API) | Linhas adicionadas | Linhas no código atual | % código atual |
+|---------|---------------|---------------------|-------------------|----------------------|----------------|
+| Matheus Nelvam Lucas (@MatheusNelvam) | 1 | **23** ⚠️ | 11.905 | 3.759 | 100% |
+| Carlos Daniel Ferreira Da Silva Borba (@dani-ferreira31) | 0 | **48** ⚠️ | 0 | 0 | 0% |
+| *(sem login GitHub)* | 1 | 50% | — | — | — |
+
+> **⚠️ Divergência entre commits locais e GitHub API:**
+> - **@MatheusNelvam**: 1 commit(s) na branch `main` vs **23** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
+> - **@dani-ferreira31**: 0 commit(s) na branch `main` vs **48** registrados na API GitHub (commits em branches não mergeadas ou absorvidos via squash-merge sem preservação de autoria).
+>
 
 ### Contribuição por Camada
 
-| Camada | Total linhas | Matheus Nelvam Lucas (@MatheusNelvam) |
-|--------|-------------|---------|
-| Controller | 2.627 | 100% |
-| Repository | 48 | 100% |
-| Service | 458 | 100% |
+| Camada | Total linhas | Matheus Nelvam Lucas (@MatheusNelvam) | Carlos Daniel Ferreira Da Silva Borba (@dani-ferreira31) |
+|--------|-------------|---------|---------|
+| Controller | 2.627 | 100% | 0% |
+| Repository | 48 | 100% | 0% |
+| Service | 458 | 100% | 0% |
 
 ---
 
@@ -111,38 +118,38 @@
 
 Baseado em `git blame` nos arquivos de controller e service.
 
-| Arquivo | Total linhas | Matheus Nelvam Lucas (@MatheusNelvam) |
-|---------|-------------|---------|
-| `layout.html` | 604 | 100% |
-| `form.html` | 367 | 100% |
-| `login.html` | 286 | 100% |
-| `ChamadoController.java` | 202 | 100% |
-| `linha.html` | 162 | 100% |
-| `tabela.html` | 161 | 100% |
-| `abrir.html` | 142 | 100% |
-| `AtivoControllerTest.java` | 141 | 100% |
-| `AtivoController.java` | 136 | 100% |
-| `AtivoServiceTest.java` | 134 | 100% |
-| `lista.html` | 123 | 100% |
-| `ChamadoService.java` | 104 | 100% |
-| `home.html` | 99 | 100% |
-| `AtivoService.java` | 70 | 100% |
-| `MercadoApplicationTests.java` | 53 | 100% |
-| `AuthController.java` | 48 | 100% |
-| `MercadoApplication.java` | 40 | 100% |
-| `DashboardService.java` | 31 | 100% |
-| `UserDetailsServiceImpl.java` | 26 | 100% |
-| `HomeController.java` | 26 | 100% |
-| `V1__criar_tabela_produto.sql` | 25 | 100% |
-| `PingController.java` | 24 | 100% |
-| `V7__criar_sistema_helpdesk.sql` | 21 | 100% |
-| `V2__criar_tabela_categoria.sql` | 16 | 100% |
-| `V3__adicionar_categoria_e_estoque_produto.sql` | 15 | 100% |
-| `V4__criar_tabela_usuario.sql` | 12 | 100% |
-| `V5__corrigir_senha_admin.sql` | 6 | 100% |
-| `V6__corrigir_senha_admin_producao.sql` | 5 | 100% |
-| `V8__remover_campos_ativos.sql` | 4 | 100% |
-| `V9__remover_tabela_categoria.sql` | 2 | 100% |
+| Arquivo | Total linhas | Matheus Nelvam Lucas (@MatheusNelvam) | Carlos Daniel Ferreira Da Silva Borba (@dani-ferreira31) |
+|---------|-------------|---------|---------|
+| `layout.html` | 604 | 100% | 0% |
+| `form.html` | 367 | 100% | 0% |
+| `login.html` | 286 | 100% | 0% |
+| `ChamadoController.java` | 202 | 100% | 0% |
+| `linha.html` | 162 | 100% | 0% |
+| `tabela.html` | 161 | 100% | 0% |
+| `abrir.html` | 142 | 100% | 0% |
+| `AtivoControllerTest.java` | 141 | 100% | 0% |
+| `AtivoController.java` | 136 | 100% | 0% |
+| `AtivoServiceTest.java` | 134 | 100% | 0% |
+| `lista.html` | 123 | 100% | 0% |
+| `ChamadoService.java` | 104 | 100% | 0% |
+| `home.html` | 99 | 100% | 0% |
+| `AtivoService.java` | 70 | 100% | 0% |
+| `MercadoApplicationTests.java` | 53 | 100% | 0% |
+| `AuthController.java` | 48 | 100% | 0% |
+| `MercadoApplication.java` | 40 | 100% | 0% |
+| `DashboardService.java` | 31 | 100% | 0% |
+| `UserDetailsServiceImpl.java` | 26 | 100% | 0% |
+| `HomeController.java` | 26 | 100% | 0% |
+| `V1__criar_tabela_produto.sql` | 25 | 100% | 0% |
+| `PingController.java` | 24 | 100% | 0% |
+| `V7__criar_sistema_helpdesk.sql` | 21 | 100% | 0% |
+| `V2__criar_tabela_categoria.sql` | 16 | 100% | 0% |
+| `V3__adicionar_categoria_e_estoque_produto.sql` | 15 | 100% | 0% |
+| `V4__criar_tabela_usuario.sql` | 12 | 100% | 0% |
+| `V5__corrigir_senha_admin.sql` | 6 | 100% | 0% |
+| `V6__corrigir_senha_admin_producao.sql` | 5 | 100% | 0% |
+| `V8__remover_campos_ativos.sql` | 4 | 100% | 0% |
+| `V9__remover_tabela_categoria.sql` | 2 | 100% | 0% |
 
 ---
 
