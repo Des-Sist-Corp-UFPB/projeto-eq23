@@ -15,10 +15,10 @@ import java.util.Map;
 
     @GetMapping(&quot;/ping&quot;)
     public Map&lt;String, String&gt; ping() {
-<span class="nc" id="L18">        return Map.of(</span>
+<span class="fc" id="L18">        return Map.of(</span>
             &quot;status&quot;, &quot;ok&quot;,
             &quot;service&quot;, &quot;eq23&quot;,
-<span class="nc" id="L21">            &quot;timestamp&quot;, Instant.now().toString()</span>
+<span class="fc" id="L21">            &quot;timestamp&quot;, Instant.now().toString()</span>
         );
     }
 }

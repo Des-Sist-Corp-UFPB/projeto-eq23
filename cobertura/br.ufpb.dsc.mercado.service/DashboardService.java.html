@@ -18,15 +18,15 @@ public class DashboardService {
 <span class="fc" id="L18">    }</span>
 
     public long totalAtivos() {
-<span class="nc" id="L21">        return ativoRepository.count();</span>
+<span class="fc" id="L21">        return ativoRepository.count();</span>
     }
 
     public long totalChamadosAbertos() {
-<span class="nc" id="L25">        return chamadoRepository.countByStatus(&quot;ABERTO&quot;);</span>
+<span class="fc" id="L25">        return chamadoRepository.countByStatus(&quot;ABERTO&quot;);</span>
     }
 
     public long totalChamadosEmAtendimento() {
-<span class="nc" id="L29">        return chamadoRepository.countByStatus(&quot;EM_ATENDIMENTO&quot;);</span>
+<span class="fc" id="L29">        return chamadoRepository.countByStatus(&quot;EM_ATENDIMENTO&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

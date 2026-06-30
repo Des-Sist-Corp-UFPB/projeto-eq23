@@ -20,86 +20,111 @@ public class ChamadoService {
     private final ChamadoRepository chamadoRepository;
     private final AtivoRepository ativoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final LogAuditoriaService logAuditoriaService;
+    private final EmailService emailService;
+    private final br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository;
 
-<span class="fc" id="L24">    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository) {</span>
-<span class="fc" id="L25">        this.chamadoRepository = chamadoRepository;</span>
-<span class="fc" id="L26">        this.ativoRepository = ativoRepository;</span>
-<span class="fc" id="L27">        this.usuarioRepository = usuarioRepository;</span>
-<span class="fc" id="L28">    }</span>
+<span class="fc" id="L27">    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService, EmailService emailService, br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository) {</span>
+<span class="fc" id="L28">        this.chamadoRepository = chamadoRepository;</span>
+<span class="fc" id="L29">        this.ativoRepository = ativoRepository;</span>
+<span class="fc" id="L30">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L31">        this.logAuditoriaService = logAuditoriaService;</span>
+<span class="fc" id="L32">        this.emailService = emailService;</span>
+<span class="fc" id="L33">        this.patrimonioRepository = patrimonioRepository;</span>
+<span class="fc" id="L34">    }</span>
 
     public Page&lt;Chamado&gt; listar(Pageable pageable) {
-<span class="nc" id="L31">        return chamadoRepository.findAll(pageable);</span>
+<span class="nc" id="L37">        return chamadoRepository.findAll(pageable);</span>
     }
 
     public Page&lt;Chamado&gt; listarPorCliente(Long clienteId, Pageable pageable) {
-<span class="nc" id="L35">        return chamadoRepository.findByClienteId(clienteId, pageable);</span>
+<span class="nc" id="L41">        return chamadoRepository.findByClienteId(clienteId, pageable);</span>
     }
 
     public Page&lt;Chamado&gt; listarPorTecnico(Long tecnicoId, Pageable pageable) {
-<span class="nc" id="L39">        return chamadoRepository.findByTecnicoId(tecnicoId, pageable);</span>
+<span class="nc" id="L45">        return chamadoRepository.findByTecnicoId(tecnicoId, pageable);</span>
     }
 
     public Chamado buscarPorId(Long id) {
-<span class="nc" id="L43">        return chamadoRepository.findById(id)</span>
-<span class="nc" id="L44">                .orElseThrow(() -&gt; new ChamadoNaoEncontradoException(id));</span>
+<span class="fc" id="L49">        return chamadoRepository.findById(id)</span>
+<span class="fc" id="L50">                .orElseThrow(() -&gt; new ChamadoNaoEncontradoException(id));</span>
     }
 
     @Transactional
     public Chamado criar(ChamadoForm form, Usuario cliente) {
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        Usuario tecnico = form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null;</span>
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        Usuario clienteEntidade = form.clienteId() != null ? usuarioRepository.findById(form.clienteId()).orElse(cliente) : cliente;</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        Usuario tecnico = form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null;</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        Usuario clienteEntidade = form.clienteId() != null ? usuarioRepository.findById(form.clienteId()).orElse(cliente) : cliente;</span>
 
-<span class="nc" id="L53">        Chamado chamado = new Chamado(</span>
-<span class="nc" id="L54">                form.titulo(),</span>
-<span class="nc" id="L55">                form.descricao(),</span>
-<span class="nc" id="L56">                form.prioridade(),</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">                form.status() != null ? form.status() : &quot;ABERTO&quot;,</span>
-                ativo,
+<span class="fc" id="L59">        Chamado chamado = new Chamado(</span>
+<span class="fc" id="L60">                form.titulo(),</span>
+<span class="fc" id="L61">                form.descricao(),</span>
+<span class="fc" id="L62">                form.prioridade(),</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">                form.status() != null ? form.status() : &quot;ABERTO&quot;,</span>
+                patrimonio,
                 tecnico,
                 clienteEntidade
         );
-<span class="nc" id="L62">        return chamadoRepository.save(chamado);</span>
+<span class="fc" id="L68">        Chamado salvo = chamadoRepository.save(chamado);</span>
+<span class="fc" id="L69">        logAuditoriaService.registrar(&quot;CRIAR&quot;, &quot;Chamado&quot;, salvo.getId(), &quot;Criado chamado: &quot; + salvo.getTitulo());</span>
+        
+        // Disparar notificação por e-mail (síncrono ou assíncrono dependendo da impl)
+<span class="fc" id="L72">        emailService.enviarNotificacaoChamadoCriado(salvo);</span>
+        
+<span class="fc" id="L74">        return salvo;</span>
     }
 
     @Transactional
     public Chamado atualizar(Long id, ChamadoForm form) {
-<span class="nc" id="L67">        Chamado chamado = buscarPorId(id);</span>
-<span class="nc" id="L68">        chamado.setTitulo(form.titulo());</span>
-<span class="nc" id="L69">        chamado.setDescricao(form.descricao());</span>
-<span class="nc" id="L70">        chamado.setPrioridade(form.prioridade());</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (form.status() != null) {</span>
-<span class="nc" id="L72">            chamado.setStatus(form.status());</span>
+<span class="fc" id="L79">        Chamado chamado = buscarPorId(id);</span>
+<span class="fc" id="L80">        chamado.setTitulo(form.titulo());</span>
+<span class="fc" id="L81">        chamado.setDescricao(form.descricao());</span>
+<span class="fc" id="L82">        chamado.setPrioridade(form.prioridade());</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (form.status() != null) {</span>
+<span class="fc" id="L84">            chamado.setStatus(form.status());</span>
         }
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);</span>
-<span class="nc" id="L76">        return chamadoRepository.save(chamado);</span>
+        
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;</span>
+<span class="fc" id="L88">        chamado.setPatrimonio(patrimonio);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (patrimonio == null) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);</span>
+        }
+        
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);</span>
+<span class="fc" id="L94">        Chamado salvo = chamadoRepository.save(chamado);</span>
+<span class="fc" id="L95">        logAuditoriaService.registrar(&quot;ATUALIZAR&quot;, &quot;Chamado&quot;, salvo.getId(), &quot;Atualizado chamado: &quot; + salvo.getTitulo());</span>
+<span class="fc" id="L96">        return salvo;</span>
     }
 
     @Transactional
     public Chamado alterarStatus(Long id, String status) {
-<span class="nc" id="L81">        Chamado chamado = buscarPorId(id);</span>
-<span class="nc" id="L82">        chamado.setStatus(status);</span>
-<span class="nc" id="L83">        return chamadoRepository.save(chamado);</span>
+<span class="fc" id="L101">        Chamado chamado = buscarPorId(id);</span>
+<span class="fc" id="L102">        String statusAntigo = chamado.getStatus();</span>
+<span class="fc" id="L103">        chamado.setStatus(status);</span>
+<span class="fc" id="L104">        Chamado salvo = chamadoRepository.save(chamado);</span>
+<span class="fc" id="L105">        logAuditoriaService.registrar(&quot;ALTERAR_STATUS&quot;, &quot;Chamado&quot;, salvo.getId(), &quot;Status alterado de &quot; + statusAntigo + &quot; para &quot; + status);</span>
+<span class="fc" id="L106">        return salvo;</span>
     }
 
     @Transactional
     public Chamado atribuirTecnico(Long id, Long tecnicoId) {
-<span class="nc" id="L88">        Chamado chamado = buscarPorId(id);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        Usuario tecnico = tecnicoId != null ? usuarioRepository.findById(tecnicoId).orElse(null) : null;</span>
-<span class="nc" id="L90">        chamado.setTecnico(tecnico);</span>
-<span class="nc bnc" id="L91" title="All 4 branches missed.">        if (tecnico != null &amp;&amp; &quot;ABERTO&quot;.equals(chamado.getStatus())) {</span>
-<span class="nc" id="L92">            chamado.setStatus(&quot;EM_ATENDIMENTO&quot;);</span>
+<span class="fc" id="L111">        Chamado chamado = buscarPorId(id);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        Usuario tecnico = tecnicoId != null ? usuarioRepository.findById(tecnicoId).orElse(null) : null;</span>
+<span class="fc" id="L113">        chamado.setTecnico(tecnico);</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        if (tecnico != null &amp;&amp; &quot;ABERTO&quot;.equals(chamado.getStatus())) {</span>
+<span class="fc" id="L115">            chamado.setStatus(&quot;EM_ATENDIMENTO&quot;);</span>
         }
-<span class="nc" id="L94">        return chamadoRepository.save(chamado);</span>
+<span class="fc" id="L117">        Chamado salvo = chamadoRepository.save(chamado);</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        logAuditoriaService.registrar(&quot;ATRIBUIR_TECNICO&quot;, &quot;Chamado&quot;, salvo.getId(), &quot;Técnico atribuído: &quot; + (tecnico != null ? tecnico.getNome() : &quot;Nenhum&quot;));</span>
+<span class="fc" id="L119">        return salvo;</span>
     }
 
     @Transactional
     public void excluir(Long id) {
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (!chamadoRepository.existsById(id)) {</span>
-<span class="nc" id="L100">            throw new ChamadoNaoEncontradoException(id);</span>
-        }
-<span class="nc" id="L102">        chamadoRepository.deleteById(id);</span>
-<span class="nc" id="L103">    }</span>
+<span class="fc" id="L124">        Chamado chamado = chamadoRepository.findById(id)</span>
+<span class="pc" id="L125">                .orElseThrow(() -&gt; new ChamadoNaoEncontradoException(id));</span>
+<span class="fc" id="L126">        logAuditoriaService.registrar(&quot;EXCLUIR&quot;, &quot;Chamado&quot;, id, &quot;Excluído chamado: &quot; + chamado.getTitulo());</span>
+<span class="fc" id="L127">        chamadoRepository.deleteById(id);</span>
+<span class="fc" id="L128">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

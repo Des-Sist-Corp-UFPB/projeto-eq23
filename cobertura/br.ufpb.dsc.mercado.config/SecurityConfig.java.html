@@ -39,7 +39,13 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
-<span class="fc" id="L42">public class SecurityConfig {</span>
+public class SecurityConfig {
+
+    private final br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService;
+
+<span class="fc" id="L46">    public SecurityConfig(@org.springframework.context.annotation.Lazy br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService) {</span>
+<span class="fc" id="L47">        this.customOidcUserService = customOidcUserService;</span>
+<span class="fc" id="L48">    }</span>
 
 
     /**
@@ -57,7 +63,7 @@ import org.springframework.security.web.SecurityFilterChain;
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-<span class="fc" id="L60">        return new BCryptPasswordEncoder();</span>
+<span class="fc" id="L66">        return new BCryptPasswordEncoder();</span>
     }
 
     /**
@@ -78,47 +84,59 @@ import org.springframework.security.web.SecurityFilterChain;
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-<span class="fc" id="L81">        http</span>
+<span class="fc" id="L87">        http</span>
                 // === AUTORIZAÇÃO DE REQUISIÇÕES ===
-<span class="fc" id="L83">                .authorizeHttpRequests(auth -&gt; auth</span>
+<span class="fc" id="L89">                .authorizeHttpRequests(auth -&gt; auth</span>
                         // Recursos estáticos e health check são públicos
                         // /webjars/** → Bootstrap, HTMX (servidos pelo Spring como recursos estáticos)
                         // /css/**, /js/** → arquivos estáticos personalizados
                         // /actuator/health → monitoramento sem autenticação
                         // /ping → endpoint exigido pelo painel da disciplina
-<span class="fc" id="L89">                        .requestMatchers(&quot;/webjars/**&quot;, &quot;/css/**&quot;, &quot;/js/**&quot;, &quot;/actuator/health&quot;, &quot;/ping&quot;).permitAll()</span>
+<span class="fc" id="L95">                        .requestMatchers(&quot;/webjars/**&quot;, &quot;/css/**&quot;, &quot;/js/**&quot;, &quot;/actuator/health&quot;, &quot;/ping&quot;).permitAll()</span>
+<span class="fc" id="L96">                        .requestMatchers(&quot;/ativos/**&quot;, &quot;/auditoria/**&quot;).hasRole(&quot;ADMIN&quot;)</span>
                         // Qualquer outra requisição exige autenticação
-<span class="fc" id="L91">                        .anyRequest().authenticated()</span>
+<span class="fc" id="L98">                        .anyRequest().authenticated()</span>
                 )
 
                 // === FORMULÁRIO DE LOGIN ===
-<span class="fc" id="L95">                .formLogin(form -&gt; form</span>
+<span class="fc" id="L102">                .formLogin(form -&gt; form</span>
                         // URL da página de login customizada (em vez da padrão do Spring Security)
-<span class="fc" id="L97">                        .loginPage(&quot;/login&quot;)</span>
+<span class="fc" id="L104">                        .loginPage(&quot;/login&quot;)</span>
                         // Após login bem-sucedido, redireciona para o dashboard
-<span class="fc" id="L99">                        .defaultSuccessUrl(&quot;/&quot;, true)</span>
+<span class="fc" id="L106">                        .defaultSuccessUrl(&quot;/&quot;, true)</span>
                         // A página de login deve ser acessível sem autenticação
-<span class="fc" id="L101">                        .permitAll()</span>
-                )
-
-                // === LOGOUT ===
-<span class="fc" id="L105">                .logout(logout -&gt; logout</span>
-                        // Após logout, redireciona para a página de login com mensagem
-<span class="fc" id="L107">                        .logoutSuccessUrl(&quot;/login?logout&quot;)</span>
 <span class="fc" id="L108">                        .permitAll()</span>
                 )
 
+                // === OAUTH2 LOGIN (GOOGLE) ===
+<span class="fc" id="L112">                .oauth2Login(oauth2 -&gt; {</span>
+<span class="fc" id="L113">                    oauth2.loginPage(&quot;/login&quot;);</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">                    if (customOidcUserService != null) {</span>
+<span class="fc" id="L115">                        oauth2.userInfoEndpoint(userInfo -&gt; userInfo</span>
+<span class="fc" id="L116">                                .oidcUserService(customOidcUserService)</span>
+                        );
+                    }
+<span class="fc" id="L119">                    oauth2.defaultSuccessUrl(&quot;/&quot;, true);</span>
+<span class="fc" id="L120">                })</span>
+
+                // === LOGOUT ===
+<span class="fc" id="L123">                .logout(logout -&gt; logout</span>
+                        // Após logout, redireciona para a página de login com mensagem
+<span class="fc" id="L125">                        .logoutSuccessUrl(&quot;/login?logout&quot;)</span>
+<span class="fc" id="L126">                        .permitAll()</span>
+                )
+
                 // === CSRF (Cross-Site Request Forgery) ===
-                // CSRF é um ataque onde um site malicioso faz requisições em nome do usuário autenticado.
-                // O Spring Security protege adicionando um token único em formulários.
-                // Para HTMX funcionar com PUT/DELETE, precisamos de uma configuração especial.
-                // Em produção real, considere usar o mecanismo de CSRF com SameSite cookies.
-<span class="fc" id="L116">                .csrf(csrf -&gt; csrf</span>
-                        // Desabilita CSRF apenas para os endpoints usados pelo HTMX
-<span class="fc" id="L118">                        .ignoringRequestMatchers(&quot;/ativos/**&quot;, &quot;/chamados/**&quot;)</span>
+                // Habilitado globalmente. A integração com HTMX é feita via cabeçalhos injetados nas requisições.
+                //
+                // === HEADERS DE SEGURANÇA E CSP ===
+<span class="fc" id="L133">                .headers(headers -&gt; headers</span>
+<span class="fc" id="L134">                        .contentSecurityPolicy(csp -&gt; csp</span>
+<span class="fc" id="L135">                                .policyDirectives(&quot;default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';&quot;)</span>
+                        )
                 );
 
-<span class="fc" id="L121">        return http.build();</span>
+<span class="fc" id="L139">        return http.build();</span>
     }
 
     /**
@@ -134,7 +152,7 @@ import org.springframework.security.web.SecurityFilterChain;
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-<span class="fc" id="L137">        return config.getAuthenticationManager();</span>
+<span class="fc" id="L155">        return config.getAuthenticationManager();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

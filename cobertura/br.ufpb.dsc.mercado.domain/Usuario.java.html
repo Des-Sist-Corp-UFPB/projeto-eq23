@@ -34,93 +34,95 @@ public class Usuario implements UserDetails {
 <span class="fc" id="L34">    public Usuario() {</span>
 <span class="fc" id="L35">    }</span>
 
-<span class="nc" id="L37">    public Usuario(String nome, String username, String senha) {</span>
-<span class="nc" id="L38">        this.nome = nome;</span>
-<span class="nc" id="L39">        this.username = username;</span>
-<span class="nc" id="L40">        this.senha = senha;</span>
-<span class="nc" id="L41">    }</span>
+<span class="fc" id="L37">    public Usuario(String nome, String username, String senha) {</span>
+<span class="fc" id="L38">        this.nome = nome;</span>
+<span class="fc" id="L39">        this.username = username;</span>
+<span class="fc" id="L40">        this.senha = senha;</span>
+<span class="fc" id="L41">    }</span>
 
     public Long getId() {
-<span class="nc" id="L44">        return id;</span>
+<span class="fc" id="L44">        return id;</span>
     }
 
     public void setId(Long id) {
-<span class="nc" id="L48">        this.id = id;</span>
-<span class="nc" id="L49">    }</span>
+<span class="fc" id="L48">        this.id = id;</span>
+<span class="fc" id="L49">    }</span>
 
     public String getNome() {
-<span class="nc" id="L52">        return nome;</span>
+<span class="fc" id="L52">        return nome;</span>
     }
 
     public void setNome(String nome) {
-<span class="nc" id="L56">        this.nome = nome;</span>
-<span class="nc" id="L57">    }</span>
+<span class="fc" id="L56">        this.nome = nome;</span>
+<span class="fc" id="L57">    }</span>
 
     public void setUsername(String username) {
-<span class="nc" id="L60">        this.username = username;</span>
-<span class="nc" id="L61">    }</span>
+<span class="fc" id="L60">        this.username = username;</span>
+<span class="fc" id="L61">    }</span>
 
     public String getSenha() {
-<span class="nc" id="L64">        return senha;</span>
+<span class="fc" id="L64">        return senha;</span>
     }
 
     public void setSenha(String senha) {
-<span class="nc" id="L68">        this.senha = senha;</span>
-<span class="nc" id="L69">    }</span>
+<span class="fc" id="L68">        this.senha = senha;</span>
+<span class="fc" id="L69">    }</span>
 
     public LocalDateTime getCreatedAt() {
-<span class="nc" id="L72">        return createdAt;</span>
+<span class="fc" id="L72">        return createdAt;</span>
     }
 
     // --- Métodos da Interface UserDetails do Spring Security ---
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
-        // Por enquanto, todos os usuários têm a mesma permissão &quot;USER&quot;
-<span class="nc" id="L80">        return List.of(() -&gt; &quot;ROLE_USER&quot;);</span>
+<span class="pc bpc" id="L79" title="1 of 4 branches missed.">        if (&quot;admin&quot;.equalsIgnoreCase(username) || &quot;admin@dcx.ufpb.br&quot;.equalsIgnoreCase(username)) {</span>
+<span class="fc" id="L80">            return List.of(() -&gt; &quot;ROLE_ADMIN&quot;, () -&gt; &quot;ROLE_USER&quot;);</span>
+        }
+<span class="pc" id="L82">        return List.of(() -&gt; &quot;ROLE_USER&quot;);</span>
     }
 
     @Override
     public String getPassword() {
-<span class="nc" id="L85">        return this.senha;</span>
+<span class="fc" id="L87">        return this.senha;</span>
     }
 
     @Override
     public String getUsername() {
-<span class="nc" id="L90">        return this.username;</span>
+<span class="fc" id="L92">        return this.username;</span>
     }
 
     @Override
     public boolean isAccountNonExpired() {
-<span class="nc" id="L95">        return true;</span>
+<span class="fc" id="L97">        return true;</span>
     }
 
     @Override
     public boolean isAccountNonLocked() {
-<span class="nc" id="L100">        return true;</span>
+<span class="fc" id="L102">        return true;</span>
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-<span class="nc" id="L105">        return true;</span>
+<span class="fc" id="L107">        return true;</span>
     }
 
     @Override
     public boolean isEnabled() {
-<span class="nc" id="L110">        return true;</span>
+<span class="fc" id="L112">        return true;</span>
     }
 
     @Override
     public boolean equals(Object o) {
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (this == o) return true;</span>
-<span class="nc bnc" id="L116" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
-<span class="nc" id="L117">        Usuario usuario = (Usuario) o;</span>
-<span class="nc" id="L118">        return Objects.equals(id, usuario.id);</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="nc" id="L119">        Usuario usuario = (Usuario) o;</span>
+<span class="nc" id="L120">        return Objects.equals(id, usuario.id);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L123">        return Objects.hash(id);</span>
+<span class="fc" id="L125">        return Objects.hash(id);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

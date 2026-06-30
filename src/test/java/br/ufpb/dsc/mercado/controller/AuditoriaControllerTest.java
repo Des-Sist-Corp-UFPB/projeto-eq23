@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -53,7 +54,7 @@ class AuditoriaControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin")
+    @WithUserDetails("admin")
     @DisplayName("GET /auditoria: deve retornar listagem de auditoria completa")
     void listar_usuarioAutenticado_deveRetornarPaginaAuditoria() throws Exception {
         mockMvc.perform(get("/auditoria"))
@@ -67,7 +68,7 @@ class AuditoriaControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin")
+    @WithUserDetails("admin")
     @DisplayName("GET /auditoria com header HTMX: deve retornar apenas fragmento da tabela")
     void listar_comHtmxHeader_deveRetornarFragmentoTabela() throws Exception {
         mockMvc.perform(get("/auditoria")
@@ -80,7 +81,7 @@ class AuditoriaControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin")
+    @WithUserDetails("admin")
     @DisplayName("GET /auditoria/fragmento-tabela: deve retornar apenas fragmento da tabela")
     void fragmentoTabela_deveRetornarFragmentoTabela() throws Exception {
         mockMvc.perform(get("/auditoria/fragmento-tabela"))
@@ -99,3 +100,5 @@ class AuditoriaControllerTest {
                 .andExpect(redirectedUrlPattern("**/login"));
     }
 }
+
+

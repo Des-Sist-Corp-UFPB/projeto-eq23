@@ -23,8 +23,8 @@ public class Ativo {
 
 
 
-    @Size(max = 50, message = &quot;O número de série pode ter no máximo 50 caracteres&quot;)
-    @Column(name = &quot;numero_serie&quot;, length = 50)
+    @Size(max = 11, message = &quot;O número de série pode ter no máximo 11 caracteres&quot;)
+    @Column(name = &quot;numero_serie&quot;, length = 11)
     private String numeroSerie;
 
 <span class="fc" id="L30">    @NotBlank(message = &quot;O status é obrigatório&quot;)</span>
@@ -62,28 +62,42 @@ public class Ativo {
 <span class="pc bpc" id="L62" title="1 of 2 branches missed.">        this.status = status != null ? status : &quot;ATIVO&quot;;</span>
 <span class="fc" id="L63">    }</span>
 
+<span class="fc" id="L65">    @OneToMany(mappedBy = &quot;ativo&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private java.util.List&lt;Patrimonio&gt; patrimonios = new java.util.ArrayList&lt;&gt;();
+
     // Getters and Setters
-<span class="fc" id="L66">    public Long getId() { return id; }</span>
-<span class="fc" id="L67">    public void setId(Long id) { this.id = id; }</span>
+<span class="fc" id="L69">    public Long getId() { return id; }</span>
+<span class="fc" id="L70">    public void setId(Long id) { this.id = id; }</span>
 
-<span class="fc" id="L69">    public String getNome() { return nome; }</span>
-<span class="fc" id="L70">    public void setNome(String nome) { this.nome = nome; }</span>
+<span class="fc" id="L72">    public String getNome() { return nome; }</span>
+<span class="fc" id="L73">    public void setNome(String nome) { this.nome = nome; }</span>
 
-<span class="fc" id="L72">    public String getDescricao() { return descricao; }</span>
-<span class="fc" id="L73">    public void setDescricao(String descricao) { this.descricao = descricao; }</span>
+<span class="fc" id="L75">    public String getDescricao() { return descricao; }</span>
+<span class="fc" id="L76">    public void setDescricao(String descricao) { this.descricao = descricao; }</span>
 
+<span class="fc" id="L78">    public String getNumeroSerie() { return numeroSerie; }</span>
+<span class="fc" id="L79">    public void setNumeroSerie(String numeroSerie) { this.numeroSerie = numeroSerie; }</span>
 
+<span class="fc" id="L81">    public String getStatus() { return status; }</span>
+<span class="fc" id="L82">    public void setStatus(String status) { this.status = status; }</span>
 
-<span class="fc" id="L77">    public String getNumeroSerie() { return numeroSerie; }</span>
-<span class="fc" id="L78">    public void setNumeroSerie(String numeroSerie) { this.numeroSerie = numeroSerie; }</span>
+<span class="fc" id="L84">    public Instant getCriadoEm() { return criadoEm; }</span>
+<span class="fc" id="L85">    public void setCriadoEm(Instant criadoEm) { this.criadoEm = criadoEm; }</span>
 
-<span class="fc" id="L80">    public String getStatus() { return status; }</span>
-<span class="fc" id="L81">    public void setStatus(String status) { this.status = status; }</span>
+<span class="fc" id="L87">    public Instant getAtualizadoEm() { return atualizadoEm; }</span>
+<span class="fc" id="L88">    public void setAtualizadoEm(Instant updatedTime) { this.atualizadoEm = updatedTime; }</span>
 
-<span class="fc" id="L83">    public Instant getCriadoEm() { return criadoEm; }</span>
-<span class="nc" id="L84">    public void setCriadoEm(Instant criadoEm) { this.criadoEm = criadoEm; }</span>
+<span class="fc" id="L90">    public java.util.List&lt;Patrimonio&gt; getPatrimonios() { return patrimonios; }</span>
+<span class="nc" id="L91">    public void setPatrimonios(java.util.List&lt;Patrimonio&gt; patrimonios) { this.patrimonios = patrimonios; }</span>
 
-<span class="fc" id="L86">    public Instant getAtualizadoEm() { return atualizadoEm; }</span>
-<span class="nc" id="L87">    public void setAtualizadoEm(Instant atualizadoEm) { this.atualizadoEm = atualizadoEm; }</span>
+    public void addPatrimonio(Patrimonio p) {
+<span class="nc" id="L94">        patrimonios.add(p);</span>
+<span class="nc" id="L95">        p.setAtivo(this);</span>
+<span class="nc" id="L96">    }</span>
+
+    public void removePatrimonio(Patrimonio p) {
+<span class="nc" id="L99">        patrimonios.remove(p);</span>
+<span class="nc" id="L100">        p.setAtivo(null);</span>
+<span class="nc" id="L101">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

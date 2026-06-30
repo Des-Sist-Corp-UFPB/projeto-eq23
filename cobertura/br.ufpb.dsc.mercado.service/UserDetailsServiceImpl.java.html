@@ -18,10 +18,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-<span class="nc" id="L21">        Usuario usuario = usuarioRepository.findByUsername(username)</span>
-<span class="nc" id="L22">                .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;Usuário não encontrado: &quot; + username));</span>
+<span class="fc" id="L21">        Usuario usuario = usuarioRepository.findByUsername(username)</span>
+<span class="fc" id="L22">                .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;Usuário não encontrado: &quot; + username));</span>
         
-<span class="nc" id="L24">        return usuario; // A nossa classe Usuario já implementa UserDetails</span>
+<span class="fc" id="L24">        return usuario; // A nossa classe Usuario já implementa UserDetails</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

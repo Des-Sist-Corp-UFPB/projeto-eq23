@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -51,7 +52,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = "ADMIN")
+    @WithUserDetails("admin")
     @DisplayName("GET /ativos: deve retornar página de listagem com status 200")
     void listar_usuarioAutenticado_deveRetornarPaginaLista() throws Exception {
         mockMvc.perform(get("/ativos"))
@@ -70,7 +71,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails("admin")
     @DisplayName("GET /ativos/novo: deve retornar fragmento do formulário vazio")
     void novoForm_deveRetornarFragmentoFormulario() throws Exception {
         mockMvc.perform(get("/ativos/novo"))
@@ -81,7 +82,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails("admin")
     @DisplayName("POST /ativos: deve criar ativo e retornar fragmento da linha")
     void criar_dadosValidos_deveCriarERetornarLinha() throws Exception {
         mockMvc.perform(post("/ativos")
@@ -98,7 +99,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails("admin")
     @DisplayName("POST /ativos: dados inválidos devem retornar formulário com erros")
     void criar_dadosInvalidos_deveRetornarFormularioComErros() throws Exception {
         mockMvc.perform(post("/ativos")
@@ -111,7 +112,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails("admin")
     @DisplayName("GET /ativos/{id}/editar: deve retornar formulário preenchido")
     void editarForm_ativoExistente_deveRetornarFormularioPreenchido() throws Exception {
         mockMvc.perform(get("/ativos/{id}/editar", ativoCadastrado.getId()))
@@ -122,7 +123,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails("admin")
     @DisplayName("DELETE /ativos/{id}: deve excluir ativo e retornar 200")
     void excluir_ativoExistente_deveRetornar200() throws Exception {
         mockMvc.perform(delete("/ativos/{id}", ativoCadastrado.getId())
@@ -131,7 +132,7 @@ class AtivoControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails("admin")
     @DisplayName("DELETE /ativos/{id}: ativo inexistente deve retornar 404")
     void excluir_ativoInexistente_deveRetornar404() throws Exception {
         mockMvc.perform(delete("/ativos/{id}", 9999L)
@@ -139,3 +140,5 @@ class AtivoControllerTest {
                 .andExpect(status().isNotFound());
     }
 }
+
+

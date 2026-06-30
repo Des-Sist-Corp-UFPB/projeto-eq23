@@ -22,17 +22,21 @@ public class Chamado {
     @Column(name = &quot;descricao&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
     private String descricao;
 
-<span class="pc" id="L25">    @NotBlank(message = &quot;A prioridade é obrigatória&quot;)</span>
+<span class="fc" id="L25">    @NotBlank(message = &quot;A prioridade é obrigatória&quot;)</span>
     @Column(name = &quot;prioridade&quot;, nullable = false, length = 20)
     private String prioridade = &quot;MEDIA&quot;; // BAIXA, MEDIA, ALTA, CRITICA
 
-<span class="pc" id="L29">    @NotBlank(message = &quot;O status é obrigatório&quot;)</span>
+<span class="fc" id="L29">    @NotBlank(message = &quot;O status é obrigatório&quot;)</span>
     @Column(name = &quot;status&quot;, nullable = false, length = 20)
     private String status = &quot;ABERTO&quot;; // ABERTO, EM_ATENDIMENTO, RESOLVIDO, FECHADO
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = &quot;ativo_id&quot;, nullable = true)
     private Ativo ativo;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = &quot;patrimonio_id&quot;, nullable = true)
+    private Patrimonio patrimonio;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = &quot;tecnico_id&quot;, nullable = true)
@@ -51,64 +55,83 @@ public class Chamado {
 
     @PrePersist
     protected void prePersist() {
-<span class="nc" id="L54">        Instant agora = Instant.now();</span>
-<span class="nc" id="L55">        this.criadoEm = agora;</span>
-<span class="nc" id="L56">        this.atualizadoEm = agora;</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (this.status == null) {</span>
-<span class="nc" id="L58">            this.status = &quot;ABERTO&quot;;</span>
+<span class="nc" id="L58">        Instant agora = Instant.now();</span>
+<span class="nc" id="L59">        this.criadoEm = agora;</span>
+<span class="nc" id="L60">        this.atualizadoEm = agora;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (this.status == null) {</span>
+<span class="nc" id="L62">            this.status = &quot;ABERTO&quot;;</span>
         }
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (this.prioridade == null) {</span>
-<span class="nc" id="L61">            this.prioridade = &quot;MEDIA&quot;;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (this.prioridade == null) {</span>
+<span class="nc" id="L65">            this.prioridade = &quot;MEDIA&quot;;</span>
         }
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L67">    }</span>
 
     @PreUpdate
     protected void preUpdate() {
-<span class="nc" id="L67">        this.atualizadoEm = Instant.now();</span>
-<span class="nc" id="L68">    }</span>
+<span class="nc" id="L71">        this.atualizadoEm = Instant.now();</span>
+<span class="nc" id="L72">    }</span>
 
-<span class="fc" id="L70">    public Chamado() {</span>
-<span class="fc" id="L71">    }</span>
+<span class="fc" id="L74">    public Chamado() {</span>
+<span class="fc" id="L75">    }</span>
 
-<span class="nc" id="L73">    public Chamado(String titulo, String descricao, String prioridade, String status, Ativo ativo, Usuario tecnico, Usuario cliente) {</span>
-<span class="nc" id="L74">        this.titulo = titulo;</span>
-<span class="nc" id="L75">        this.descricao = descricao;</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        this.prioridade = prioridade != null ? prioridade : &quot;MEDIA&quot;;</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        this.status = status != null ? status : &quot;ABERTO&quot;;</span>
-<span class="nc" id="L78">        this.ativo = ativo;</span>
-<span class="nc" id="L79">        this.tecnico = tecnico;</span>
-<span class="nc" id="L80">        this.cliente = cliente;</span>
-<span class="nc" id="L81">    }</span>
+<span class="fc" id="L77">    public Chamado(String titulo, String descricao, String prioridade, String status, Ativo ativo, Usuario tecnico, Usuario cliente) {</span>
+<span class="fc" id="L78">        this.titulo = titulo;</span>
+<span class="fc" id="L79">        this.descricao = descricao;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        this.prioridade = prioridade != null ? prioridade : &quot;MEDIA&quot;;</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        this.status = status != null ? status : &quot;ABERTO&quot;;</span>
+<span class="fc" id="L82">        this.ativo = ativo;</span>
+<span class="fc" id="L83">        this.tecnico = tecnico;</span>
+<span class="fc" id="L84">        this.cliente = cliente;</span>
+<span class="fc" id="L85">    }</span>
+
+<span class="fc" id="L87">    public Chamado(String titulo, String descricao, String prioridade, String status, Patrimonio patrimonio, Usuario tecnico, Usuario cliente) {</span>
+<span class="fc" id="L88">        this.titulo = titulo;</span>
+<span class="fc" id="L89">        this.descricao = descricao;</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        this.prioridade = prioridade != null ? prioridade : &quot;MEDIA&quot;;</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        this.status = status != null ? status : &quot;ABERTO&quot;;</span>
+<span class="fc" id="L92">        this.patrimonio = patrimonio;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        this.ativo = patrimonio != null ? patrimonio.getAtivo() : null;</span>
+<span class="fc" id="L94">        this.tecnico = tecnico;</span>
+<span class="fc" id="L95">        this.cliente = cliente;</span>
+<span class="fc" id="L96">    }</span>
 
     // Getters and Setters
-<span class="nc" id="L84">    public Long getId() { return id; }</span>
-<span class="nc" id="L85">    public void setId(Long id) { this.id = id; }</span>
+<span class="fc" id="L99">    public Long getId() { return id; }</span>
+<span class="fc" id="L100">    public void setId(Long id) { this.id = id; }</span>
 
-<span class="nc" id="L87">    public String getTitulo() { return titulo; }</span>
-<span class="nc" id="L88">    public void setTitulo(String titulo) { this.titulo = titulo; }</span>
+<span class="fc" id="L102">    public String getTitulo() { return titulo; }</span>
+<span class="fc" id="L103">    public void setTitulo(String titulo) { this.titulo = titulo; }</span>
 
-<span class="nc" id="L90">    public String getDescricao() { return descricao; }</span>
-<span class="nc" id="L91">    public void setDescricao(String descricao) { this.descricao = descricao; }</span>
+<span class="fc" id="L105">    public String getDescricao() { return descricao; }</span>
+<span class="fc" id="L106">    public void setDescricao(String descricao) { this.descricao = descricao; }</span>
 
-<span class="nc" id="L93">    public String getPrioridade() { return prioridade; }</span>
-<span class="nc" id="L94">    public void setPrioridade(String prioridade) { this.prioridade = prioridade; }</span>
+<span class="fc" id="L108">    public String getPrioridade() { return prioridade; }</span>
+<span class="fc" id="L109">    public void setPrioridade(String prioridade) { this.prioridade = prioridade; }</span>
 
-<span class="nc" id="L96">    public String getStatus() { return status; }</span>
-<span class="nc" id="L97">    public void setStatus(String status) { this.status = status; }</span>
+<span class="fc" id="L111">    public String getStatus() { return status; }</span>
+<span class="fc" id="L112">    public void setStatus(String status) { this.status = status; }</span>
 
-<span class="nc" id="L99">    public Ativo getAtivo() { return ativo; }</span>
-<span class="nc" id="L100">    public void setAtivo(Ativo ativo) { this.ativo = ativo; }</span>
+<span class="fc" id="L114">    public Ativo getAtivo() { return ativo; }</span>
+<span class="fc" id="L115">    public void setAtivo(Ativo ativo) { this.ativo = ativo; }</span>
 
-<span class="nc" id="L102">    public Usuario getTecnico() { return tecnico; }</span>
-<span class="nc" id="L103">    public void setTecnico(Usuario tecnico) { this.tecnico = tecnico; }</span>
+<span class="fc" id="L117">    public Usuario getTecnico() { return tecnico; }</span>
+<span class="fc" id="L118">    public void setTecnico(Usuario tecnico) { this.tecnico = tecnico; }</span>
 
-<span class="nc" id="L105">    public Usuario getCliente() { return cliente; }</span>
-<span class="nc" id="L106">    public void setCliente(Usuario cliente) { this.cliente = cliente; }</span>
+<span class="fc" id="L120">    public Usuario getCliente() { return cliente; }</span>
+<span class="fc" id="L121">    public void setCliente(Usuario cliente) { this.cliente = cliente; }</span>
 
-<span class="nc" id="L108">    public Instant getCriadoEm() { return criadoEm; }</span>
-<span class="nc" id="L109">    public void setCriadoEm(Instant criadoEm) { this.criadoEm = criadoEm; }</span>
+<span class="fc" id="L123">    public Instant getCriadoEm() { return criadoEm; }</span>
+<span class="fc" id="L124">    public void setCriadoEm(Instant criadoEm) { this.criadoEm = criadoEm; }</span>
 
-<span class="nc" id="L111">    public Instant getAtualizadoEm() { return atualizadoEm; }</span>
-<span class="nc" id="L112">    public void setAtualizadoEm(Instant updated) { this.atualizadoEm = updated; }</span>
+<span class="fc" id="L126">    public Instant getAtualizadoEm() { return atualizadoEm; }</span>
+<span class="fc" id="L127">    public void setAtualizadoEm(Instant updated) { this.atualizadoEm = updated; }</span>
+
+<span class="fc" id="L129">    public Patrimonio getPatrimonio() { return patrimonio; }</span>
+    public void setPatrimonio(Patrimonio patrimonio) {
+<span class="fc" id="L131">        this.patrimonio = patrimonio;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (patrimonio != null) {</span>
+<span class="nc" id="L133">            this.ativo = patrimonio.getAtivo();</span>
+        }
+<span class="fc" id="L135">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

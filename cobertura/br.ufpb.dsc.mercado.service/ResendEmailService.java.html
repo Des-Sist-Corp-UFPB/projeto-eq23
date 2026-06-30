@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResendEmailService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">ResendEmailService.java</span></div><h1>ResendEmailService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Chamado;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
+
+public class ResendEmailService implements EmailService {
+
+<span class="fc" id="L11">    private static final Logger log = LoggerFactory.getLogger(ResendEmailService.class);</span>
+
+    private final RestClient restClient;
+    private final String apiUrl;
+    private final String apiKey;
+    private final String from;
+    private final String to;
+
+<span class="fc" id="L19">    public ResendEmailService(RestClient.Builder restClientBuilder, String apiUrl, String apiKey, String from, String to) {</span>
+<span class="fc" id="L20">        this.restClient = restClientBuilder.build();</span>
+<span class="fc" id="L21">        this.apiUrl = apiUrl;</span>
+<span class="fc" id="L22">        this.apiKey = apiKey;</span>
+<span class="fc" id="L23">        this.from = from;</span>
+<span class="fc" id="L24">        this.to = to;</span>
+<span class="fc" id="L25">    }</span>
+
+    @Override
+    public void enviarNotificacaoChamadoCriado(Chamado chamado) {
+<span class="fc" id="L29">        String subject = &quot;Novo Chamado Aberto #&quot; + chamado.getId() + &quot; - &quot; + chamado.getTitulo();</span>
+<span class="fc" id="L30">        String htmlBody = String.format(</span>
+                &quot;&lt;h3&gt;Novo Chamado de Suporte Aberto&lt;/h3&gt;&quot; +
+                &quot;&lt;p&gt;&lt;strong&gt;Título:&lt;/strong&gt; %s&lt;/p&gt;&quot; +
+                &quot;&lt;p&gt;&lt;strong&gt;Descrição:&lt;/strong&gt; %s&lt;/p&gt;&quot; +
+                &quot;&lt;p&gt;&lt;strong&gt;Prioridade:&lt;/strong&gt; %s&lt;/p&gt;&quot; +
+                &quot;&lt;p&gt;&lt;strong&gt;Cliente:&lt;/strong&gt; %s&lt;/p&gt;&quot; +
+                &quot;&lt;br/&gt;&quot; +
+                &quot;&lt;p&gt;&lt;em&gt;Este é um e-mail automático gerado pelo sistema SparkTech.&lt;/em&gt;&lt;/p&gt;&quot;,
+<span class="fc" id="L38">                chamado.getTitulo(),</span>
+<span class="fc" id="L39">                chamado.getDescricao(),</span>
+<span class="fc" id="L40">                chamado.getPrioridade(),</span>
+<span class="fc" id="L41">                chamado.getCliente().getNome()</span>
+        );
+
+<span class="fc" id="L44">        EmailPayload payload = new EmailPayload(from, to, subject, htmlBody);</span>
+
+        try {
+<span class="fc" id="L47">            restClient.post()</span>
+<span class="fc" id="L48">                    .uri(apiUrl)</span>
+<span class="fc" id="L49">                    .header(&quot;Authorization&quot;, &quot;Bearer &quot; + apiKey)</span>
+<span class="fc" id="L50">                    .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L51">                    .body(payload)</span>
+<span class="fc" id="L52">                    .retrieve()</span>
+<span class="fc" id="L53">                    .toBodilessEntity();</span>
+            
+<span class="fc" id="L55">            log.info(&quot;Notificação de e-mail enviada com sucesso para o chamado #{}&quot;, chamado.getId());</span>
+<span class="nc" id="L56">        } catch (Exception e) {</span>
+<span class="nc" id="L57">            log.error(&quot;Falha ao enviar e-mail de notificação para o chamado #{}: {}&quot;, chamado.getId(), e.getMessage(), e);</span>
+<span class="fc" id="L58">        }</span>
+<span class="fc" id="L59">    }</span>
+
+<span class="fc" id="L61">    private record EmailPayload(String from, String to, String subject, String html) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
