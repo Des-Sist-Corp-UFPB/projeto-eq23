@@ -341,3 +341,45 @@ base_projeto/
 5. **Nunca editar** migrations já aplicadas — sempre criar uma nova (`V3__`, `V4__`, ...)
 
 > Dúvidas? Consulte a documentação em `docs/` ou o professor.
+
+---
+
+## Log de Auditoria
+
+O sistema possui um mecanismo de auditoria para rastreamento de ações relevantes executadas na aplicação.
+
+- **O que é auditado**: Operações de gravação e remoção executadas por usuários no sistema. Atualmente, são auditadas as ações de criação (`CRIAR`), edição (`EDITAR`) e exclusão (`EXCLUIR`) de entidades do sistema, como `Ativo` e `Chamado`.
+- **Onde fica armazenado**: Armazenado na tabela `log_auditoria` do banco de dados PostgreSQL. Seus principais campos são:
+  - `id` (BIGINT, PRIMARY KEY): Identificador único do registro de auditoria.
+  - `usuario` (VARCHAR(100), NOT NULL): Identificador/username do usuário que executou a ação (capturado automaticamente do contexto de autenticação do Spring Security). Se executado fora de um contexto autenticado, registra-se como `"sistema"`.
+  - `acao` (VARCHAR(50), NOT NULL): O tipo da ação executada (ex: `CRIAR`, `EDITAR`, `EXCLUIR`).
+  - `entidade` (VARCHAR(50), NOT NULL): O nome da entidade alvo da ação (ex: `Ativo`, `Chamado`).
+  - `entidade_id` (BIGINT): O ID do registro da entidade no banco de dados.
+  - `detalhes` (TEXT): Uma descrição textual amigável detalhando a alteração realizada.
+  - `data_hora` (TIMESTAMP, NOT NULL): O carimbo de data e hora em que a ação ocorreu.
+- **Como foi implementado**: A auditoria foi implementada através de um serviço dedicado `LogAuditoriaService`. A captura do usuário autenticado é feita programaticamente através da consulta à sessão activa usando o `SecurityContextHolder.getContext().getAuthentication()`. Os serviços de domínio (`AtivoService`, `ChamadoService`) chamam esse serviço de forma síncrona dentro da mesma transação de banco de dados das operações de negócio correspondentes.
+- **Quais classes/arquivos participam**:
+  - Entidade JPA: [LogAuditoria.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/domain/LogAuditoria.java)
+  - Repositório Spring Data: [LogAuditoriaRepository.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/repository/LogAuditoriaRepository.java)
+  - Serviço de Auditoria: [LogAuditoriaService.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/service/LogAuditoriaService.java)
+  - Controller da Interface de Visualização: [AuditoriaController.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/controller/AuditoriaController.java)
+  - Pontos de chamada nos serviços: [AtivoService.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/service/AtivoService.java) e [ChamadoService.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/service/ChamadoService.java)
+
+---
+
+## Integração com Serviço Externo
+
+O sistema integra-se com serviços de terceiros para o envio de e-mails transacionais e de notificação.
+
+- **Qual é o serviço externo**: **Resend** (uma plataforma moderna para envio de e-mails transacionais via API HTTP).
+- **Para que é usado**: Envio automático de e-mails de notificação para a equipe de suporte do sistema assim que um novo chamado é criado por um cliente.
+- **Quais classes/arquivos participam**:
+  - Interface do serviço: [EmailService.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/service/EmailService.java)
+  - Implementação real via API HTTP do Resend: [ResendEmailService.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/service/ResendEmailService.java)
+  - Implementação fictícia (Mock) de desenvolvimento: [MockEmailService.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/service/MockEmailService.java)
+  - Configuração do Spring Framework: [EmailConfig.java](file:///c:/Users/matheus_nelvam/Documents/projeto-eq23/src/main/java/br/ufpb/dsc/mercado/config/EmailConfig.java)
+- **Como é configurado**: A integração é configurada dinamicamente com base nas propriedades no arquivo `application-dev.yml` (e possivelmente injetadas via variáveis de ambiente). Se nenhuma chave de API for fornecida, o sistema alterna automaticamente para a simulação local (`MockEmailService`). As seguintes variáveis são utilizadas:
+  - `EMAIL_API_URL`: O endpoint da API do Resend (padrão: `https://api.resend.com/emails`).
+  - `EMAIL_API_KEY`: A chave secreta (Token de API) do Resend necessária para autenticação via Header Bearer.
+  - `EMAIL_FROM`: O endereço de e-mail do remetente (padrão: `onboarding@resend.dev`).
+  - `EMAIL_TO`: O endereço de e-mail do destinatário onde as notificações de novos chamados serão entregues (padrão: `suporte@sparktech.com`).
