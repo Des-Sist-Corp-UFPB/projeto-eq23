@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChamadoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">ChamadoService.java</span></div><h1>ChamadoService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Ativo;
+import br.ufpb.dsc.mercado.domain.Chamado;
+import br.ufpb.dsc.mercado.domain.Usuario;
+import br.ufpb.dsc.mercado.dto.ChamadoForm;
+import br.ufpb.dsc.mercado.exception.ChamadoNaoEncontradoException;
+import br.ufpb.dsc.mercado.repository.AtivoRepository;
+import br.ufpb.dsc.mercado.repository.ChamadoRepository;
+import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional(readOnly = true)
+public class ChamadoService {
+
+    private final ChamadoRepository chamadoRepository;
+    private final AtivoRepository ativoRepository;
+    private final UsuarioRepository usuarioRepository;
+
+<span class="fc" id="L24">    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository) {</span>
+<span class="fc" id="L25">        this.chamadoRepository = chamadoRepository;</span>
+<span class="fc" id="L26">        this.ativoRepository = ativoRepository;</span>
+<span class="fc" id="L27">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L28">    }</span>
+
+    public Page&lt;Chamado&gt; listar(Pageable pageable) {
+<span class="nc" id="L31">        return chamadoRepository.findAll(pageable);</span>
+    }
+
+    public Page&lt;Chamado&gt; listarPorCliente(Long clienteId, Pageable pageable) {
+<span class="nc" id="L35">        return chamadoRepository.findByClienteId(clienteId, pageable);</span>
+    }
+
+    public Page&lt;Chamado&gt; listarPorTecnico(Long tecnicoId, Pageable pageable) {
+<span class="nc" id="L39">        return chamadoRepository.findByTecnicoId(tecnicoId, pageable);</span>
+    }
+
+    public Chamado buscarPorId(Long id) {
+<span class="nc" id="L43">        return chamadoRepository.findById(id)</span>
+<span class="nc" id="L44">                .orElseThrow(() -&gt; new ChamadoNaoEncontradoException(id));</span>
+    }
+
+    @Transactional
+    public Chamado criar(ChamadoForm form, Usuario cliente) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        Usuario tecnico = form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        Usuario clienteEntidade = form.clienteId() != null ? usuarioRepository.findById(form.clienteId()).orElse(cliente) : cliente;</span>
+
+<span class="nc" id="L53">        Chamado chamado = new Chamado(</span>
+<span class="nc" id="L54">                form.titulo(),</span>
+<span class="nc" id="L55">                form.descricao(),</span>
+<span class="nc" id="L56">                form.prioridade(),</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                form.status() != null ? form.status() : &quot;ABERTO&quot;,</span>
+                ativo,
+                tecnico,
+                clienteEntidade
+        );
+<span class="nc" id="L62">        return chamadoRepository.save(chamado);</span>
+    }
+
+    @Transactional
+    public Chamado atualizar(Long id, ChamadoForm form) {
+<span class="nc" id="L67">        Chamado chamado = buscarPorId(id);</span>
+<span class="nc" id="L68">        chamado.setTitulo(form.titulo());</span>
+<span class="nc" id="L69">        chamado.setDescricao(form.descricao());</span>
+<span class="nc" id="L70">        chamado.setPrioridade(form.prioridade());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (form.status() != null) {</span>
+<span class="nc" id="L72">            chamado.setStatus(form.status());</span>
+        }
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);</span>
+<span class="nc" id="L76">        return chamadoRepository.save(chamado);</span>
+    }
+
+    @Transactional
+    public Chamado alterarStatus(Long id, String status) {
+<span class="nc" id="L81">        Chamado chamado = buscarPorId(id);</span>
+<span class="nc" id="L82">        chamado.setStatus(status);</span>
+<span class="nc" id="L83">        return chamadoRepository.save(chamado);</span>
+    }
+
+    @Transactional
+    public Chamado atribuirTecnico(Long id, Long tecnicoId) {
+<span class="nc" id="L88">        Chamado chamado = buscarPorId(id);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        Usuario tecnico = tecnicoId != null ? usuarioRepository.findById(tecnicoId).orElse(null) : null;</span>
+<span class="nc" id="L90">        chamado.setTecnico(tecnico);</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if (tecnico != null &amp;&amp; &quot;ABERTO&quot;.equals(chamado.getStatus())) {</span>
+<span class="nc" id="L92">            chamado.setStatus(&quot;EM_ATENDIMENTO&quot;);</span>
+        }
+<span class="nc" id="L94">        return chamadoRepository.save(chamado);</span>
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (!chamadoRepository.existsById(id)) {</span>
+<span class="nc" id="L100">            throw new ChamadoNaoEncontradoException(id);</span>
+        }
+<span class="nc" id="L102">        chamadoRepository.deleteById(id);</span>
+<span class="nc" id="L103">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

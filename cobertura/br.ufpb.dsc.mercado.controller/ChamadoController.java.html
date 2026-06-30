@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChamadoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.controller</a> &gt; <span class="el_source">ChamadoController.java</span></div><h1>ChamadoController.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.controller;
+
+import br.ufpb.dsc.mercado.domain.Chamado;
+import br.ufpb.dsc.mercado.domain.Usuario;
+import br.ufpb.dsc.mercado.dto.ChamadoForm;
+import br.ufpb.dsc.mercado.exception.ChamadoNaoEncontradoException;
+import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import br.ufpb.dsc.mercado.service.AtivoService;
+import br.ufpb.dsc.mercado.service.ChamadoService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+@RequestMapping(&quot;/chamados&quot;)
+public class ChamadoController {
+
+    private static final int TAMANHO_PAGINA = 10;
+    private static final String HEADER_HTMX = &quot;HX-Request&quot;;
+
+    private final ChamadoService chamadoService;
+    private final AtivoService ativoService;
+    private final UsuarioRepository usuarioRepository;
+
+<span class="fc" id="L33">    public ChamadoController(ChamadoService chamadoService, AtivoService ativoService, UsuarioRepository usuarioRepository) {</span>
+<span class="fc" id="L34">        this.chamadoService = chamadoService;</span>
+<span class="fc" id="L35">        this.ativoService = ativoService;</span>
+<span class="fc" id="L36">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L37">    }</span>
+
+    @GetMapping
+    public String listar(
+            @RequestParam(name = &quot;pagina&quot;, defaultValue = &quot;0&quot;) int pagina,
+            @RequestHeader(value = HEADER_HTMX, required = false) String htmx,
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            Model model) {
+
+<span class="nc" id="L46">        PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by(&quot;criadoEm&quot;).descending());</span>
+        
+        Page&lt;Chamado&gt; chamados;
+        // Simple authorization check: if user is not ADMIN or TECNICO, list only their tickets
+<span class="nc bnc" id="L50" title="All 6 branches missed.">        if (usuarioLogado.getAuthorities().stream().anyMatch(a -&gt; &quot;ROLE_ADMIN&quot;.equals(a.getAuthority()) || &quot;ROLE_TECNICO&quot;.equals(a.getAuthority()))) {</span>
+<span class="nc" id="L51">            chamados = chamadoService.listar(pageRequest);</span>
+        } else {
+<span class="nc" id="L53">            chamados = chamadoService.listarPorCliente(usuarioLogado.getId(), pageRequest);</span>
+        }
+
+<span class="nc" id="L56">        model.addAttribute(&quot;chamados&quot;, chamados);</span>
+<span class="nc" id="L57">        model.addAttribute(&quot;paginaAtual&quot;, pagina);</span>
+<span class="nc" id="L58">        model.addAttribute(&quot;tecnicos&quot;, usuarioRepository.findAll()); // for filters/assignment</span>
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (htmx != null) {</span>
+<span class="nc" id="L61">            return &quot;chamados/fragments/tabela :: tabela&quot;;</span>
+        }
+
+<span class="nc" id="L64">        return &quot;chamados/lista&quot;;</span>
+    }
+
+    @GetMapping(&quot;/abrir&quot;)
+    public String abrirForm(Model model) {
+<span class="nc" id="L69">        model.addAttribute(&quot;form&quot;, new ChamadoForm(&quot;&quot;, &quot;&quot;, &quot;MEDIA&quot;, &quot;ABERTO&quot;, null, null, null));</span>
+<span class="nc" id="L70">        model.addAttribute(&quot;ativos&quot;, ativoService.listar(PageRequest.of(0, 100)).getContent());</span>
+<span class="nc" id="L71">        return &quot;chamados/abrir&quot;;</span>
+    }
+
+    @PostMapping(&quot;/abrir&quot;)
+    public String abrirCriar(
+            @Valid @ModelAttribute(&quot;form&quot;) ChamadoForm form,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L83">            model.addAttribute(&quot;ativos&quot;, ativoService.listar(PageRequest.of(0, 100)).getContent());</span>
+<span class="nc" id="L84">            return &quot;chamados/abrir&quot;;</span>
+        }
+
+<span class="nc" id="L87">        chamadoService.criar(form, usuarioLogado);</span>
+<span class="nc" id="L88">        redirectAttributes.addFlashAttribute(&quot;toastMensagem&quot;, &quot;Chamado aberto com sucesso!&quot;);</span>
+<span class="nc" id="L89">        return &quot;redirect:/chamados&quot;;</span>
+    }
+
+    @GetMapping(&quot;/novo&quot;)
+    public String novoForm(Model model) {
+<span class="nc" id="L94">        model.addAttribute(&quot;form&quot;, new ChamadoForm(&quot;&quot;, &quot;&quot;, &quot;MEDIA&quot;, &quot;ABERTO&quot;, null, null, null));</span>
+<span class="nc" id="L95">        model.addAttribute(&quot;chamado&quot;, null);</span>
+<span class="nc" id="L96">        model.addAttribute(&quot;ativos&quot;, ativoService.listar(PageRequest.of(0, 100)).getContent());</span>
+<span class="nc" id="L97">        model.addAttribute(&quot;usuarios&quot;, usuarioRepository.findAll());</span>
+<span class="nc" id="L98">        return &quot;chamados/fragments/form :: modal&quot;;</span>
+    }
+
+    @GetMapping(&quot;/{id}/editar&quot;)
+    public String editarForm(@PathVariable Long id, Model model) {
+<span class="nc" id="L103">        Chamado chamado = chamadoService.buscarPorId(id);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        Long ativoId = chamado.getAtivo() != null ? chamado.getAtivo().getId() : null;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        Long tecnicoId = chamado.getTecnico() != null ? chamado.getTecnico().getId() : null;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        Long clienteId = chamado.getCliente() != null ? chamado.getCliente().getId() : null;</span>
+
+<span class="nc" id="L108">        ChamadoForm form = new ChamadoForm(</span>
+<span class="nc" id="L109">                chamado.getTitulo(),</span>
+<span class="nc" id="L110">                chamado.getDescricao(),</span>
+<span class="nc" id="L111">                chamado.getPrioridade(),</span>
+<span class="nc" id="L112">                chamado.getStatus(),</span>
+                ativoId,
+                tecnicoId,
+                clienteId
+        );
+
+<span class="nc" id="L118">        model.addAttribute(&quot;form&quot;, form);</span>
+<span class="nc" id="L119">        model.addAttribute(&quot;chamado&quot;, chamado);</span>
+<span class="nc" id="L120">        model.addAttribute(&quot;ativos&quot;, ativoService.listar(PageRequest.of(0, 100)).getContent());</span>
+<span class="nc" id="L121">        model.addAttribute(&quot;usuarios&quot;, usuarioRepository.findAll());</span>
+<span class="nc" id="L122">        return &quot;chamados/fragments/form :: modal&quot;;</span>
+    }
+
+    @PostMapping
+    public String criar(
+            @Valid @ModelAttribute(&quot;form&quot;) ChamadoForm form,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            Model model) {
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L133">            model.addAttribute(&quot;chamado&quot;, null);</span>
+<span class="nc" id="L134">            model.addAttribute(&quot;ativos&quot;, ativoService.listar(PageRequest.of(0, 100)).getContent());</span>
+<span class="nc" id="L135">            model.addAttribute(&quot;usuarios&quot;, usuarioRepository.findAll());</span>
+<span class="nc" id="L136">            return &quot;chamados/fragments/form :: modal&quot;;</span>
+        }
+
+<span class="nc" id="L139">        Chamado novoChamado = chamadoService.criar(form, usuarioLogado);</span>
+<span class="nc" id="L140">        model.addAttribute(&quot;chamado&quot;, novoChamado);</span>
+<span class="nc" id="L141">        model.addAttribute(&quot;toastMensagem&quot;, &quot;Chamado aberto com sucesso!&quot;);</span>
+
+<span class="nc" id="L143">        return &quot;chamados/fragments/linha :: linha&quot;;</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public String atualizar(
+            @PathVariable Long id,
+            @Valid @ModelAttribute(&quot;form&quot;) ChamadoForm form,
+            BindingResult bindingResult,
+            Model model) {
+
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L154">            Chamado chamado = chamadoService.buscarPorId(id);</span>
+<span class="nc" id="L155">            model.addAttribute(&quot;chamado&quot;, chamado);</span>
+<span class="nc" id="L156">            model.addAttribute(&quot;ativos&quot;, ativoService.listar(PageRequest.of(0, 100)).getContent());</span>
+<span class="nc" id="L157">            model.addAttribute(&quot;usuarios&quot;, usuarioRepository.findAll());</span>
+<span class="nc" id="L158">            return &quot;chamados/fragments/form :: modal&quot;;</span>
+        }
+
+<span class="nc" id="L161">        Chamado chamadoAtualizado = chamadoService.atualizar(id, form);</span>
+<span class="nc" id="L162">        model.addAttribute(&quot;chamado&quot;, chamadoAtualizado);</span>
+<span class="nc" id="L163">        model.addAttribute(&quot;toastMensagem&quot;, &quot;Chamado atualizado!&quot;);</span>
+
+<span class="nc" id="L165">        return &quot;chamados/fragments/linha :: linha&quot;;</span>
+    }
+
+    @PutMapping(&quot;/{id}/status&quot;)
+    public String alterarStatus(
+            @PathVariable Long id,
+            @RequestParam(&quot;status&quot;) String status,
+            Model model) {
+        
+<span class="nc" id="L174">        Chamado chamado = chamadoService.alterarStatus(id, status);</span>
+<span class="nc" id="L175">        model.addAttribute(&quot;chamado&quot;, chamado);</span>
+<span class="nc" id="L176">        model.addAttribute(&quot;toastMensagem&quot;, &quot;Status alterado para &quot; + status);</span>
+<span class="nc" id="L177">        return &quot;chamados/fragments/linha :: linha&quot;;</span>
+    }
+
+    @PutMapping(&quot;/{id}/atribuir&quot;)
+    public String atribuirTecnico(
+            @PathVariable Long id,
+            @RequestParam(&quot;tecnicoId&quot;) Long tecnicoId,
+            Model model) {
+        
+<span class="nc" id="L186">        Chamado chamado = chamadoService.atribuirTecnico(id, tecnicoId);</span>
+<span class="nc" id="L187">        model.addAttribute(&quot;chamado&quot;, chamado);</span>
+<span class="nc" id="L188">        model.addAttribute(&quot;toastMensagem&quot;, &quot;Técnico atribuído com sucesso!&quot;);</span>
+<span class="nc" id="L189">        return &quot;chamados/fragments/linha :: linha&quot;;</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;Void&gt; excluir(@PathVariable Long id) {
+        try {
+<span class="nc" id="L196">            chamadoService.excluir(id);</span>
+<span class="nc" id="L197">            return ResponseEntity.ok().build();</span>
+<span class="nc" id="L198">        } catch (ChamadoNaoEncontradoException e) {</span>
+<span class="nc" id="L199">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

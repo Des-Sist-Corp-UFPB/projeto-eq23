@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AtivoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">AtivoService.java</span></div><h1>AtivoService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Ativo;
+import br.ufpb.dsc.mercado.dto.AtivoForm;
+import br.ufpb.dsc.mercado.exception.AtivoNaoEncontradoException;
+import br.ufpb.dsc.mercado.repository.AtivoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+@Service
+@Transactional(readOnly = true)
+public class AtivoService {
+
+    private final AtivoRepository ativoRepository;
+
+<span class="fc" id="L19">    public AtivoService(AtivoRepository ativoRepository) {</span>
+<span class="fc" id="L20">        this.ativoRepository = ativoRepository;</span>
+<span class="fc" id="L21">    }</span>
+
+    public Page&lt;Ativo&gt; listar(Pageable pageable) {
+<span class="nc" id="L24">        return ativoRepository.findAll(pageable);</span>
+    }
+
+    public Page&lt;Ativo&gt; buscar(String busca, Pageable pageable) {
+<span class="fc" id="L28">        boolean temBusca = StringUtils.hasText(busca);</span>
+
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (temBusca) {</span>
+<span class="nc" id="L31">            return ativoRepository.findByNomeContainingIgnoreCase(busca.trim(), pageable);</span>
+        } else {
+<span class="fc" id="L33">            return ativoRepository.findAll(pageable);</span>
+        }
+    }
+
+    public Ativo buscarPorId(Long id) {
+<span class="fc" id="L38">        return ativoRepository.findById(id)</span>
+<span class="fc" id="L39">                .orElseThrow(() -&gt; new AtivoNaoEncontradoException(id));</span>
+    }
+
+    @Transactional
+    public Ativo criar(AtivoForm form) {
+<span class="fc" id="L44">        Ativo ativo = new Ativo(</span>
+<span class="fc" id="L45">                form.nome(),</span>
+<span class="fc" id="L46">                form.descricao(),</span>
+<span class="fc" id="L47">                form.numeroSerie(),</span>
+<span class="fc" id="L48">                form.status()</span>
+        );
+<span class="fc" id="L50">        return ativoRepository.save(ativo);</span>
+    }
+
+    @Transactional
+    public Ativo atualizar(Long id, AtivoForm form) {
+<span class="fc" id="L55">        Ativo ativo = buscarPorId(id);</span>
+<span class="fc" id="L56">        ativo.setNome(form.nome());</span>
+<span class="fc" id="L57">        ativo.setDescricao(form.descricao());</span>
+<span class="fc" id="L58">        ativo.setNumeroSerie(form.numeroSerie());</span>
+<span class="fc" id="L59">        ativo.setStatus(form.status());</span>
+<span class="fc" id="L60">        return ativoRepository.save(ativo);</span>
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!ativoRepository.existsById(id)) {</span>
+<span class="fc" id="L66">            throw new AtivoNaoEncontradoException(id);</span>
+        }
+<span class="fc" id="L68">        ativoRepository.deleteById(id);</span>
+<span class="fc" id="L69">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
