@@ -11,6 +11,12 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID:dummy-id}
             client-secret: ${GOOGLE_CLIENT_SECRET:dummy-secret}
             scope:
+              # openid é obrigatório para o login ser tratado como OIDC (fluxo que
+              # passa pelo CustomOidcUserService). Sem ele, o Spring Security cai no
+              # fluxo de OAuth2 genérico, ignora o CustomOidcUserService e usa o "sub"
+              # (ID numérico do Google) como nome de exibição — e também pula a
+              # restrição de domínio @dcx.ufpb.br feita naquele serviço.
+              - openid
               - email
               - profile
 
