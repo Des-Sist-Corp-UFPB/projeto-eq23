@@ -17,10 +17,11 @@
     <title>Login — Mercado DSC</title>
 
     <!-- Umami Analytics -->
-    <script async
+    <script defer
             th:if="${umamiWebsiteId != null and !umamiWebsiteId.isBlank()}"
             th:src="${umamiScriptUrl}"
             th:data-website-id="${umamiWebsiteId}"></script>
+
 
     <link rel="stylesheet"
           th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>

@@ -24,10 +24,11 @@
     <title th:text="${titulo != null ? titulo + ' — SparkTech' : 'SparkTech'}">SparkTech</title>
 
     <!-- Umami Analytics -->
-    <script async
+    <script defer
             th:if="${umamiWebsiteId != null and !umamiWebsiteId.isBlank()}"
             th:src="${umamiScriptUrl}"
             th:data-website-id="${umamiWebsiteId}"></script>
+
 
 
     <!--
