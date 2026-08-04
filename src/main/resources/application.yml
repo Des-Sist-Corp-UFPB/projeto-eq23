@@ -59,8 +59,9 @@ management:
 
 # Configurações do Umami Analytics
 umami:
-  script-url: ${UMAMI_SCRIPT_URL:https://cloud.umami.is/script.js}
+  script-url: ${UMAMI_SCRIPT_URL:https://umami.dsc.rodrigor.com/script.js}
   website-id: ${UMAMI_WEBSITE_ID:}
+
 
 
 

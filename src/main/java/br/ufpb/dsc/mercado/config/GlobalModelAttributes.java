@@ -35,8 +35,9 @@ public class GlobalModelAttributes {
     @Value("${umami.website-id:}")
     private String umamiWebsiteId;
 
-    @Value("${umami.script-url:https://cloud.umami.is/script.js}")
+    @Value("${umami.script-url:https://umami.dsc.rodrigor.com/script.js}")
     private String umamiScriptUrl;
+
 
     /**
      * Disponibiliza a URI da requisição atual para todos os templates.
