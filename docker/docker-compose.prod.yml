@@ -85,6 +85,9 @@ services:
       LITELLM_BASE_URL: ${LITELLM_BASE_URL}
       LITELLM_API_KEY: ${LITELLM_API_KEY}
       LITELLM_MODEL: ${LITELLM_MODEL}
+      UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL}
+      UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID}
+
     ports:
       - "${SERVER_PORT:-8123}:8080"
     depends_on:
@@ -99,13 +102,49 @@ services:
       retries: 3
       start_period: 60s    # Spring Boot precisa de até 60s para inicializar
     restart: unless-stopped
+      # ---------------------------------------------------------------------------
+  # Umami Analytics (Self-Hosted na VPS)
+  # ---------------------------------------------------------------------------
+  umami-db:
+    image: postgres:16-alpine
+    container_name: eq23-umami-db-prod
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD:-umami_password}
+    volumes:
+      - umami-prod-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mercado-net
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: eq23-umami-prod
+    ports:
+      - "${UMAMI_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD:-umami_password}@umami-db:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: ${UMAMI_APP_SECRET:-8d2c3e1f4a5b6c7d8e9f0a1b2c3d4e5f}
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    restart: unless-stopped
     networks:
       - mercado-net
 
 volumes:
   # Volume nomeado — gerenciado pelo Docker, persistente entre deploys
   postgres-prod-data:
+  umami-prod-data:
 
 networks:
   mercado-net:
     driver: bridge
+
