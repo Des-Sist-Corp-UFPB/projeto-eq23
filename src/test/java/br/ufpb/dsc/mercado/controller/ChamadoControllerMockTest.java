@@ -53,6 +53,7 @@ class ChamadoControllerMockTest {
         mockUsuario.setNome("Administrador");
         mockUsuario.setUsername("admin");
         mockUsuario.setSenha("admin123");
+        mockUsuario.setRole("ADMIN");
 
         Page<Ativo> emptyAtivos = new PageImpl<>(Collections.emptyList());
         when(ativoService.listar(any(Pageable.class))).thenReturn(emptyAtivos);

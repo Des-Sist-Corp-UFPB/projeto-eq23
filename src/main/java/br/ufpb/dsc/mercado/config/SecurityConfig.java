@@ -93,7 +93,7 @@ public class SecurityConfig {
                         // /actuator/health → monitoramento sem autenticação
                         // /ping → endpoint exigido pelo painel da disciplina
                         .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health", "/ping").permitAll()
-                        .requestMatchers("/ativos/**", "/auditoria/**").hasRole("ADMIN")
+                        .requestMatchers("/ativos/**", "/auditoria/**", "/admin/**").hasRole("ADMIN")
                         // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )

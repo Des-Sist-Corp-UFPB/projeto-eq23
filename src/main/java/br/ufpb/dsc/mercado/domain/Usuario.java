@@ -28,6 +28,10 @@ public class Usuario implements UserDetails {
     @NotBlank(message = "A senha é obrigatória")
     private String senha;
 
+    @NotBlank(message = "O papel é obrigatório")
+    @Column(name = "role", nullable = false, length = 20)
+    private String role = "CLIENTE"; // ADMIN, TECNICO, CLIENTE
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -68,6 +72,14 @@ public class Usuario implements UserDetails {
         this.senha = senha;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -76,10 +88,8 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if ("admin".equalsIgnoreCase(username) || "admin@dcx.ufpb.br".equalsIgnoreCase(username)) {
-            return List.of(() -> "ROLE_ADMIN", () -> "ROLE_USER");
-        }
-        return List.of(() -> "ROLE_USER");
+        String papel = role != null ? role : "CLIENTE";
+        return List.of(() -> "ROLE_USER", () -> "ROLE_" + papel);
     }
 
     @Override

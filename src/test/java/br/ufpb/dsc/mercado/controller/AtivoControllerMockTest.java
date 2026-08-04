@@ -46,6 +46,7 @@ class AtivoControllerMockTest {
         mockUsuario.setNome("Administrador");
         mockUsuario.setUsername("admin");
         mockUsuario.setSenha("admin123");
+        mockUsuario.setRole("ADMIN");
 
         mockMvc = MockMvcBuilders.standaloneSetup(ativoController)
                 .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {

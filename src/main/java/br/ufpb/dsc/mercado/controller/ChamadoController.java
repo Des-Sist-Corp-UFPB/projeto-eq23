@@ -61,7 +61,7 @@ public class ChamadoController {
 
         model.addAttribute("chamados", chamados);
         model.addAttribute("paginaAtual", pagina);
-        model.addAttribute("tecnicos", usuarioRepository.findAll()); // for filters/assignment
+        model.addAttribute("tecnicos", usuarioRepository.findByRoleOrderByNomeAsc("TECNICO")); // for filters/assignment
 
         if (htmx != null) {
             return "chamados/fragments/tabela :: tabela";
