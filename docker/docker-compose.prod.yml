@@ -85,8 +85,9 @@ services:
       LITELLM_BASE_URL: ${LITELLM_BASE_URL}
       LITELLM_API_KEY: ${LITELLM_API_KEY}
       LITELLM_MODEL: ${LITELLM_MODEL}
-      UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL}
+      UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-https://cloud.umami.is/script.js}
       UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID}
+
 
     ports:
       - "${SERVER_PORT:-8123}:8080"
