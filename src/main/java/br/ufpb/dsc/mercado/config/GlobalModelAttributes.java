@@ -1,6 +1,7 @@
 package br.ufpb.dsc.mercado.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -31,6 +32,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @ControllerAdvice
 public class GlobalModelAttributes {
 
+    @Value("${umami.website-id:}")
+    private String umamiWebsiteId;
+
+    @Value("${umami.script-url:https://cloud.umami.is/script.js}")
+    private String umamiScriptUrl;
+
     /**
      * Disponibiliza a URI da requisição atual para todos os templates.
      *
@@ -43,4 +50,15 @@ public class GlobalModelAttributes {
     public String requestURI(HttpServletRequest request) {
         return request.getRequestURI();
     }
+
+    @ModelAttribute("umamiWebsiteId")
+    public String umamiWebsiteId() {
+        return umamiWebsiteId;
+    }
+
+    @ModelAttribute("umamiScriptUrl")
+    public String umamiScriptUrl() {
+        return umamiScriptUrl;
+    }
 }
+

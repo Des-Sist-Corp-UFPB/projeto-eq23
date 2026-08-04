@@ -23,6 +23,13 @@
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
     <title th:text="${titulo != null ? titulo + ' — SparkTech' : 'SparkTech'}">SparkTech</title>
 
+    <!-- Umami Analytics -->
+    <script async
+            th:if="${umamiWebsiteId != null and !umamiWebsiteId.isBlank()}"
+            th:src="${umamiScriptUrl}"
+            th:data-website-id="${umamiWebsiteId}"></script>
+
+
     <!--
       Bootstrap CSS via WebJars.
       O webjars-locator-core permite omitir a versão na URL — o Spring a resolve automaticamente.

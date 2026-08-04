@@ -61,6 +61,18 @@ class ConfigAndInterceptorTest {
     }
 
     @Test
+    @DisplayName("GlobalModelAttributes — Deve retornar atributos do Umami")
+    void globalModelAttributes_DeveRetornarAtributosUmami() {
+        GlobalModelAttributes advice = new GlobalModelAttributes();
+        ReflectionTestUtils.setField(advice, "umamiWebsiteId", "test-website-id");
+        ReflectionTestUtils.setField(advice, "umamiScriptUrl", "https://umami.example.com/script.js");
+
+        assertEquals("test-website-id", advice.umamiWebsiteId());
+        assertEquals("https://umami.example.com/script.js", advice.umamiScriptUrl());
+    }
+
+
+    @Test
     @DisplayName("EmailConfig — Deve injetar condicionalmente MockEmailService ou ResendEmailService")
     void emailConfig_DeveInjetarCorretamente() {
         EmailConfig config = new EmailConfig();

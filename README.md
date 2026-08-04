@@ -383,3 +383,25 @@ O sistema integra-se com serviços de terceiros para o envio de e-mails transaci
   - `EMAIL_API_KEY`: A chave secreta (Token de API) do Resend necessária para autenticação via Header Bearer.
   - `EMAIL_FROM`: O endereço de e-mail do remetente (padrão: `onboarding@resend.dev`).
   - `EMAIL_TO`: O endereço de e-mail do destinatário onde as notificações de novos chamados serão entregues (padrão: `suporte@sparktech.com`).
+
+---
+
+## Analytics com Umami (Self-Hosted)
+
+A aplicação oferece suporte à integração com o **Umami Analytics** para monitoramento de acessos e eventos em tempo real.
+
+- **Modo Self-Hosted via Docker**:
+  - O arquivo `docker/docker-compose.dev.yml` inclui os serviços `umami` (disponível em `http://localhost:3000`) e `umami-db` (PostgreSQL isolado para o Umami).
+  - Credenciais padrão do painel Umami: `admin` / `umami`.
+- **Como funciona**:
+  - O script de rastreamento é injetado dinamicamente no `<head>` do `layout.html` e `login.html` via `GlobalModelAttributes` somente quando a variável `UMAMI_WEBSITE_ID` está preenchida.
+- **Rastreamento de Eventos Personalizados**:
+  - Os formulários e botões principais contêm atributos `data-umami-event`:
+    - `login-form`: Submissão do formulário de login por senha
+    - `login-google`: Autenticação via Google OIDC
+    - `salvar-chamado`: Abertura e edição de chamados
+    - `salvar-ativo`: Cadastro e atualização de ativos
+- **Variáveis de ambiente**:
+  - `UMAMI_SCRIPT_URL`: URL do script de rastreamento (padrão local: `http://localhost:3000/script.js`).
+  - `UMAMI_WEBSITE_ID`: ID do site gerado no painel do Umami. Se estiver vazio ou omitido, o rastreamento é omitido automaticamente.
+

@@ -57,4 +57,10 @@ management:
       # Detalhes do health só são exibidos para usuários autenticados
       show-details: when-authorized
 
+# Configurações do Umami Analytics
+umami:
+  script-url: ${UMAMI_SCRIPT_URL:https://cloud.umami.is/script.js}
+  website-id: ${UMAMI_WEBSITE_ID:}
+
+
 
