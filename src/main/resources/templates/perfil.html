@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::main})}">
+<head>
+    <title>Meu Perfil</title>
+</head>
+<body>
+
+<main>
+    <div class="mb-4">
+        <h1 class="h3 mb-1">Meu Perfil</h1>
+        <p class="text-muted mb-0">Dados da sua conta, troca de senha e conexão com o Google</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Dados da conta -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body px-4 py-4">
+                    <h2 class="h5 mb-3">Dados da conta</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Nome</dt>
+                        <dd class="col-sm-8" th:text="${usuario.nome}">Nome</dd>
+
+                        <dt class="col-sm-4">Usuário (login)</dt>
+                        <dd class="col-sm-8" th:text="${usuario.username}">usuario@exemplo.com</dd>
+
+                        <dt class="col-sm-4">Papel</dt>
+                        <dd class="col-sm-8"><span class="badge bg-secondary" th:text="${usuario.role}">CLIENTE</span></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trocar senha -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body px-4 py-4">
+                    <h2 class="h5 mb-3">Trocar senha</h2>
+                    <form th:action="@{/perfil/senha}" method="post">
+                        <div class="mb-3" th:if="${usuario.senhaDefinida}">
+                            <label for="senhaAtual" class="form-label fw-semibold">Senha atual</label>
+                            <input type="password" id="senhaAtual" name="senhaAtual" class="form-control" required/>
+                        </div>
+                        <div class="mb-3" th:unless="${usuario.senhaDefinida}">
+                            <div class="alert alert-info small mb-0">
+                                Sua conta ainda não tem uma senha local definida (você entra pelo Google) —
+                                defina uma abaixo se quiser poder logar também com usuário/senha.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="novaSenha" class="form-label fw-semibold">Nova senha</label>
+                            <input type="password" id="novaSenha" name="novaSenha" class="form-control"
+                                   minlength="6" required/>
+                        </div>
+                        <div class="mb-4">
+                            <label for="confirmarSenha" class="form-label fw-semibold">Confirmar nova senha</label>
+                            <input type="password" id="confirmarSenha" name="confirmarSenha" class="form-control"
+                                   minlength="6" required/>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar senha</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conectar Google -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body px-4 py-4">
+                    <h2 class="h5 mb-2">Conta Google</h2>
+                    <p class="text-muted small mb-3">
+                        Conecte uma conta Google (@dcx.ufpb.br) ao seu perfil pra poder entrar também com
+                        "Entrar com o Google", sem precisar digitar usuário/senha.
+                    </p>
+                    <a th:href="@{/oauth2/authorization/google}" class="btn btn-outline-light">
+                        <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.5 24c0-1.7-.15-3.33-.45-4.9H24v9.3h12.7c-.55 2.87-2.17 5.3-4.61 6.93l7.2 5.58C43.5 35.8 46.5 30.45 46.5 24z"/>
+                            <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.2-5.58c-2 .11-4.59 2.89-8.69 2.89-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        Conectar conta Google
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

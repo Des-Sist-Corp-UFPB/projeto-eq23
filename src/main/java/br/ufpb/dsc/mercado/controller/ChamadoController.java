@@ -4,6 +4,8 @@ import br.ufpb.dsc.mercado.domain.Chamado;
 import br.ufpb.dsc.mercado.domain.Usuario;
 import br.ufpb.dsc.mercado.dto.ChamadoForm;
 import br.ufpb.dsc.mercado.exception.ChamadoNaoEncontradoException;
+import br.ufpb.dsc.mercado.ia.ChamadoClassificacao;
+import br.ufpb.dsc.mercado.ia.ClassificacaoIaService;
 import br.ufpb.dsc.mercado.repository.UsuarioRepository;
 import br.ufpb.dsc.mercado.repository.PatrimonioRepository;
 import br.ufpb.dsc.mercado.service.AtivoService;
@@ -32,12 +34,15 @@ public class ChamadoController {
     private final AtivoService ativoService;
     private final UsuarioRepository usuarioRepository;
     private final PatrimonioRepository patrimonioRepository;
+    private final ClassificacaoIaService classificacaoIaService;
 
-    public ChamadoController(ChamadoService chamadoService, AtivoService ativoService, UsuarioRepository usuarioRepository, PatrimonioRepository patrimonioRepository) {
+    public ChamadoController(ChamadoService chamadoService, AtivoService ativoService, UsuarioRepository usuarioRepository,
+                              PatrimonioRepository patrimonioRepository, ClassificacaoIaService classificacaoIaService) {
         this.chamadoService = chamadoService;
         this.ativoService = ativoService;
         this.usuarioRepository = usuarioRepository;
         this.patrimonioRepository = patrimonioRepository;
+        this.classificacaoIaService = classificacaoIaService;
     }
 
     @GetMapping
@@ -72,7 +77,7 @@ public class ChamadoController {
 
     @GetMapping("/abrir")
     public String abrirForm(Model model) {
-        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null, null));
+        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null, null, null));
         model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
         model.addAttribute("patrimonios", patrimonioRepository.findAll());
         return "chamados/abrir";
@@ -98,9 +103,25 @@ public class ChamadoController {
         return "redirect:/chamados";
     }
 
+    /**
+     * Sugestão de categoria/prioridade via IA a partir do título e descrição digitados.
+     * É só uma sugestão pré-preenchida no formulário — quem abre o chamado sempre pode
+     * mudar antes de enviar, a IA nunca decide sozinha.
+     */
+    @PostMapping("/sugestao-ia")
+    public String sugestaoIa(
+            @RequestParam(defaultValue = "") String titulo,
+            @RequestParam(defaultValue = "") String descricao,
+            Model model) {
+
+        ChamadoClassificacao sugestao = classificacaoIaService.classificar(titulo, descricao).orElse(null);
+        model.addAttribute("sugestao", sugestao);
+        return "chamados/fragments/sugestao-ia :: sugestao";
+    }
+
     @GetMapping("/novo")
     public String novoForm(Model model) {
-        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null, null));
+        model.addAttribute("form", new ChamadoForm("", "", "MEDIA", "ABERTO", null, null, null, null, null));
         model.addAttribute("chamado", null);
         model.addAttribute("ativos", ativoService.listar(PageRequest.of(0, 100)).getContent());
         model.addAttribute("patrimonios", patrimonioRepository.findAll());
@@ -150,7 +171,8 @@ public class ChamadoController {
                 ativoId,
                 tecnicoId,
                 clienteId,
-                patrimonioId
+                patrimonioId,
+                chamado.getCategoria()
         );
 
         model.addAttribute("form", form);

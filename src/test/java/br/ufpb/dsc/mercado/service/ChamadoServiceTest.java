@@ -67,7 +67,7 @@ class ChamadoServiceTest {
         chamadoExistente = new Chamado("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", ativo, null, cliente);
         chamadoExistente.setId(10L);
 
-        formValido = new ChamadoForm("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", 1L, null, 1L, null);
+        formValido = new ChamadoForm("Instalação OS", "Instalar Linux", "MEDIA", "ABERTO", 1L, null, 1L, null, null);
     }
 
     @Test
@@ -117,7 +117,7 @@ class ChamadoServiceTest {
         when(chamadoRepository.findById(10L)).thenReturn(Optional.of(chamadoExistente));
         when(chamadoRepository.save(any(Chamado.class))).thenReturn(chamadoExistente);
 
-        ChamadoForm formEdicao = new ChamadoForm("Instalação OS - Urgente", "Instalar Linux Rápido", "ALTA", "ABERTO", 1L, null, 1L, null);
+        ChamadoForm formEdicao = new ChamadoForm("Instalação OS - Urgente", "Instalar Linux Rápido", "ALTA", "ABERTO", 1L, null, 1L, null, null);
 
         Chamado resultado = chamadoService.atualizar(10L, formEdicao);
 

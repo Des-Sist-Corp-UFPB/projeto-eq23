@@ -1,5 +1,8 @@
 package br.ufpb.dsc.mercado.config;
 
+import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import br.ufpb.dsc.mercado.security.McpApiKeyAuthFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.http.HttpStatus;
 
 /**
  * Configuração de segurança da aplicação usando Spring Security 6.
@@ -42,9 +49,15 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService;
+    private final UsuarioRepository usuarioRepository;
 
-    public SecurityConfig(@org.springframework.context.annotation.Lazy br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService) {
+    @Value("${mcp.api-key:}")
+    private String mcpApiKey;
+
+    public SecurityConfig(@org.springframework.context.annotation.Lazy br.ufpb.dsc.mercado.service.CustomOidcUserService customOidcUserService,
+                           UsuarioRepository usuarioRepository) {
         this.customOidcUserService = customOidcUserService;
+        this.usuarioRepository = usuarioRepository;
     }
 
 
@@ -94,6 +107,8 @@ public class SecurityConfig {
                         // /ping → endpoint exigido pelo painel da disciplina
                         .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health", "/ping").permitAll()
                         .requestMatchers("/ativos/**", "/auditoria/**", "/admin/**").hasRole("ADMIN")
+                        // /mcp/** é autenticado por chave de serviço (McpApiKeyAuthFilter), não por sessão de usuário
+                        .requestMatchers("/mcp/**").authenticated()
                         // Qualquer outra requisição exige autenticação
                         .anyRequest().authenticated()
                 )
@@ -128,13 +143,28 @@ public class SecurityConfig {
 
                 // === CSRF (Cross-Site Request Forgery) ===
                 // Habilitado globalmente. A integração com HTMX é feita via cabeçalhos injetados nas requisições.
+                // /mcp/** é ignorado porque é uma API chamada por clientes MCP (não navegador/sessão) e
+                // autenticada por chave de serviço — CSRF não se aplica a esse tipo de cliente.
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/mcp/**"))
+                //
+                // === /mcp/** SEM CHAVE VÁLIDA: 401 em vez de redirecionar para /login ===
+                // Sem isso, o comportamento padrão do formLogin redireciona (302) qualquer
+                // requisição não autenticada para a página HTML de login — errado para um
+                // cliente MCP, que espera uma resposta HTTP simples (401), não uma página.
+                .exceptionHandling(handling -> handling
+                        .defaultAuthenticationEntryPointFor(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                new AntPathRequestMatcher("/mcp/**"))
+                )
                 //
                 // === HEADERS DE SEGURANÇA E CSP ===
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp
                                 .policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline';")
                         )
-                );
+                )
+                // Autentica /mcp/** via chave de serviço antes do filtro de login por formulário
+                .addFilterBefore(new McpApiKeyAuthFilter(mcpApiKey, usuarioRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

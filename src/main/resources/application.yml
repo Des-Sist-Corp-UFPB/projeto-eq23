@@ -3,6 +3,24 @@ spring:
     name: mercado
   profiles:
     active: dev
+  ai:
+    mcp:
+      server:
+        # Servidor MCP: expõe operações de chamados/ativos como tools pra um assistente de IA
+        # (ver MCP-IDEIA.md / MCP-TUTORIAL.md e ChamadoMcpTools). Endpoints ficam sob /mcp/**,
+        # autenticados por chave de serviço (propriedade mcp.api-key abaixo), não por login de usuário.
+        name: sparktech-chamados-mcp
+        version: 1.0.0
+        type: SYNC
+    # LiteLLM (proxy multi-provedor fornecido pela disciplina) fala o dialeto da API da OpenAI,
+    # então usamos o client OpenAI do Spring AI apontado pra ele em vez de um provedor direto —
+    # trocar de modelo/provedor no futuro é só mudar essas variáveis, sem mexer em código.
+    openai:
+      base-url: ${LITELLM_BASE_URL:https://api.openai.com}
+      api-key: ${LITELLM_API_KEY:dummy-key}
+      chat:
+        options:
+          model: ${LITELLM_MODEL:gpt-4o-mini}
   security:
     oauth2:
       client:
@@ -19,6 +37,12 @@ spring:
               - openid
               - email
               - profile
+
+# Chave de serviço que um cliente MCP deve enviar como "Authorization: Bearer <chave>"
+# para poder chamar as tools em /mcp/**. Sem essa variável de ambiente definida, o valor
+# fica vazio e o McpApiKeyAuthFilter nega qualquer chamada (fail-closed).
+mcp:
+  api-key: ${MCP_API_KEY:}
 
 # Actuator - monitoramento da aplicação
 # Acesse: http://localhost:8080/actuator/health

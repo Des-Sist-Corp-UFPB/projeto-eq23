@@ -39,6 +39,12 @@ logging:
     br.ufpb.dsc.mercado: INFO
     org.springframework.web: INFO
 
+# Chave de dev pra testar o servidor MCP localmente sem precisar exportar variável de
+# ambiente. NUNCA usar esse valor fora do ambiente de desenvolvimento — em produção,
+# MCP_API_KEY tem que vir de um secret de verdade (ver application.yml).
+mcp:
+  api-key: ${MCP_API_KEY:dev-local-mcp-key}
+
 app:
   email:
     api-url: ${EMAIL_API_URL:https://api.resend.com/emails}

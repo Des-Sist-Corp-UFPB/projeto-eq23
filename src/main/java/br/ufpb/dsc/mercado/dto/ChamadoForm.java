@@ -21,6 +21,8 @@ public record ChamadoForm(
 
         Long clienteId,
 
-        Long patrimonioId
+        Long patrimonioId,
+
+        String categoria
 ) {
 }

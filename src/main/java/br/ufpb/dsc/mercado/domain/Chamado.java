@@ -30,6 +30,9 @@ public class Chamado {
     @Column(name = "status", nullable = false, length = 20)
     private String status = "ABERTO"; // ABERTO, EM_ATENDIMENTO, RESOLVIDO, FECHADO
 
+    @Column(name = "categoria", length = 20)
+    private String categoria; // HARDWARE, SOFTWARE, REDE, ACESSO, OUTRO — nullable, sugerido por IA
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "ativo_id", nullable = true)
     private Ativo ativo;
@@ -110,6 +113,9 @@ public class Chamado {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
     public Ativo getAtivo() { return ativo; }
     public void setAtivo(Ativo ativo) { this.ativo = ativo; }

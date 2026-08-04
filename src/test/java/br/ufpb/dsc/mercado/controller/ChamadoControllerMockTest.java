@@ -47,6 +47,7 @@ class ChamadoControllerMockTest {
         ativoService = mock(AtivoService.class);
         usuarioRepository = mock(UsuarioRepository.class);
         patrimonioRepository = mock(br.ufpb.dsc.mercado.repository.PatrimonioRepository.class);
+        br.ufpb.dsc.mercado.ia.ClassificacaoIaService classificacaoIaService = mock(br.ufpb.dsc.mercado.ia.ClassificacaoIaService.class);
 
         mockUsuario = new Usuario();
         mockUsuario.setId(1L);
@@ -65,7 +66,7 @@ class ChamadoControllerMockTest {
         defaultChamado.setCliente(mockUsuario);
         when(chamadoService.buscarPorId(anyLong())).thenReturn(defaultChamado);
 
-        ChamadoController chamadoController = new ChamadoController(chamadoService, ativoService, usuarioRepository, patrimonioRepository);
+        ChamadoController chamadoController = new ChamadoController(chamadoService, ativoService, usuarioRepository, patrimonioRepository, classificacaoIaService);
         mockMvc = MockMvcBuilders.standaloneSetup(chamadoController)
                 .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
                     @Override

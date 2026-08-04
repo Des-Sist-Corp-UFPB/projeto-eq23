@@ -30,7 +30,13 @@ public class Usuario implements UserDetails {
 
     @NotBlank(message = "O papel é obrigatório")
     @Column(name = "role", nullable = false, length = 20)
-    private String role = "CLIENTE"; // ADMIN, TECNICO, CLIENTE
+    private String role = "CLIENTE"; // ADMIN_SISTEMA, ADMIN, TECNICO, CLIENTE (hierarquia, ver UsuarioService)
+
+    // false para contas provisionadas via Google (senha placeholder, nunca informada a ninguém) —
+    // controla se a tela de Perfil exige a senha atual para trocar a senha (não tem o que confirmar
+    // se a pessoa nunca teve uma senha de verdade).
+    @Column(name = "senha_definida", nullable = false)
+    private boolean senhaDefinida = false;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -80,6 +86,14 @@ public class Usuario implements UserDetails {
         this.role = role;
     }
 
+    public boolean isSenhaDefinida() {
+        return senhaDefinida;
+    }
+
+    public void setSenhaDefinida(boolean senhaDefinida) {
+        this.senhaDefinida = senhaDefinida;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -89,6 +103,12 @@ public class Usuario implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String papel = role != null ? role : "CLIENTE";
+        // ADMIN_SISTEMA herda ROLE_ADMIN também, para não precisar caçar e duplicar toda checagem
+        // "hasRole(ADMIN)" espalhada pelo sistema — ele pode fazer tudo que um ADMIN normal faz,
+        // mais a criação de novos admins (ver UsuarioService).
+        if ("ADMIN_SISTEMA".equals(papel)) {
+            return List.of(() -> "ROLE_USER", () -> "ROLE_ADMIN_SISTEMA", () -> "ROLE_ADMIN");
+        }
         return List.of(() -> "ROLE_USER", () -> "ROLE_" + papel);
     }
 

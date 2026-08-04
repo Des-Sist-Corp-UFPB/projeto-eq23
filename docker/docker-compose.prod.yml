@@ -12,6 +12,10 @@
 #   DATABASE_URL=jdbc:postgresql://postgres:5432/eq23
 #   DATABASE_USERNAME=eq23
 #   DATABASE_PASSWORD=<senha-aqui>
+#   MCP_API_KEY=<chave-do-servidor-mcp>            # ver McpApiKeyAuthFilter
+#   LITELLM_BASE_URL=https://llm.rodrigor.com       # proxy LiteLLM da disciplina
+#   LITELLM_API_KEY=<chave-fornecida-pelo-professor>
+#   LITELLM_MODEL=gpt-4o-mini                       # gpt-4o-mini | gpt-4o | gpt-4.1-mini
 #
 # PRIMEIRA EXECUÇÃO (banco de dados):
 #   docker compose -f docker/docker-compose.prod.yml up -d postgres
@@ -77,6 +81,10 @@ services:
       EMAIL_API_KEY: ${EMAIL_API_KEY}
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_TO: ${EMAIL_TO}
+      MCP_API_KEY: ${MCP_API_KEY}
+      LITELLM_BASE_URL: ${LITELLM_BASE_URL}
+      LITELLM_API_KEY: ${LITELLM_API_KEY}
+      LITELLM_MODEL: ${LITELLM_MODEL}
     ports:
       - "${SERVER_PORT:-8123}:8080"
     depends_on:

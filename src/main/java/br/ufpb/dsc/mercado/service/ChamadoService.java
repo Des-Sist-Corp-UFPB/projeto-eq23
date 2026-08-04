@@ -65,6 +65,7 @@ public class ChamadoService {
                 tecnico,
                 clienteEntidade
         );
+        chamado.setCategoria(form.categoria());
         Chamado salvo = chamadoRepository.save(chamado);
         logAuditoriaService.registrar("CRIAR", "Chamado", salvo.getId(), "Criado chamado: " + salvo.getTitulo());
         
@@ -80,6 +81,7 @@ public class ChamadoService {
         chamado.setTitulo(form.titulo());
         chamado.setDescricao(form.descricao());
         chamado.setPrioridade(form.prioridade());
+        chamado.setCategoria(form.categoria());
         if (form.status() != null) {
             chamado.setStatus(form.status());
         }
