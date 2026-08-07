@@ -35,7 +35,11 @@ public class AtivoController {
             @RequestParam(name = "busca", required = false, defaultValue = "") String busca,
             @RequestParam(name = "pagina", defaultValue = "0") int pagina,
             @RequestHeader(value = HEADER_HTMX, required = false) String htmx,
+            @AuthenticationPrincipal Object principal,
             Model model) {
+
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
 
         PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("nome").ascending());
         Page<Ativo> ativos = ativoService.buscar(busca, pageRequest);
@@ -55,7 +59,11 @@ public class AtivoController {
     public String fragmentoTabela(
             @RequestParam(name = "busca", required = false, defaultValue = "") String busca,
             @RequestParam(name = "pagina", defaultValue = "0") int pagina,
+            @AuthenticationPrincipal Object principal,
             Model model) {
+
+        Usuario usuarioLogado = getUsuarioLogado(principal);
+        verificarAcesso(usuarioLogado);
 
         PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("nome").ascending());
         Page<Ativo> ativos = ativoService.buscar(busca, pageRequest);

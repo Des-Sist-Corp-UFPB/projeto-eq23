@@ -7,7 +7,7 @@
     <!-- Modal Bootstrap -->
     <div class="modal fade" id="produtoModal" tabindex="-1"
          aria-labelledby="ativoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-md">
             <div class="modal-content">
 
                 <!-- Cabeçalho do modal -->
@@ -21,8 +21,8 @@
                             <path th:if="${ativo == null}"
                                   d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
                         </svg>
-                        <span th:text="${ativo == null} ? 'Novo Ativo' : 'Editar Ativo'">
-                            Ativo
+                        <span th:text="${ativo == null} ? 'Cadastrar Novo Ativo' : 'Editar Ativo'">
+                            Cadastrar Novo Ativo
                         </span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white"
@@ -46,179 +46,49 @@
                             </ul>
                         </div>
 
-                        <!-- Campo Nome -->
+                        <!-- Campo Nome do Ativo -->
                         <div class="mb-3">
-                            <label for="nome" class="form-label fw-semibold">
-                                Nome <span class="text-danger">*</span>
+                            <label for="nome" class="form-label fw-semibold text-light">
+                                Nome do Ativo <span class="text-danger">*</span>
                             </label>
                             <input type="text"
+                                   id="nome"
                                    th:field="*{nome}"
                                    class="form-control"
                                    th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid'"
-                                   placeholder="Ex.: Servidor Dell PowerEdge R750"
+                                   placeholder="Ex.: Notebook Dell Vostro 15"
                                    maxlength="120"
-                                   required/>
+                                   required
+                                   autofocus/>
                             <div class="invalid-feedback"
                                  th:if="${#fields.hasErrors('nome')}"
                                  th:errors="*{nome}">
-                                Erro no nome
+                                Erro no nome do ativo
                             </div>
                         </div>
 
-                        <!-- Campo Descrição -->
+                        <!-- Campo Patrimônio do Ativo -->
                         <div class="mb-3">
-                            <label for="descricao" class="form-label fw-semibold">Descrição</label>
-                            <textarea th:field="*{descricao}"
-                                      class="form-control"
-                                      th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'"
-                                      rows="3"
-                                      placeholder="Descrição opcional do ativo..."
-                                      maxlength="2000"></textarea>
-                            <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('descricao')}"
-                                 th:errors="*{descricao}">
-                                Erro na descrição
-                            </div>
-                        </div>
-
-                        <!-- Campo Número de Série -->
-                        <div class="mb-3">
-                            <label for="numeroSerie" class="form-label fw-semibold text-light">Número de Série</label>
+                            <label for="numeroSerie" class="form-label fw-semibold text-light">
+                                Patrimônio do Ativo <span class="text-danger">*</span>
+                            </label>
                             <input type="text"
                                    id="numeroSerie"
                                    th:field="*{numeroSerie}"
                                    class="form-control"
                                    th:classappend="${#fields.hasErrors('numeroSerie')} ? 'is-invalid'"
-                                   placeholder="Ex.: Dell-SN9283719"
-                                   maxlength="50"/>
+                                   placeholder="Ex.: PAT-2026-001"
+                                   maxlength="50"
+                                   required/>
                             <div class="invalid-feedback"
                                  th:if="${#fields.hasErrors('numeroSerie')}"
                                  th:errors="*{numeroSerie}">
-                                Erro no número de série
+                                Erro no patrimônio do ativo
                             </div>
                         </div>
 
-                        <!-- Campo Status -->
-                        <div class="mb-3">
-                            <label for="status" class="form-label fw-semibold text-light">Status <span class="text-danger">*</span></label>
-                            <select id="status"
-                                    th:field="*{status}"
-                                    class="form-select"
-                                    th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'"
-                                    required>
-                                <option value="ATIVO">Ativo</option>
-                                <option value="EM_MANUTENCAO">Em Manutenção</option>
-                                <option value="BAIXADO">Baixado</option>
-                            </select>
-                        </div>
-
-                        <!-- Seção de Patrimônios -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-light d-flex justify-content-between align-items-center">
-                                Patrimônios (Equipamentos Físicos)
-                                <button type="button" class="btn btn-sm btn-success" id="btn-add-patrimonio">
-                                    + Adicionar Equipamento
-                                </button>
-                            </label>
-                            
-                            <div id="patrimonio-list">
-                                <!-- Patrimônios Existentes -->
-                                <div th:each="pat, iter : *{patrimonios}" class="card border border-secondary p-3 mb-3 bg-dark-subtle patrimonio-row">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h6 class="text-light mb-0">Equipamento #<span class="row-number" th:text="${iter.index + 1}">1</span></h6>
-                                        <button type="button" class="btn btn-sm btn-outline-danger btn-remove-patrimonio">Remover</button>
-                                    </div>
-                                    <div class="mb-2">
-                                        <label class="form-label fw-semibold text-light small">Código do Patrimônio <span class="text-danger">*</span></label>
-                                        <input type="text" th:name="'patrimonios[' + ${iter.index} + '].codigo'" th:value="${pat.codigo}" class="form-control" placeholder="Ex.: Y5943" required pattern="^[A-Za-z]\d{4}$"/>
-                                    </div>
-                                    <div class="mb-0">
-                                        <label class="form-label fw-semibold text-light small">Número de Série <span class="text-danger">*</span></label>
-                                        <input type="text" th:name="'patrimonios[' + ${iter.index} + '].numeroSerie'" th:value="${pat.numeroSerie}" class="form-control" placeholder="Ex.: 5853Z210586" maxlength="11" required/>
-                                    </div>
-                                </div>
-                                
-                                <div id="no-patrimonio-msg" class="text-muted text-center py-2 small" th:style="${form.patrimonios != null and !form.patrimonios.empty} ? 'display: none;' : ''">
-                                    Nenhum patrimônio cadastrado para este ativo.
-                                </div>
-                            </div>
-                        </div>
-
-                        <script th:inline="javascript">
-                            (function() {
-                                const list = document.getElementById('patrimonio-list');
-                                const btnAdd = document.getElementById('btn-add-patrimonio');
-                                const msg = document.getElementById('no-patrimonio-msg');
-                                
-                                function updateIndices() {
-                                    const rows = list.querySelectorAll('.patrimonio-row');
-                                    rows.forEach((row, idx) => {
-                                        const inputs = row.querySelectorAll('input');
-                                        inputs[0].name = `patrimonios[${idx}].codigo`;
-                                        inputs[1].name = `patrimonios[${idx}].numeroSerie`;
-                                        const numSpan = row.querySelector('.row-number');
-                                        if (numSpan) numSpan.textContent = idx + 1;
-                                    });
-                                    if (rows.length === 0) {
-                                        msg.style.display = 'block';
-                                    } else {
-                                        msg.style.display = 'none';
-                                    }
-                                }
-
-                                btnAdd.addEventListener('click', function() {
-                                    const idx = list.querySelectorAll('.patrimonio-row').length;
-                                    const div = document.createElement('div');
-                                    div.className = 'card border border-secondary p-3 mb-3 bg-dark-subtle patrimonio-row';
-                                    div.innerHTML = `
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="text-light mb-0">Equipamento #<span class="row-number">${idx + 1}</span></h6>
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-patrimonio">Remover</button>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label fw-semibold text-light small">Código do Patrimônio <span class="text-danger">*</span></label>
-                                            <input type="text" name="patrimonios[${idx}].codigo" class="form-control" placeholder="Ex.: Y5943" required pattern="^[A-Za-z]\\d{4}$" />
-                                        </div>
-                                        <div class="mb-0">
-                                            <label class="form-label fw-semibold text-light small">Número de Série <span class="text-danger">*</span></label>
-                                            <input type="text" name="patrimonios[${idx}].numeroSerie" class="form-control" placeholder="Ex.: 5853Z210586" maxlength="11" required />
-                                        </div>
-                                    `;
-                                    list.appendChild(div);
-                                    msg.style.display = 'none';
-                                    
-                                    div.querySelector('.btn-remove-patrimonio').addEventListener('click', function() {
-                                        div.remove();
-                                        updateIndices();
-                                    });
-                                });
-
-                                list.addEventListener('click', function(e) {
-                                    if (e.target && e.target.classList.contains('btn-remove-patrimonio')) {
-                                        e.target.closest('.patrimonio-row').remove();
-                                        updateIndices();
-                                    }
-                                });
-                            })();
-                        </script>
-
-                        <!-- Informações do ativo em modo edição -->
-                        <div th:if="${ativo != null}" class="alert alert-light border small">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <strong>Criado em:</strong>
-                                    <span th:text="${#temporals.format(ativo.criadoEm.atZone(T(java.time.ZoneId).systemDefault()).toLocalDateTime(), 'dd/MM/yyyy HH:mm')}">
-                                        00/00/0000
-                                    </span>
-                                </div>
-                                <div class="col-sm-6">
-                                    <strong>Atualizado em:</strong>
-                                    <span th:text="${#temporals.format(ativo.atualizadoEm.atZone(T(java.time.ZoneId).systemDefault()).toLocalDateTime(), 'dd/MM/yyyy HH:mm')}">
-                                        00/00/0000
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Campo Status Oculto / Padrão -->
+                        <input type="hidden" th:field="*{status}" th:value="${form.status != null ? form.status : 'ATIVO'}"/>
 
                     </div><!-- /modal-body -->
 
@@ -233,12 +103,11 @@
                                 <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
                             </svg>
                             <span th:text="${ativo == null} ? 'Salvar Ativo' : 'Atualizar Ativo'">
-                                Salvar
+                                Salvar Ativo
                             </span>
                             <span class="spinner-border spinner-border-sm htmx-indicator ms-1"
                                   role="status" aria-hidden="true"></span>
                         </button>
-
                     </div>
 
                 </form>
