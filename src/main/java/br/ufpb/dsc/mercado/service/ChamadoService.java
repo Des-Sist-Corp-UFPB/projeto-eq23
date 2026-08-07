@@ -115,6 +115,10 @@ public class ChamadoService {
         chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);
         Chamado salvo = chamadoRepository.save(chamado);
         logAuditoriaService.registrar("ATUALIZAR", "Chamado", salvo.getId(), "Atualizado chamado: " + salvo.getTitulo());
+        
+        // Disparar notificação por e-mail de atualização
+        emailService.enviarNotificacaoChamadoAtualizado(salvo, "Informações do chamado foram alteradas.");
+
         return salvo;
     }
 
@@ -125,6 +129,10 @@ public class ChamadoService {
         chamado.setStatus(status);
         Chamado salvo = chamadoRepository.save(chamado);
         logAuditoriaService.registrar("ALTERAR_STATUS", "Chamado", salvo.getId(), "Status alterado de " + statusAntigo + " para " + status);
+        
+        // Disparar notificação por e-mail de alteração de status
+        emailService.enviarNotificacaoChamadoAtualizado(salvo, "Status alterado de '" + statusAntigo + "' para '" + status + "'.");
+
         return salvo;
     }
 
