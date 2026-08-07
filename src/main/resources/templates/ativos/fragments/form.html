@@ -1,122 +1,116 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <body>
 
-<th:block th:fragment="modal">
+    <th:block th:fragment="modal">
 
-    <!-- Modal Bootstrap -->
-    <div class="modal fade" id="produtoModal" tabindex="-1"
-         aria-labelledby="ativoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
+        <!-- Modal Bootstrap -->
+        <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="ativoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
 
-                <!-- Cabeçalho do modal -->
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="ativoModalLabel">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                             class="bi me-2" viewBox="0 0 16 16"
-                             th:classappend="${ativo == null} ? 'bi-plus-circle' : 'bi-pencil-square'">
-                            <path th:if="${ativo == null}"
-                                  d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                            <path th:if="${ativo == null}"
-                                  d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                        </svg>
-                        <span th:text="${ativo == null} ? 'Cadastrar Novo Ativo' : 'Editar Ativo'">
-                            Cadastrar Novo Ativo
-                        </span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white"
-                            data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
+                    <!-- Cabeçalho do modal -->
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="ativoModalLabel">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                class="bi me-2" viewBox="0 0 16 16"
+                                th:classappend="${ativo == null} ? 'bi-plus-circle' : 'bi-pencil-square'">
+                                <path th:if="${ativo == null}"
+                                    d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                <path th:if="${ativo == null}"
+                                    d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                            </svg>
+                            <span th:text="${ativo == null} ? 'Cadastrar Novo Ativo' : 'Editar Ativo'">
+                                Cadastrar Novo Ativo
+                            </span>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Fechar"></button>
+                    </div>
 
-                <form th:object="${form}"
-                      th:attr="
+                    <form th:object="${form}" th:attr="
                         hx-post=${ativo == null ? '/ativos' : null},
                         hx-put=${ativo != null ? '/ativos/' + ativo.id : null},
                         hx-target=${ativo == null ? '#lista-ativos' : '#ativo-' + ativo.id},
                         hx-swap=${ativo == null ? 'beforeend' : 'outerHTML'}"
-                      hx-on--after-request="if(event.detail.successful) { bootstrap.Modal.getInstance(document.getElementById('produtoModal')).hide(); }">
+                        hx-on--after-request="if(event.detail.successful) { bootstrap.Modal.getInstance(document.getElementById('produtoModal')).hide(); }">
 
-                    <div class="modal-body">
+                        <div class="modal-body">
 
-                        <!-- Alertas de erro de validação global -->
-                        <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
-                            <ul class="mb-0">
-                                <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Erro</li>
-                            </ul>
-                        </div>
-
-                        <!-- Campo Nome do Ativo -->
-                        <div class="mb-3">
-                            <label for="nome" class="form-label fw-semibold text-light">
-                                Nome do Ativo <span class="text-danger">*</span>
-                            </label>
-                            <input type="text"
-                                   id="nome"
-                                   th:field="*{nome}"
-                                   class="form-control"
-                                   th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid'"
-                                   placeholder="Ex.: Notebook Dell Vostro 15"
-                                   maxlength="120"
-                                   required
-                                   autofocus/>
-                            <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('nome')}"
-                                 th:errors="*{nome}">
-                                Erro no nome do ativo
+                            <!-- Alertas de erro de validação global -->
+                            <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+                                <ul class="mb-0">
+                                    <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Erro</li>
+                                </ul>
                             </div>
-                        </div>
 
-                        <!-- Campo Patrimônio do Ativo -->
-                        <div class="mb-3">
-                            <label for="numeroSerie" class="form-label fw-semibold text-light">
-                                Patrimônio do Ativo <span class="text-danger">*</span>
-                            </label>
-                            <input type="text"
-                                   id="numeroSerie"
-                                   th:field="*{numeroSerie}"
-                                   class="form-control"
-                                   th:classappend="${#fields.hasErrors('numeroSerie')} ? 'is-invalid'"
-                                   placeholder="Ex.: PAT-2026-001"
-                                   maxlength="50"
-                                   required/>
-                            <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('numeroSerie')}"
-                                 th:errors="*{numeroSerie}">
-                                Erro no patrimônio do ativo
+                            <!-- Campo Nome do Ativo -->
+                            <div class="mb-3">
+                                <label for="nome" class="form-label fw-semibold text-light">
+                                    Nome do Ativo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="nome" th:field="*{nome}" class="form-control"
+                                    th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid'"
+                                    placeholder="Ex.: Notebook Dell Vostro 15" maxlength="120" required autofocus />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">
+                                    Erro no nome do ativo
+                                </div>
                             </div>
+
+                            <!-- Campo Patrimônio do Ativo -->
+                            <div class="mb-3">
+                                <label for="numeroSerie" class="form-label fw-semibold text-light">
+                                    Patrimônio do Ativo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="numeroSerie" th:field="*{numeroSerie}"
+                                    class="form-control text-uppercase"
+                                    th:classappend="${#fields.hasErrors('numeroSerie')} ? 'is-invalid'"
+                                    placeholder="Ex.: Y1234" maxlength="5" minlength="5" pattern="^[Yy]\d{4}$"
+                                    title="O patrimônio deve estar no formato Y seguido de 4 números (ex: Y1234)"
+                                    required />
+                                <div class="form-text text-muted" style="font-size: 0.8rem;">
+                                    Formato obrigatório: <strong>Y</strong> seguido de 3 números (ex.: Y123, 4
+                                    caracteres)
+                                </div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('numeroSerie')}"
+                                    th:errors="*{numeroSerie}">
+                                    Erro no patrimônio do ativo
+                                </div>
+                            </div>
+
+                            <!-- Campo Status Oculto / Padrão -->
+                            <input type="hidden" th:field="*{status}"
+                                th:value="${form.status != null ? form.status : 'ATIVO'}" />
+
+                        </div><!-- /modal-body -->
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary" data-umami-event="salvar-ativo">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-check-lg me-1" viewBox="0 0 16 16">
+                                    <path
+                                        d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+                                </svg>
+                                <span th:text="${ativo == null} ? 'Salvar Ativo' : 'Atualizar Ativo'">
+                                    Salvar Ativo
+                                </span>
+                                <span class="spinner-border spinner-border-sm htmx-indicator ms-1" role="status"
+                                    aria-hidden="true"></span>
+                            </button>
                         </div>
 
-                        <!-- Campo Status Oculto / Padrão -->
-                        <input type="hidden" th:field="*{status}" th:value="${form.status != null ? form.status : 'ATIVO'}"/>
+                    </form>
 
-                    </div><!-- /modal-body -->
+                </div><!-- /modal-content -->
+            </div><!-- /modal-dialog -->
+        </div><!-- /modal -->
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                                data-bs-dismiss="modal">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-primary" data-umami-event="salvar-ativo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                 fill="currentColor" class="bi bi-check-lg me-1" viewBox="0 0 16 16">
-                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
-                            </svg>
-                            <span th:text="${ativo == null} ? 'Salvar Ativo' : 'Atualizar Ativo'">
-                                Salvar Ativo
-                            </span>
-                            <span class="spinner-border spinner-border-sm htmx-indicator ms-1"
-                                  role="status" aria-hidden="true"></span>
-                        </button>
-                    </div>
-
-                </form>
-
-            </div><!-- /modal-content -->
-        </div><!-- /modal-dialog -->
-    </div><!-- /modal -->
-
-</th:block>
+    </th:block>
 
 </body>
+
 </html>
