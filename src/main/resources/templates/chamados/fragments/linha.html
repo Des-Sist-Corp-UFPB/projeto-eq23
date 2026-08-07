@@ -52,12 +52,12 @@
                     Status
                 </button>
                 <ul class="dropdown-menu">
-                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=NAO_INICIADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Não Iniciado</button></li>
-                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=EM_ANDAMENTO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Em Andamento</button></li>
-                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=PARADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Parado</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=NAO_INICIADO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Não Iniciado</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=EM_ANDAMENTO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Em Andamento</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=PARADO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Parado</button></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><button class="dropdown-item text-success" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=RESOLVIDO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Resolvido</button></li>
-                    <li><button class="dropdown-item text-secondary" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=FECHADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Fechar</button></li>
+                    <li><button class="dropdown-item text-success" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=RESOLVIDO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Resolvido</button></li>
+                    <li><button class="dropdown-item text-secondary" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=FECHADO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Fechar</button></li>
                 </ul>
             </div>
 
