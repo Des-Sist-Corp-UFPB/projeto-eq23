@@ -87,7 +87,7 @@
                                 </select>
                             </div>
 
-                            <!-- Patrimônio Relacionado -->
+                            <!-- Patrimônio Relacionado (Ativos do Administrador) -->
                             <div class="col-md-4 mb-4">
                                 <label for="patrimonioId" class="form-label fw-semibold text-light">Equipamento (Patrimônio) <span class="text-danger">*</span></label>
                                 <select id="patrimonioId"
@@ -98,8 +98,13 @@
                                     <option value="">-- Selecione o Patrimônio --</option>
                                     <option th:each="pat : ${patrimonios}"
                                             th:value="${pat.id}"
-                                            th:text="${pat.codigo + ' - ' + pat.ativo.nome + ' (S/N: ' + pat.numeroSerie + ')'}">
+                                            th:text="${pat.codigo + ' - ' + pat.ativo.nome}">
                                         Patrimônio
+                                    </option>
+                                    <option th:each="atv : ${ativos}"
+                                            th:value="${atv.id}"
+                                            th:text="${(atv.numeroSerie != null and !atv.numeroSerie.isEmpty() ? atv.numeroSerie : 'PAT') + ' - ' + atv.nome}">
+                                        Ativo
                                     </option>
                                 </select>
                                 <div class="invalid-feedback"

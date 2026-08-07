@@ -53,18 +53,27 @@ public class ChamadoService {
     @Transactional
     public Chamado criar(ChamadoForm form, Usuario cliente) {
         br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;
+        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;
+        if (ativo == null && form.patrimonioId() != null) {
+            ativo = ativoRepository.findById(form.patrimonioId()).orElse(null);
+        }
+        if (ativo == null && patrimonio != null) {
+            ativo = patrimonio.getAtivo();
+        }
+
         Usuario tecnico = form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null;
         Usuario clienteEntidade = form.clienteId() != null ? usuarioRepository.findById(form.clienteId()).orElse(cliente) : cliente;
 
         Chamado chamado = new Chamado(
                 form.titulo(),
                 form.descricao(),
-                form.prioridade(),
+                form.prioridade() != null ? form.prioridade() : "MEDIA",
                 form.status() != null ? form.status() : "ABERTO",
                 patrimonio,
                 tecnico,
                 clienteEntidade
         );
+        chamado.setAtivo(ativo);
         chamado.setCategoria(form.categoria());
         Chamado salvo = chamadoRepository.save(chamado);
         logAuditoriaService.registrar("CRIAR", "Chamado", salvo.getId(), "Criado chamado: " + salvo.getTitulo());
@@ -87,10 +96,13 @@ public class ChamadoService {
         }
         
         br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;
-        chamado.setPatrimonio(patrimonio);
-        if (patrimonio == null) {
-            chamado.setAtivo(form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null);
+        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;
+        if (ativo == null && form.patrimonioId() != null) {
+            ativo = ativoRepository.findById(form.patrimonioId()).orElse(null);
         }
+        
+        chamado.setPatrimonio(patrimonio);
+        chamado.setAtivo(ativo != null ? ativo : (patrimonio != null ? patrimonio.getAtivo() : null));
         
         chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);
         Chamado salvo = chamadoRepository.save(chamado);
