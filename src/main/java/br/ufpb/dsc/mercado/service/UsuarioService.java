@@ -114,4 +114,32 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
         logAuditoriaService.registrar("EDITAR", "Usuario", usuario.getId(), "Senha alterada por " + usuario.getUsername());
     }
+
+    @Transactional
+    public Usuario autocadastro(String nome, String username, String senha, String confirmarSenha) {
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("Informe o seu nome completo.");
+        }
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Informe o seu e-mail/usuário.");
+        }
+        if (senha == null || senha.length() < 6) {
+            throw new IllegalArgumentException("A senha deve ter pelo menos 6 caracteres.");
+        }
+        if (!senha.equals(confirmarSenha)) {
+            throw new IllegalArgumentException("A confirmação de senha não confere.");
+        }
+        if (usuarioRepository.findByUsername(username).isPresent()) {
+            throw new IllegalArgumentException("Já existe um usuário cadastrado com esse e-mail/usuário.");
+        }
+
+        Usuario novo = new Usuario(nome, username, passwordEncoder.encode(senha));
+        novo.setRole("CLIENTE");
+        novo.setSenhaDefinida(true);
+        Usuario salvo = usuarioRepository.save(novo);
+        logAuditoriaService.registrar("CRIAR", "Usuario", salvo.getId(),
+                "Autocadastro de integrante " + salvo.getNome() + " (" + username + ")");
+        return salvo;
+    }
 }
+

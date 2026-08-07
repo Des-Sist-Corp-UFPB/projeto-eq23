@@ -105,7 +105,7 @@ public class SecurityConfig {
                         // /css/**, /js/** → arquivos estáticos personalizados
                         // /actuator/health → monitoramento sem autenticação
                         // /ping → endpoint exigido pelo painel da disciplina
-                        .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health", "/ping").permitAll()
+                        .requestMatchers("/webjars/**", "/css/**", "/js/**", "/actuator/health", "/ping", "/cadastro").permitAll()
                         .requestMatchers("/ativos/**", "/auditoria/**", "/admin/**").hasRole("ADMIN")
                         // /mcp/** é autenticado por chave de serviço (McpApiKeyAuthFilter), não por sessão de usuário
                         .requestMatchers("/mcp/**").authenticated()
