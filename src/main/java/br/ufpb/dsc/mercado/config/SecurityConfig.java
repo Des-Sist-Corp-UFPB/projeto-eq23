@@ -136,6 +136,7 @@ public class SecurityConfig {
 
                 // === LOGOUT ===
                 .logout(logout -> logout
+                        .logoutRequestMatcher(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/logout"))
                         // Após logout, redireciona diretamente para a página de login (/login)
                         .logoutSuccessUrl("/login")
                         .permitAll()
