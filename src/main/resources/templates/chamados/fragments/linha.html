@@ -35,8 +35,9 @@
 
     <!-- Status -->
     <td class="text-center">
-        <span th:if="${chamado.status == 'ABERTO'}" class="badge bg-primary">Aberto</span>
-        <span th:if="${chamado.status == 'EM_ATENDIMENTO'}" class="badge bg-warning text-dark">Em Atendimento</span>
+        <span th:if="${chamado.status == 'NAO_INICIADO' or chamado.status == 'ABERTO'}" class="badge bg-secondary">Não Iniciado</span>
+        <span th:if="${chamado.status == 'EM_ANDAMENTO' or chamado.status == 'EM_ATENDIMENTO'}" class="badge bg-primary">Em Andamento</span>
+        <span th:if="${chamado.status == 'PARADO'}" class="badge bg-warning text-dark">Parado</span>
         <span th:if="${chamado.status == 'RESOLVIDO'}" class="badge bg-success">Resolvido</span>
         <span th:if="${chamado.status == 'FECHADO'}" class="badge bg-dark">Fechado</span>
     </td>
@@ -45,15 +46,18 @@
     <td class="text-center">
         <div class="btn-group btn-group-sm" role="group" aria-label="Ações">
             
-            <!-- Quick status update (only for admins/technicians) -->
+            <!-- Quick status update (somente para administradores) -->
             <div class="btn-group btn-group-sm" role="group" sec:authorize="hasAnyRole('ADMIN', 'TECNICO')">
                 <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Mudar Status">
                     Status
                 </button>
                 <ul class="dropdown-menu">
-                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=EM_ATENDIMENTO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Atender</button></li>
-                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=RESOLVIDO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Resolver</button></li>
-                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=FECHADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Fechar</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=NAO_INICIADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Não Iniciado</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=EM_ANDAMENTO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Em Andamento</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=PARADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Parado</button></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button class="dropdown-item text-success" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=RESOLVIDO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Resolvido</button></li>
+                    <li><button class="dropdown-item text-secondary" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=FECHADO'" th:attrprefixed="hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Fechar</button></li>
                 </ul>
             </div>
 

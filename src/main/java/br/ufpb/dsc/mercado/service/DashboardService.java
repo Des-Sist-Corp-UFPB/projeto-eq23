@@ -22,21 +22,21 @@ public class DashboardService {
     }
 
     public long totalChamadosAbertos() {
-        return chamadoRepository.countByStatus("ABERTO");
+        return chamadoRepository.countByStatus("ABERTO") + chamadoRepository.countByStatus("NAO_INICIADO");
     }
 
     public long totalChamadosEmAtendimento() {
-        return chamadoRepository.countByStatus("EM_ATENDIMENTO");
+        return chamadoRepository.countByStatus("EM_ATENDIMENTO") + chamadoRepository.countByStatus("EM_ANDAMENTO") + chamadoRepository.countByStatus("PARADO");
     }
 
     public long totalChamadosAbertosPorCliente(Long clienteId) {
         if (clienteId == null) return 0;
-        return chamadoRepository.countByClienteIdAndStatus(clienteId, "ABERTO");
+        return chamadoRepository.countByClienteIdAndStatus(clienteId, "ABERTO") + chamadoRepository.countByClienteIdAndStatus(clienteId, "NAO_INICIADO");
     }
 
     public long totalChamadosEmAtendimentoPorCliente(Long clienteId) {
         if (clienteId == null) return 0;
-        return chamadoRepository.countByClienteIdAndStatus(clienteId, "EM_ATENDIMENTO");
+        return chamadoRepository.countByClienteIdAndStatus(clienteId, "EM_ATENDIMENTO") + chamadoRepository.countByClienteIdAndStatus(clienteId, "EM_ANDAMENTO") + chamadoRepository.countByClienteIdAndStatus(clienteId, "PARADO");
     }
 
     public long totalChamadosPorCliente(Long clienteId) {

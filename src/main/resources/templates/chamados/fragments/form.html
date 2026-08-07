@@ -124,8 +124,9 @@
                             <select th:field="*{status}"
                                     class="form-select"
                                     th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'">
-                                <option value="ABERTO">Aberto</option>
-                                <option value="EM_ATENDIMENTO">Em Atendimento</option>
+                                <option value="NAO_INICIADO">Não Iniciado</option>
+                                <option value="EM_ANDAMENTO">Em Andamento</option>
+                                <option value="PARADO">Parado</option>
                                 <option value="RESOLVIDO">Resolvido</option>
                                 <option value="FECHADO">Fechado</option>
                             </select>
