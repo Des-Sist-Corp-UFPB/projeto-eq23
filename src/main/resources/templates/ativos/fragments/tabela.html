@@ -22,7 +22,7 @@
                 </th:block>
 
                 <!-- Mensagem quando não há ativos -->
-                <tr th:if="${ativos == null or ativos.content.empty}">
+                <tr id="sem-ativos-msg" th:if="${ativos == null or ativos.content.empty}">
                     <td colspan="5" class="text-center text-muted py-5">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
                              fill="currentColor" class="bi bi-inbox d-block mx-auto mb-2 text-secondary"

@@ -34,7 +34,7 @@
                         hx-put=${ativo != null ? '/ativos/' + ativo.id : null},
                         hx-target=${ativo == null ? '#lista-ativos' : '#ativo-' + ativo.id},
                         hx-swap=${ativo == null ? 'beforeend' : 'outerHTML'}"
-                        hx-on--after-request="if(event.detail.successful) { bootstrap.Modal.getInstance(document.getElementById('produtoModal')).hide(); }">
+                        hx-on--after-request="if(event.detail.successful) { bootstrap.Modal.getInstance(document.getElementById('produtoModal')).hide(); const semAtivos = document.getElementById('sem-ativos-msg'); if (semAtivos) semAtivos.remove(); }">
 
                         <div class="modal-body">
 
