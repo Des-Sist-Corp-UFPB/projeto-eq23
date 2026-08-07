@@ -17,8 +17,8 @@
     <!-- Cards de estatísticas -->
     <div class="row g-4 mb-5">
 
-        <!-- Card: Total de Ativos -->
-        <div class="col-md-6">
+        <!-- Card: Total de Ativos (Visível para Admins) -->
+        <div class="col-md-6" sec:authorize="hasRole('ROLE_ADMIN')">
             <a th:href="@{/ativos}" class="text-decoration-none">
                 <div class="card h-100 card-dashboard">
                     <div class="card-body d-flex align-items-center gap-3">
