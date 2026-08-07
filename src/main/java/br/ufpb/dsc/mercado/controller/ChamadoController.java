@@ -48,6 +48,7 @@ public class ChamadoController {
     @GetMapping
     public String listar(
             @RequestParam(name = "pagina", defaultValue = "0") int pagina,
+            @RequestParam(name = "status", required = false) String status,
             @RequestHeader(value = HEADER_HTMX, required = false) String htmx,
             @AuthenticationPrincipal Object principal,
             Model model) {
@@ -55,18 +56,31 @@ public class ChamadoController {
         Usuario usuarioLogado = getUsuarioLogado(principal);
         PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by("criadoEm").descending());
         
+        boolean isAdminOuTecnico = usuarioLogado != null && usuarioLogado.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()));
+
         Page<Chamado> chamados;
-        // Simple authorization check: if user is not ADMIN or TECNICO, list only their tickets
-        if (usuarioLogado != null && usuarioLogado.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ROLE_TECNICO".equals(a.getAuthority()))) {
-            chamados = chamadoService.listar(pageRequest);
+        if (org.springframework.util.StringUtils.hasText(status)) {
+            String statusClean = status.trim();
+            if (isAdminOuTecnico) {
+                chamados = chamadoService.listarPorStatus(statusClean, pageRequest);
+            } else {
+                Long usuarioId = usuarioLogado != null ? usuarioLogado.getId() : -1L;
+                chamados = chamadoService.listarPorClienteEStatus(usuarioId, statusClean, pageRequest);
+            }
         } else {
-            Long usuarioId = usuarioLogado != null ? usuarioLogado.getId() : -1L;
-            chamados = chamadoService.listarPorCliente(usuarioId, pageRequest);
+            if (isAdminOuTecnico) {
+                chamados = chamadoService.listar(pageRequest);
+            } else {
+                Long usuarioId = usuarioLogado != null ? usuarioLogado.getId() : -1L;
+                chamados = chamadoService.listarPorCliente(usuarioId, pageRequest);
+            }
         }
 
         model.addAttribute("chamados", chamados);
         model.addAttribute("paginaAtual", pagina);
-        model.addAttribute("tecnicos", usuarioRepository.findByRoleOrderByNomeAsc("TECNICO")); // for filters/assignment
+        model.addAttribute("statusFiltro", status != null ? status.trim() : "");
+        model.addAttribute("tecnicos", usuarioRepository.findByRoleOrderByNomeAsc("TECNICO"));
 
         if (htmx != null) {
             return "chamados/fragments/tabela :: tabela";

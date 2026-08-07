@@ -41,6 +41,14 @@ public class ChamadoService {
         return chamadoRepository.findByClienteId(clienteId, pageable);
     }
 
+    public Page<Chamado> listarPorStatus(String status, Pageable pageable) {
+        return chamadoRepository.findByStatus(status, pageable);
+    }
+
+    public Page<Chamado> listarPorClienteEStatus(Long clienteId, String status, Pageable pageable) {
+        return chamadoRepository.findByClienteIdAndStatus(clienteId, status, pageable);
+    }
+
     public Page<Chamado> listarPorTecnico(Long tecnicoId, Pageable pageable) {
         return chamadoRepository.findByTecnicoId(tecnicoId, pageable);
     }

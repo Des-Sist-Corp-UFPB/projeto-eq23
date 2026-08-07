@@ -44,7 +44,7 @@
 
             <li class="page-item" th:classappend="${chamados.first} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/chamados(pagina=${paginaAtual - 1})}"
+                   th:href="@{/chamados(pagina=${paginaAtual - 1}, status=${statusFiltro})}"
                    aria-label="Anterior">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
@@ -54,13 +54,13 @@
                 class="page-item"
                 th:classappend="${i == paginaAtual} ? 'active'">
                 <a class="page-link"
-                   th:href="@{/chamados(pagina=${i})}"
+                   th:href="@{/chamados(pagina=${i}, status=${statusFiltro})}"
                    th:text="${i + 1}">1</a>
             </li>
 
             <li class="page-item" th:classappend="${chamados.last} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/chamados(pagina=${paginaAtual + 1})}"
+                   th:href="@{/chamados(pagina=${paginaAtual + 1}, status=${statusFiltro})}"
                    aria-label="Próximo">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
