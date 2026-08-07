@@ -123,22 +123,23 @@ public class UsuarioService {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Informe o seu e-mail/usuário.");
         }
+        String cleanUsername = username.trim();
         if (senha == null || senha.length() < 6) {
             throw new IllegalArgumentException("A senha deve ter pelo menos 6 caracteres.");
         }
         if (!senha.equals(confirmarSenha)) {
             throw new IllegalArgumentException("A confirmação de senha não confere.");
         }
-        if (usuarioRepository.findByUsername(username).isPresent()) {
+        if (usuarioRepository.findByUsernameIgnoreCase(cleanUsername).isPresent()) {
             throw new IllegalArgumentException("Já existe um usuário cadastrado com esse e-mail/usuário.");
         }
 
-        Usuario novo = new Usuario(nome, username, passwordEncoder.encode(senha));
+        Usuario novo = new Usuario(nome.trim(), cleanUsername, passwordEncoder.encode(senha));
         novo.setRole("CLIENTE");
         novo.setSenhaDefinida(true);
         Usuario salvo = usuarioRepository.save(novo);
         logAuditoriaService.registrar("CRIAR", "Usuario", salvo.getId(),
-                "Autocadastro de integrante " + salvo.getNome() + " (" + username + ")");
+                "Autocadastro de integrante " + salvo.getNome() + " (" + cleanUsername + ")");
         return salvo;
     }
 }
