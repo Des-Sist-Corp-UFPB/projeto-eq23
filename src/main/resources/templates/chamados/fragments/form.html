@@ -117,34 +117,18 @@
                             </div>
                         </div>
 
-                        <!-- Opções administrativas (somente para Admin/Técnico ou em modo de edição) -->
-                        <div class="row" sec:authorize="hasAnyRole('ADMIN', 'TECNICO')">
-                            <!-- Campo Técnico (Visível/Editável apenas para Admin/Técnico) -->
-                            <div class="col-md-6 mb-3">
-                                <label for="tecnicoId" class="form-label fw-semibold">Técnico Responsável</label>
-                                <select th:field="*{tecnicoId}"
-                                        class="form-select"
-                                        th:classappend="${#fields.hasErrors('tecnicoId')} ? 'is-invalid'">
-                                    <option value="">-- Não atribuído --</option>
-                                    <option th:each="usr : ${usuarios}"
-                                            th:if="${#strings.contains(usr.authorities, 'ROLE_TECNICO') or #strings.contains(usr.authorities, 'ROLE_ADMIN')}"
-                                            th:value="${usr.id}"
-                                            th:text="${usr.nome}">Técnico</option>
-                                </select>
-                            </div>
-
-                            <!-- Campo Status (Visível/Editável apenas para Admin/Técnico) -->
-                            <div class="col-md-6 mb-3">
-                                <label for="status" class="form-label fw-semibold">Status do Chamado</label>
-                                <select th:field="*{status}"
-                                        class="form-select"
-                                        th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'">
-                                    <option value="ABERTO">Aberto</option>
-                                    <option value="EM_ATENDIMENTO">Em Atendimento</option>
-                                    <option value="RESOLVIDO">Resolvido</option>
-                                    <option value="FECHADO">Fechado</option>
-                                </select>
-                            </div>
+                        <!-- Opções administrativas (somente para Admin em modo de edição) -->
+                        <div class="mb-3" sec:authorize="hasRole('ADMIN')">
+                            <!-- Campo Status (Visível/Editável apenas para Admin) -->
+                            <label for="status" class="form-label fw-semibold">Status do Chamado</label>
+                            <select th:field="*{status}"
+                                    class="form-select"
+                                    th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'">
+                                <option value="ABERTO">Aberto</option>
+                                <option value="EM_ATENDIMENTO">Em Atendimento</option>
+                                <option value="RESOLVIDO">Resolvido</option>
+                                <option value="FECHADO">Fechado</option>
+                            </select>
                         </div>
 
                         <!-- Atribuir cliente em modo administrativo se necessário -->

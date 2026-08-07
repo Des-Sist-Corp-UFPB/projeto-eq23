@@ -22,14 +22,8 @@
         </div>
     </td>
 
-    <!-- Cliente -->
-    <td th:text="${chamado.cliente != null ? chamado.cliente.nome : 'Sem Cliente'}">Cliente</td>
-
-    <!-- Técnico Responsável -->
-    <td>
-        <span th:if="${chamado.tecnico != null}" class="fw-medium text-secondary" th:text="${chamado.tecnico.nome}">Técnico</span>
-        <span th:unless="${chamado.tecnico != null}" class="text-danger fst-italic small">Não atribuído</span>
-    </td>
+    <!-- Cliente (Fonte branca text-light) -->
+    <td class="fw-semibold text-light" th:text="${chamado.cliente != null ? chamado.cliente.nome : 'Sem Cliente'}">Cliente</td>
 
     <!-- Prioridade -->
     <td>
