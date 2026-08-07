@@ -23,6 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         String cleanUsername = username.trim();
         return usuarioRepository.findByUsernameIgnoreCase(cleanUsername)
+                .or(() -> usuarioRepository.findByNomeIgnoreCase(cleanUsername))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
     }
 }
