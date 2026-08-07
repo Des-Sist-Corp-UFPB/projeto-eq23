@@ -39,8 +39,11 @@ WORKDIR /app
 # Copiar apenas o JAR do estágio anterior
 COPY --from=builder /build/target/*.jar app.jar
 
-# Definir owner do arquivo
-RUN chown mercado:mercado app.jar
+# OpenTelemetry Java Agent
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+
+# Definir owner dos arquivos
+RUN chown -R mercado:mercado /app
 
 # Trocar para usuário não-root
 USER mercado
@@ -55,7 +58,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 #   -XX:+UseContainerSupport: respeita limites de memória do container
 #   -XX:MaxRAMPercentage=75: usa até 75% da RAM disponível para o heap
 ENTRYPOINT ["java", \
+    "-javaagent:/app/opentelemetry-javaagent.jar", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
     "-Dspring.profiles.active=prod", \
     "-jar", "app.jar"]
+
