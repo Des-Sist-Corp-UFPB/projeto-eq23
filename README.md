@@ -404,4 +404,30 @@ A aplicação oferece suporte à integração com o **Umami Analytics** para mon
 - **Variáveis de ambiente**:
   - `UMAMI_SCRIPT_URL`: URL do script de rastreamento (padrão local: `http://localhost:3000/script.js`).
   - `UMAMI_WEBSITE_ID`: ID do site gerado no painel do Umami. Se estiver vazio ou omitido, o rastreamento é omitido automaticamente.
+
+---
+
+## Observabilidade com OpenTelemetry (OTel)
+
+A aplicação está configurada para exportação automática de métricas, traces e logs no padrão OpenTelemetry via protocolo OTLP.
+
+- **Agente Java**: A imagem Docker de produção (`docker/Dockerfile`) inclui o `opentelemetry-javaagent.jar` anexado à JVM.
+- **Endpoint central da disciplina**: `https://otel.dsc.rodrigor.com`
+- **Painel Grafana**: Disponível em `https://otel.dsc.rodrigor.com`
+- **Variáveis de ambiente utilizadas**:
+  - `OTEL_SERVICE_NAME`: `dsc-eq23` (Identificador da equipe)
+  - `OTEL_EXPORTER_OTLP_ENDPOINT`: `https://otel.dsc.rodrigor.com`
+  - `OTEL_EXPORTER_OTLP_PROTOCOL`: `http/protobuf`
+  - `OTEL_EXPORTER_OTLP_HEADERS`: `Authorization=Bearer <TOKEN_DA_TURMA>`
+  - `OTEL_TRACES_EXPORTER`: `otlp`
+  - `OTEL_METRICS_EXPORTER`: `otlp`
+  - `OTEL_LOGS_EXPORTER`: `otlp`
+
+---
+
+## Cobertura de Testes Automatizados
+
+- **Percentual de Cobertura de Linhas**: **86.9%** (Atende ao requisito de cobertura ≥ 85%)
+- **Relatório JaCoCo**: Disponível e commitado no repositório no diretório [`cobertura/`](file:///c:/Users/Matheus%20Nelvam/Documents/projeto-eq23/cobertura/index.html) (arquivo principal: `cobertura/index.html`).
+
 
