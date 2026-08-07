@@ -4,7 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout :: layout(~{::main})}">
 <head>
-    <title>Usuários</title>
+    <title>Usuários — SparkTech</title>
 </head>
 <body>
 
@@ -12,7 +12,7 @@
     <!-- Cabeçalho da página -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1">Usuários</h1>
+            <h1 class="h3 mb-1 text-white">Usuários</h1>
             <p class="text-muted mb-0">Gerencie o papel de cada usuário (ADMIN_SISTEMA / ADMIN / TÉCNICO / CLIENTE)</p>
         </div>
         <a th:if="${not #lists.isEmpty(papeis)}" th:href="@{/admin/usuarios/novo}" class="btn btn-primary">
@@ -25,46 +25,51 @@
     </div>
 
     <!-- Card da tabela -->
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body px-4 py-4">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Usuário (e-mail/login)</th>
-                        <th>Papel atual</th>
-                        <th>Alterar papel</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="usuario : ${usuarios}">
-                        <td th:text="${usuario.nome}">Nome</td>
-                        <td th:text="${usuario.username}">usuario@exemplo.com</td>
-                        <td>
-                            <span class="badge bg-secondary" th:text="${usuario.role}">CLIENTE</span>
-                        </td>
-                        <td>
-                            <form th:if="${#lists.contains(papeis, usuario.role)}"
-                                  th:action="@{/admin/usuarios/{id}/role(id=${usuario.id})}" method="post"
-                                  class="d-flex gap-2">
-                                <select name="role" class="form-select form-select-sm" style="max-width: 160px;">
-                                    <option th:each="papel : ${papeis}"
-                                            th:value="${papel}"
-                                            th:selected="${papel == usuario.role}"
-                                            th:text="${papel}">CLIENTE</option>
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
-                            </form>
-                            <span th:unless="${#lists.contains(papeis, usuario.role)}" class="text-muted small">
-                                Sem permissão pra alterar
-                            </span>
-                        </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(usuarios)}">
-                        <td colspan="4" class="text-center text-muted py-4">Nenhum usuário cadastrado.</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover table-borderless align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Usuário (e-mail/login)</th>
+                            <th scope="col">Papel atual</th>
+                            <th scope="col">Alterar papel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="usuario : ${usuarios}">
+                            <td class="fw-semibold text-light" th:text="${usuario.nome}">Nome</td>
+                            <td class="text-light" th:text="${usuario.username}">usuario@exemplo.com</td>
+                            <td>
+                                <span th:if="${usuario.role == 'ADMIN_SISTEMA' or usuario.role == 'ADMIN'}" class="badge bg-primary text-white fw-bold px-2 py-1" th:text="${usuario.role}">ADMIN</span>
+                                <span th:if="${usuario.role == 'TECNICO'}" class="badge bg-info text-white fw-bold px-2 py-1" th:text="${usuario.role}">TECNICO</span>
+                                <span th:if="${usuario.role == 'CLIENTE'}" class="badge bg-secondary text-white fw-bold px-2 py-1" th:text="${usuario.role}">CLIENTE</span>
+                                <span th:if="${usuario.role != 'ADMIN_SISTEMA' and usuario.role != 'ADMIN' and usuario.role != 'TECNICO' and usuario.role != 'CLIENTE'}" class="badge bg-dark text-white fw-bold px-2 py-1" th:text="${usuario.role}">PAPEL</span>
+                            </td>
+                            <td>
+                                <form th:if="${#lists.contains(papeis, usuario.role)}"
+                                      th:action="@{/admin/usuarios/{id}/role(id=${usuario.id})}" method="post"
+                                      class="d-flex gap-2">
+                                    <select name="role" class="form-select form-select-sm" style="max-width: 160px;">
+                                        <option th:each="papel : ${papeis}"
+                                                th:value="${papel}"
+                                                th:selected="${papel == usuario.role}"
+                                                th:text="${papel}">CLIENTE</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+                                </form>
+                                <span th:unless="${#lists.contains(papeis, usuario.role)}" class="text-muted small">
+                                    Sem permissão pra alterar
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(usuarios)}">
+                            <td colspan="4" class="text-center text-muted py-4">Nenhum usuário cadastrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
