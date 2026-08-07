@@ -136,8 +136,8 @@ public class SecurityConfig {
 
                 // === LOGOUT ===
                 .logout(logout -> logout
-                        // Após logout, redireciona para a página de login com mensagem
-                        .logoutSuccessUrl("/login?logout")
+                        // Após logout, redireciona diretamente para a página de login (/login)
+                        .logoutSuccessUrl("/login")
                         .permitAll()
                 )
 
