@@ -20,4 +20,8 @@ public interface ChamadoRepository extends JpaRepository<Chamado, Long> {
     Page<Chamado> findByTituloContainingIgnoreCase(String titulo, Pageable pageable);
 
     long countByStatus(String status);
+
+    long countByClienteIdAndStatus(Long clienteId, String status);
+
+    long countByClienteId(Long clienteId);
 }

@@ -28,4 +28,19 @@ public class DashboardService {
     public long totalChamadosEmAtendimento() {
         return chamadoRepository.countByStatus("EM_ATENDIMENTO");
     }
+
+    public long totalChamadosAbertosPorCliente(Long clienteId) {
+        if (clienteId == null) return 0;
+        return chamadoRepository.countByClienteIdAndStatus(clienteId, "ABERTO");
+    }
+
+    public long totalChamadosEmAtendimentoPorCliente(Long clienteId) {
+        if (clienteId == null) return 0;
+        return chamadoRepository.countByClienteIdAndStatus(clienteId, "EM_ATENDIMENTO");
+    }
+
+    public long totalChamadosPorCliente(Long clienteId) {
+        if (clienteId == null) return 0;
+        return chamadoRepository.countByClienteId(clienteId);
+    }
 }
