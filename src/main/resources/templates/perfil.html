@@ -21,13 +21,13 @@
                 <div class="card-body px-4 py-4">
                     <h2 class="h5 mb-3">Dados da conta</h2>
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">Nome</dt>
-                        <dd class="col-sm-8" th:text="${usuario.nome}">Nome</dd>
+                        <dt class="col-sm-4 text-light">Nome</dt>
+                        <dd class="col-sm-8 text-light" th:text="${usuario.nome}">Nome</dd>
 
-                        <dt class="col-sm-4">Usuário (login)</dt>
-                        <dd class="col-sm-8" th:text="${usuario.username}">usuario@exemplo.com</dd>
+                        <dt class="col-sm-4 text-light">Usuário (login)</dt>
+                        <dd class="col-sm-8 text-light" th:text="${usuario.username}">usuario@exemplo.com</dd>
 
-                        <dt class="col-sm-4">Papel</dt>
+                        <dt class="col-sm-4 text-light">Papel</dt>
                         <dd class="col-sm-8"><span class="badge bg-secondary" th:text="${usuario.role}">CLIENTE</span></dd>
                     </dl>
                 </div>
@@ -41,7 +41,7 @@
                     <h2 class="h5 mb-3">Trocar senha</h2>
                     <form th:action="@{/perfil/senha}" method="post">
                         <div class="mb-3" th:if="${usuario.senhaDefinida}">
-                            <label for="senhaAtual" class="form-label fw-semibold">Senha atual</label>
+                            <label for="senhaAtual" class="form-label fw-semibold text-light">Senha atual</label>
                             <input type="password" id="senhaAtual" name="senhaAtual" class="form-control" required/>
                         </div>
                         <div class="mb-3" th:unless="${usuario.senhaDefinida}">
@@ -51,12 +51,12 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="novaSenha" class="form-label fw-semibold">Nova senha</label>
+                            <label for="novaSenha" class="form-label fw-semibold text-light">Nova senha</label>
                             <input type="password" id="novaSenha" name="novaSenha" class="form-control"
                                    minlength="6" required/>
                         </div>
                         <div class="mb-4">
-                            <label for="confirmarSenha" class="form-label fw-semibold">Confirmar nova senha</label>
+                            <label for="confirmarSenha" class="form-label fw-semibold text-light">Confirmar nova senha</label>
                             <input type="password" id="confirmarSenha" name="confirmarSenha" class="form-control"
                                    minlength="6" required/>
                         </div>
