@@ -24,12 +24,12 @@
 
             <form th:if="${not #lists.isEmpty(papeis)}" th:action="@{/admin/usuarios}" method="post">
                 <div class="mb-3">
-                    <label for="nome" class="form-label fw-semibold">Nome</label>
+                    <label for="nome" class="form-label fw-semibold text-light">Nome</label>
                     <input type="text" id="nome" name="nome" class="form-control" required/>
                 </div>
 
                 <div class="mb-3">
-                    <label for="username" class="form-label fw-semibold">Usuário (e-mail de login)</label>
+                    <label for="username" class="form-label fw-semibold text-light">Usuário (e-mail de login)</label>
                     <input type="text" id="username" name="username" class="form-control"
                            placeholder="pessoa@dcx.ufpb.br" required/>
                     <div class="form-text">
@@ -40,13 +40,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="senha" class="form-label fw-semibold">Senha inicial</label>
+                    <label for="senha" class="form-label fw-semibold text-light">Senha inicial</label>
                     <input type="text" id="senha" name="senha" class="form-control" required/>
                     <div class="form-text">Repasse essa senha à pessoa — ela pode trocá-la depois em Perfil.</div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="papel" class="form-label fw-semibold">Papel</label>
+                    <label for="papel" class="form-label fw-semibold text-light">Papel</label>
                     <select id="papel" name="papel" class="form-select" required>
                         <option th:each="papel : ${papeis}" th:value="${papel}" th:text="${papel}">TECNICO</option>
                     </select>
