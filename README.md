@@ -430,4 +430,6 @@ A aplicação está configurada para exportação automática de métricas, trac
 - **Percentual de Cobertura de Linhas**: **86.9%** (Atende ao requisito de cobertura ≥ 85%)
 - **Relatório JaCoCo**: Disponível e commitado no repositório no diretório [`cobertura/`](file:///c:/Users/Matheus%20Nelvam/Documents/projeto-eq23/cobertura/index.html) (arquivo principal: `cobertura/index.html`).
 
-
+
+## Video apresentação unidade 2
+- video parte 1 - https://youtu.be/XyeKoUeJaiM
