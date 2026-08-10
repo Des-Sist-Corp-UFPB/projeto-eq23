@@ -433,3 +433,4 @@ A aplicação está configurada para exportação automática de métricas, trac
 
 ## Video apresentação unidade 2
 - video parte 1 - https://youtu.be/XyeKoUeJaiM
+- video parte 2 - https://youtu.be/uLeaHdwi_1Q
