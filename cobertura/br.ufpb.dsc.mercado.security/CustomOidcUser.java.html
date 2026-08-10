@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomOidcUser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.security</a> &gt; <span class="el_source">CustomOidcUser.java</span></div><h1>CustomOidcUser.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.security;
+
+import br.ufpb.dsc.mercado.domain.Usuario;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
+import java.util.Collection;
+import java.util.Map;
+
+public class CustomOidcUser extends Usuario implements OidcUser {
+    
+    private final OidcUser delegate;
+    private final Usuario usuario;
+
+    public CustomOidcUser(Usuario usuario, OidcUser delegate) {
+<span class="fc" id="L18">        super(usuario.getNome(), usuario.getUsername(), usuario.getSenha());</span>
+<span class="fc" id="L19">        this.setId(usuario.getId());</span>
+<span class="fc" id="L20">        this.usuario = usuario;</span>
+<span class="fc" id="L21">        this.delegate = delegate;</span>
+<span class="fc" id="L22">    }</span>
+
+    @Override
+    public Map&lt;String, Object&gt; getClaims() {
+<span class="fc" id="L26">        return delegate.getClaims();</span>
+    }
+
+    @Override
+    public OidcUserInfo getUserInfo() {
+<span class="fc" id="L31">        return delegate.getUserInfo();</span>
+    }
+
+    @Override
+    public OidcIdToken getIdToken() {
+<span class="fc" id="L36">        return delegate.getIdToken();</span>
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; getAttributes() {
+<span class="fc" id="L41">        return delegate.getAttributes();</span>
+    }
+
+    @Override
+    public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
+<span class="fc" id="L46">        return usuario.getAuthorities();</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="fc" id="L51">        return usuario.getNome();</span>
+    }
+
+    public Usuario getUsuario() {
+<span class="fc" id="L55">        return usuario;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

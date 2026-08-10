@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AtivoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.controller</a> &gt; <span class="el_source">AtivoController.java</span></div><h1>AtivoController.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.controller;
+
+import br.ufpb.dsc.mercado.domain.Ativo;
+import br.ufpb.dsc.mercado.dto.AtivoForm;
+import br.ufpb.dsc.mercado.exception.AtivoNaoEncontradoException;
+import br.ufpb.dsc.mercado.service.AtivoService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import br.ufpb.dsc.mercado.domain.Usuario;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequestMapping(&quot;/ativos&quot;)
+public class AtivoController {
+
+    private static final int TAMANHO_PAGINA = 10;
+    private static final String HEADER_HTMX = &quot;HX-Request&quot;;
+
+    private final AtivoService ativoService;
+
+<span class="fc" id="L29">    public AtivoController(AtivoService ativoService) {</span>
+<span class="fc" id="L30">        this.ativoService = ativoService;</span>
+<span class="fc" id="L31">    }</span>
+
+    @GetMapping
+    public String listar(
+            @RequestParam(name = &quot;busca&quot;, required = false, defaultValue = &quot;&quot;) String busca,
+            @RequestParam(name = &quot;pagina&quot;, defaultValue = &quot;0&quot;) int pagina,
+            @RequestHeader(value = HEADER_HTMX, required = false) String htmx,
+            Model model) {
+
+<span class="fc" id="L40">        PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by(&quot;nome&quot;).ascending());</span>
+<span class="fc" id="L41">        Page&lt;Ativo&gt; ativos = ativoService.buscar(busca, pageRequest);</span>
+
+<span class="fc" id="L43">        model.addAttribute(&quot;ativos&quot;, ativos);</span>
+<span class="fc" id="L44">        model.addAttribute(&quot;busca&quot;, busca);</span>
+<span class="fc" id="L45">        model.addAttribute(&quot;paginaAtual&quot;, pagina);</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (htmx != null) {</span>
+<span class="fc" id="L48">            return &quot;ativos/fragments/tabela :: tabela&quot;;</span>
+        }
+
+<span class="fc" id="L51">        return &quot;ativos/lista&quot;;</span>
+    }
+
+    @GetMapping(&quot;/fragmento-tabela&quot;)
+    public String fragmentoTabela(
+            @RequestParam(name = &quot;busca&quot;, required = false, defaultValue = &quot;&quot;) String busca,
+            @RequestParam(name = &quot;pagina&quot;, defaultValue = &quot;0&quot;) int pagina,
+            Model model) {
+
+<span class="fc" id="L60">        PageRequest pageRequest = PageRequest.of(pagina, TAMANHO_PAGINA, Sort.by(&quot;nome&quot;).ascending());</span>
+<span class="fc" id="L61">        Page&lt;Ativo&gt; ativos = ativoService.buscar(busca, pageRequest);</span>
+
+<span class="fc" id="L63">        model.addAttribute(&quot;ativos&quot;, ativos);</span>
+<span class="fc" id="L64">        model.addAttribute(&quot;busca&quot;, busca);</span>
+<span class="fc" id="L65">        model.addAttribute(&quot;paginaAtual&quot;, pagina);</span>
+
+<span class="fc" id="L67">        return &quot;ativos/fragments/tabela :: tabela&quot;;</span>
+    }
+
+    private void verificarAcesso(Usuario usuario) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (usuario == null || usuario.getAuthorities().stream()</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                .noneMatch(a -&gt; &quot;ROLE_ADMIN&quot;.equals(a.getAuthority()))) {</span>
+<span class="nc" id="L73">            throw new AccessDeniedException(&quot;Não autorizado para realizar esta ação&quot;);</span>
+        }
+<span class="fc" id="L75">    }</span>
+
+    private Usuario getUsuarioLogado(Object principal) {
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (principal instanceof br.ufpb.dsc.mercado.security.CustomOidcUser) {</span>
+<span class="nc" id="L79">            return ((br.ufpb.dsc.mercado.security.CustomOidcUser) principal).getUsuario();</span>
+        }
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (principal instanceof Usuario) {</span>
+<span class="fc" id="L82">            return (Usuario) principal;</span>
+        }
+<span class="nc" id="L84">        return null;</span>
+    }
+
+    @GetMapping(&quot;/novo&quot;)
+    public String novoForm(@AuthenticationPrincipal Object principal, Model model) {
+<span class="fc" id="L89">        Usuario usuarioLogado = getUsuarioLogado(principal);</span>
+<span class="fc" id="L90">        verificarAcesso(usuarioLogado);</span>
+<span class="fc" id="L91">        model.addAttribute(&quot;form&quot;, new AtivoForm(&quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;ATIVO&quot;, java.util.List.of(new br.ufpb.dsc.mercado.dto.PatrimonioItemForm(&quot;&quot;, &quot;&quot;))));</span>
+<span class="fc" id="L92">        model.addAttribute(&quot;ativo&quot;, null);</span>
+<span class="fc" id="L93">        return &quot;ativos/fragments/form :: modal&quot;;</span>
+    }
+
+    @GetMapping(&quot;/{id}/editar&quot;)
+    public String editarForm(@PathVariable Long id, @AuthenticationPrincipal Object principal, Model model) {
+<span class="fc" id="L98">        Usuario usuarioLogado = getUsuarioLogado(principal);</span>
+<span class="fc" id="L99">        verificarAcesso(usuarioLogado);</span>
+<span class="fc" id="L100">        Ativo ativo = ativoService.buscarPorId(id);</span>
+<span class="fc" id="L101">        java.util.List&lt;br.ufpb.dsc.mercado.dto.PatrimonioItemForm&gt; patForms = ativo.getPatrimonios().stream()</span>
+<span class="pc" id="L102">                .map(p -&gt; new br.ufpb.dsc.mercado.dto.PatrimonioItemForm(p.getCodigo(), p.getNumeroSerie()))</span>
+<span class="fc" id="L103">                .toList();</span>
+<span class="fc" id="L104">        AtivoForm form = new AtivoForm(</span>
+<span class="fc" id="L105">                ativo.getNome(),</span>
+<span class="fc" id="L106">                ativo.getDescricao(),</span>
+<span class="fc" id="L107">                ativo.getNumeroSerie(),</span>
+<span class="fc" id="L108">                ativo.getStatus(),</span>
+                patForms
+        );
+<span class="fc" id="L111">        model.addAttribute(&quot;form&quot;, form);</span>
+<span class="fc" id="L112">        model.addAttribute(&quot;ativo&quot;, ativo);</span>
+<span class="fc" id="L113">        return &quot;ativos/fragments/form :: modal&quot;;</span>
+    }
+
+    @PostMapping
+    public String criar(
+            @Valid @ModelAttribute(&quot;form&quot;) AtivoForm form,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal Object principal,
+            Model model) {
+
+<span class="fc" id="L123">        Usuario usuarioLogado = getUsuarioLogado(principal);</span>
+<span class="fc" id="L124">        verificarAcesso(usuarioLogado);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L126">            model.addAttribute(&quot;ativo&quot;, null);</span>
+<span class="fc" id="L127">            return &quot;ativos/fragments/form :: modal&quot;;</span>
+        }
+
+<span class="fc" id="L130">        Ativo novoAtivo = ativoService.criar(form);</span>
+<span class="fc" id="L131">        model.addAttribute(&quot;ativo&quot;, novoAtivo);</span>
+<span class="fc" id="L132">        model.addAttribute(&quot;toastMensagem&quot;, &quot;Ativo criado com sucesso!&quot;);</span>
+
+<span class="fc" id="L134">        return &quot;ativos/fragments/linha :: linha&quot;;</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public String atualizar(
+            @PathVariable Long id,
+            @Valid @ModelAttribute(&quot;form&quot;) AtivoForm form,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal Object principal,
+            Model model) {
+
+<span class="fc" id="L145">        Usuario usuarioLogado = getUsuarioLogado(principal);</span>
+<span class="fc" id="L146">        verificarAcesso(usuarioLogado);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L148">            Ativo ativo = ativoService.buscarPorId(id);</span>
+<span class="nc" id="L149">            model.addAttribute(&quot;ativo&quot;, ativo);</span>
+<span class="nc" id="L150">            return &quot;ativos/fragments/form :: modal&quot;;</span>
+        }
+
+<span class="fc" id="L153">        Ativo ativoAtualizado = ativoService.atualizar(id, form);</span>
+<span class="fc" id="L154">        model.addAttribute(&quot;ativo&quot;, ativoAtualizado);</span>
+<span class="fc" id="L155">        model.addAttribute(&quot;toastMensagem&quot;, &quot;Ativo atualizado!&quot;);</span>
+
+<span class="fc" id="L157">        return &quot;ativos/fragments/linha :: linha&quot;;</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;Void&gt; excluir(@PathVariable Long id, @AuthenticationPrincipal Object principal) {
+<span class="fc" id="L163">        Usuario usuarioLogado = getUsuarioLogado(principal);</span>
+<span class="fc" id="L164">        verificarAcesso(usuarioLogado);</span>
+        try {
+<span class="fc" id="L166">            ativoService.excluir(id);</span>
+<span class="fc" id="L167">            return ResponseEntity.ok().build();</span>
+<span class="fc" id="L168">        } catch (AtivoNaoEncontradoException e) {</span>
+<span class="fc" id="L169">            return ResponseEntity.notFound().build();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

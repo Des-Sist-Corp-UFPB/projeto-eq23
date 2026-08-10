@@ -1,16 +1,21 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/mercado_dev
-    username: mercado
-    password: mercado123
+    url: jdbc:postgresql://postgres:5432/eq23
+    username: eq23
+    password: sJX6LspwEeFN0LIPe8U2
     driver-class-name: org.postgresql.Driver
+    hikari:
+      # Padrão do HikariCP é 10 conexões — baixo demais para carga concorrente.
+      # Postgres local está com max_connections=100; 50 deixa boa margem.
+      maximum-pool-size: 50
+      minimum-idle: 10
   jpa:
     hibernate:
       # validate: o Hibernate verifica se o schema do banco bate com as entidades,
       # mas NÃO modifica nada. O Flyway é responsável por criar/alterar as tabelas.
       # NUNCA use create-drop em produção — apaga todos os dados!
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -18,8 +23,31 @@ spring:
     enabled: true
     # Localização dos scripts de migração SQL
     locations: classpath:db/migration
+  thymeleaf:
+    # false = hot-reload de templates sem restart (bom para o dia a dia).
+    # Sob carga concorrente isso pesa na CPU porque reparseia o template a
+    # cada request — testado com cache:true no teste de capacidade desta
+    # sessão (ver loadtest/CAPACIDADE.md); revertido aqui para não quebrar o
+    # hot-reload do ambiente de dev. application-prod.yml não sobrescreve essa
+    # propriedade, então produção já usa o padrão do Spring Boot (cache:true).
+    cache: false
 
 logging:
   level:
-    br.ufpb.dsc.mercado: DEBUG
-    org.springframework.web: DEBUG
+    # DEBUG/show-sql ajudam no dia a dia, mas cada log é I/O síncrono — sob
+    # carga concorrente isso vira um gargalo por si só. INFO para teste de carga.
+    br.ufpb.dsc.mercado: INFO
+    org.springframework.web: INFO
+
+# Chave de dev pra testar o servidor MCP localmente sem precisar exportar variável de
+# ambiente. NUNCA usar esse valor fora do ambiente de desenvolvimento — em produção,
+# MCP_API_KEY tem que vir de um secret de verdade (ver application.yml).
+mcp:
+  api-key: ${MCP_API_KEY:dev-local-mcp-key}
+
+app:
+  email:
+    api-url: ${EMAIL_API_URL:https://api.resend.com/emails}
+    api-key: ${EMAIL_API_KEY:}
+    from: ${EMAIL_FROM:onboarding@resend.dev}
+    to: ${EMAIL_TO:suporte@sparktech.com}

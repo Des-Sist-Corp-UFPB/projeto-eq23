@@ -1,0 +1,17 @@
+package br.ufpb.dsc.mercado.repository;
+
+import br.ufpb.dsc.mercado.domain.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    Optional<Usuario> findByUsername(String username);
+    Optional<Usuario> findByUsernameIgnoreCase(String username);
+    Optional<Usuario> findByNomeIgnoreCase(String nome);
+    List<Usuario> findByRoleOrderByNomeAsc(String role);
+    List<Usuario> findAllByOrderByNomeAsc();
+}

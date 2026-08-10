@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::main})}">
+<head>
+    <title>Criar Usuário</title>
+</head>
+<body>
+
+<main>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Criar Usuário</h1>
+            <p class="text-muted mb-0">Defina o login e a senha inicial — repasse essas credenciais à pessoa depois.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body px-4 py-4" style="max-width: 480px;">
+
+            <div class="alert alert-warning small" th:if="${#lists.isEmpty(papeis)}">
+                Você não tem permissão para criar usuários.
+            </div>
+
+            <form th:if="${not #lists.isEmpty(papeis)}" th:action="@{/admin/usuarios}" method="post">
+                <div class="mb-3">
+                    <label for="nome" class="form-label fw-semibold text-light">Nome</label>
+                    <input type="text" id="nome" name="nome" class="form-control" required/>
+                </div>
+
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-semibold text-light">Usuário (e-mail de login)</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                           placeholder="pessoa@dcx.ufpb.br" required/>
+                    <div class="form-text">
+                        Se for o mesmo e-mail Google da pessoa, ela já consegue logar com "Entrar com o Google"
+                        automaticamente reconhecendo esse papel. Se não, ela loga com usuário/senha e pode
+                        conectar uma conta Google depois, na própria tela de Perfil.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="senha" class="form-label fw-semibold text-light">Senha inicial</label>
+                    <input type="text" id="senha" name="senha" class="form-control" required/>
+                    <div class="form-text">Repasse essa senha à pessoa — ela pode trocá-la depois em Perfil.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="papel" class="form-label fw-semibold text-light">Papel</label>
+                    <select id="papel" name="papel" class="form-select" required>
+                        <option th:each="papel : ${papeis}" th:value="${papel}" th:text="${papel}">TECNICO</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Criar usuário</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

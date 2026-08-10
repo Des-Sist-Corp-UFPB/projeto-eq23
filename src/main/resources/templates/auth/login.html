@@ -14,57 +14,187 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Login — Mercado DSC</title>
+    <title>Login — SparkTech</title>
+
+    <!-- Umami Analytics -->
+    <script defer
+            th:if="${umamiWebsiteId != null and !umamiWebsiteId.isBlank()}"
+            th:src="${umamiScriptUrl}"
+            th:data-website-id="${umamiWebsiteId}"></script>
+
+
     <link rel="stylesheet"
           th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(at 0% 0%, #1e1b4b 0px, transparent 50%),
+                        radial-gradient(at 100% 0%, #311042 0px, transparent 50%),
+                        radial-gradient(at 50% 100%, #0f172a 0px, transparent 100%);
+            background-color: #0f172a;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow-x: hidden;
         }
-        .login-card {
+        
+        .login-wrapper {
             width: 100%;
-            max-width: 420px;
-            border-radius: 1rem;
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
+            max-width: 440px;
+            padding: 20px;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .login-header {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            border-radius: 1rem 1rem 0 0;
-            padding: 2rem;
+
+        .brand-header {
             text-align: center;
-            color: white;
+            margin-bottom: 2rem;
+            color: #ffffff;
         }
-        .login-header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-        .login-header p {
-            font-size: 0.875rem;
-            opacity: 0.85;
+        
+        .brand-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
             margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .login-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 3rem 2.5rem;
+            color: #f1f5f9;
+        }
+        
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .input-group {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            transition: all 0.25s ease;
+            overflow: hidden;
+        }
+
+        .input-group-text {
+            background-color: transparent;
+            border: none;
+            color: #94a3b8;
+            padding-left: 1.25rem;
+        }
+
+        .form-control {
+            background-color: transparent !important;
+            border: none;
+            color: #ffffff !important;
+            padding: 0.75rem 1rem 0.75rem 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            background-color: transparent;
+        }
+
+        .input-group:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            border-radius: 0.75rem;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background-color: rgba(244, 63, 94, 0.15);
+            border-color: rgba(244, 63, 94, 0.2);
+            color: #fda4af;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="login-card bg-white">
+<div class="login-wrapper">
 
-    <!-- Cabeçalho do card -->
-    <div class="login-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white"
-             class="bi bi-shop mb-2" viewBox="0 0 16 16">
-            <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0M1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5M4 15h3v-5H4zm6-5a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1z"/>
-        </svg>
-        <h1>Mercado DSC</h1>
-        <p>Desenvolvimento de Sistemas Corporativos — UFPB Campus IV</p>
+    <!-- Marca externa flutuante -->
+    <div class="brand-header">
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#60a5fa"
+                 class="bi bi-lightning-charge-fill" viewBox="0 0 16 16">
+                <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+            </svg>
+            SparkTech
+        </h1>
     </div>
 
-    <!-- Corpo do card com o formulário -->
-    <div class="card-body p-4">
+    <div class="login-card">
 
         <!--
           Mensagem de erro — exibida quando o Spring Security adiciona ?error na URL.
@@ -77,23 +207,23 @@
                  class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0" viewBox="0 0 16 16">
                 <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
             </svg>
-            <div>Usuário ou senha inválidos. Tente novamente.</div>
+            <div th:text="${session != null and session.SPRING_SECURITY_LAST_EXCEPTION != null} ? ${session.SPRING_SECURITY_LAST_EXCEPTION.message} : 'Usuário ou senha inválidos. Tente novamente.'">Usuário ou senha inválidos. Tente novamente.</div>
         </div>
 
-        <!--
-          Mensagem de sucesso no logout — exibida quando o Spring Security adiciona ?logout na URL.
-          Redireciona para /login?logout após logout bem-sucedido (configurado em SecurityConfig).
-        -->
-        <div th:if="${param.logout}"
+
+
+        <!-- Mensagem de sucesso no cadastro -->
+        <div th:if="${param.cadastrado}"
              class="alert alert-success d-flex align-items-center" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                  class="bi bi-check-circle-fill me-2 flex-shrink-0" viewBox="0 0 16 16">
                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
             </svg>
-            <div>Logout realizado com sucesso!</div>
+            <div>Cadastro realizado com sucesso! Faça login abaixo.</div>
         </div>
 
-        <h2 class="h5 text-center mb-4 text-muted">Acesse sua conta</h2>
+
+
 
         <!--
           Formulário de login do Spring Security.
@@ -148,26 +278,44 @@
                 </div>
             </div>
 
-            <!-- Botão de login -->
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                         fill="currentColor" class="bi bi-box-arrow-in-right me-2" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
-                        <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-                    </svg>
-                    Entrar
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg" data-umami-event="login-form">
+                    Log In
                 </button>
             </div>
 
         </form>
 
-        <!-- Dica de credenciais (apenas em desenvolvimento) -->
-        <div class="mt-3 p-2 bg-light rounded border text-center">
-            <small class="text-muted">
-                <strong>Desenvolvimento:</strong> admin / admin123
-            </small>
+        <!-- Divisor OU -->
+        <div class="d-flex align-items-center my-4">
+            <hr class="flex-grow-1" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <span class="mx-3 text-muted" style="font-size: 0.85rem;">OU</span>
+            <hr class="flex-grow-1" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
         </div>
+
+        <!-- Botão Entrar com Google -->
+        <div class="d-grid mb-3">
+            <a th:href="@{/oauth2/authorization/google}" class="btn btn-outline-light btn-lg d-flex align-items-center justify-content-center" style="border-color: rgba(255,255,255,0.15); font-size: 1rem;" data-umami-event="login-google">
+                <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24c0-1.7-.15-3.33-.45-4.9H24v9.3h12.7c-.55 2.87-2.17 5.3-4.61 6.93l7.2 5.58C43.5 35.8 46.5 30.45 46.5 24z"/>
+                    <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.2-5.58c-2 .11-4.59 2.89-8.69 2.89-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                Entrar com o Google
+            </a>
+        </div>
+
+        <!-- Link / Botão para Cadastro de Novos Integrantes -->
+        <div class="text-center pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            <span class="text-muted" style="font-size: 0.9rem;">Novo por aqui?</span>
+            <a th:href="@{/cadastro}" class="btn btn-link text-decoration-none fw-semibold ms-1" style="color: #818cf8; font-size: 0.95rem;" data-umami-event="ir-para-cadastro">
+                Cadastrar Novo Integrante &rarr;
+            </a>
+        </div>
+
+
+
     </div>
 </div>
 

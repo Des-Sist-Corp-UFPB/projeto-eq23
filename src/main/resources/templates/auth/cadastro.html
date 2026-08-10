@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cadastro — SparkTech</title>
+
+    <!-- Umami Analytics -->
+    <script defer
+            th:if="${umamiWebsiteId != null and !umamiWebsiteId.isBlank()}"
+            th:src="${umamiScriptUrl}"
+            th:data-website-id="${umamiWebsiteId}"></script>
+
+    <link rel="stylesheet"
+          th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(at 0% 0%, #1e1b4b 0px, transparent 50%),
+                        radial-gradient(at 100% 0%, #311042 0px, transparent 50%),
+                        radial-gradient(at 50% 100%, #0f172a 0px, transparent 100%);
+            background-color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 40px 0;
+        }
+        
+        .login-wrapper {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #ffffff;
+        }
+        
+        .brand-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .login-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 2.5rem 2.25rem;
+            color: #f1f5f9;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #ffffff;
+        }
+        
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.4rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .input-group {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            transition: all 0.25s ease;
+            overflow: hidden;
+        }
+
+        .input-group-text {
+            background-color: transparent;
+            border: none;
+            color: #94a3b8;
+            padding-left: 1.25rem;
+        }
+
+        .form-control {
+            background-color: transparent !important;
+            border: none;
+            color: #ffffff !important;
+            padding: 0.75rem 1rem 0.75rem 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            background-color: transparent;
+        }
+
+        .input-group:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            border-radius: 0.75rem;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background-color: rgba(244, 63, 94, 0.15);
+            border-color: rgba(244, 63, 94, 0.2);
+            color: #fda4af;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+
+    <!-- Marca externa flutuante -->
+    <div class="brand-header">
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#60a5fa"
+                 class="bi bi-lightning-charge-fill" viewBox="0 0 16 16">
+                <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+            </svg>
+            SparkTech
+        </h1>
+    </div>
+
+    <div class="login-card">
+
+        <h2 class="card-title">Cadastro de Integrante</h2>
+
+        <!-- Mensagem de erro de validação -->
+        <div th:if="${erro}"
+             class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                 class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+            </svg>
+            <div th:text="${erro}">Erro ao realizar cadastro.</div>
+        </div>
+
+        <form th:action="@{/cadastro}" method="post">
+
+            <!-- Campo Nome -->
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome Completo</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-vcard" viewBox="0 0 16 16">
+                            <path d="M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4m4-2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5M9 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 9 8m1 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5"/>
+                            <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1z"/>
+                        </svg>
+                    </span>
+                    <input type="text"
+                           id="nome"
+                           name="nome"
+                           th:value="${nome}"
+                           class="form-control"
+                           placeholder="Digite seu nome completo"
+                           required
+                           autofocus/>
+                </div>
+            </div>
+
+            <!-- Campo E-mail / Usuário -->
+            <div class="mb-3">
+                <label for="username" class="form-label">E-mail / Usuário</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+                        </svg>
+                    </span>
+                    <input type="text"
+                           id="username"
+                           name="username"
+                           th:value="${username}"
+                           class="form-control"
+                           placeholder="Digite seu nome de usuário ou e-mail"
+                           required/>
+                </div>
+            </div>
+
+            <!-- Campo Senha -->
+            <div class="mb-3">
+                <label for="senha" class="form-label">Senha</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
+                            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2M5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1"/>
+                        </svg>
+                    </span>
+                    <input type="password"
+                           id="senha"
+                           name="senha"
+                           class="form-control"
+                           placeholder="Mínimo 6 caracteres"
+                           required/>
+                </div>
+            </div>
+
+            <!-- Campo Confirmar Senha -->
+            <div class="mb-4">
+                <label for="confirmarSenha" class="form-label">Confirmar Senha</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                             fill="currentColor" class="bi bi-shield-check" viewBox="0 0 16 16">
+                            <path d="M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.134a.1.1 0 0 0 .01.003c.001.001.006.002.012.002a.003.003 0 0 0 .004-.002l.01-.003q.114-.05.293-.134c.241-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.7 11.7 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.7 11.7 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/>
+                            <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                    </span>
+                    <input type="password"
+                           id="confirmarSenha"
+                           name="confirmarSenha"
+                           class="form-control"
+                           placeholder="Repita a senha"
+                           required/>
+                </div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg" data-umami-event="salvar-cadastro">
+                    Criar Minha Conta
+                </button>
+            </div>
+
+        </form>
+
+        <div class="text-center mt-4">
+            <span class="text-muted" style="font-size: 0.9rem;">Já possui cadastro?</span>
+            <a th:href="@{/login}" class="text-decoration-none fw-semibold ms-1" style="color: #818cf8;" data-umami-event="voltar-login">
+                Voltar ao Login
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

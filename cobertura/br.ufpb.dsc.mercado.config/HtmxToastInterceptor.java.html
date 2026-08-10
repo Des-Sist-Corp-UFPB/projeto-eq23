@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HtmxToastInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.config</a> &gt; <span class="el_source">HtmxToastInterceptor.java</span></div><h1>HtmxToastInterceptor.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.config;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+/**
+ * Interceptor para capturar &quot;toastMensagem&quot; do Model do Spring MVC
+ * e enviar como um cabeçalho HTTP &quot;HX-Trigger&quot; para o HTMX exibir o toast na tela.
+ */
+@Component
+<span class="fc" id="L14">public class HtmxToastInterceptor implements HandlerInterceptor {</span>
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+<span class="fc bfc" id="L18" title="All 4 branches covered.">        if (modelAndView != null &amp;&amp; modelAndView.getModelMap().containsAttribute(&quot;toastMensagem&quot;)) {</span>
+<span class="fc" id="L19">            String mensagem = (String) modelAndView.getModelMap().get(&quot;toastMensagem&quot;);</span>
+<span class="pc bpc" id="L20" title="2 of 4 branches missed.">            if (mensagem != null &amp;&amp; !mensagem.isEmpty()) {</span>
+                // Remove caracteres especiais para evitar quebra de JSON simples
+<span class="fc" id="L22">                String sanitized = mensagem.replace(&quot;\&quot;&quot;, &quot;\\\&quot;&quot;);</span>
+<span class="fc" id="L23">                String jsonHeader = String.format(&quot;{\&quot;showToast\&quot;:\&quot;%s\&quot;,\&quot;toastType\&quot;:\&quot;success\&quot;}&quot;, sanitized);</span>
+<span class="fc" id="L24">                response.setHeader(&quot;HX-Trigger&quot;, jsonHeader);</span>
+            }
+        }
+<span class="fc" id="L27">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

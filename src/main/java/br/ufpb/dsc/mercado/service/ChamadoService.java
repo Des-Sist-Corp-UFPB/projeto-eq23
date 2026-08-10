@@ -1,0 +1,159 @@
+package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Ativo;
+import br.ufpb.dsc.mercado.domain.Chamado;
+import br.ufpb.dsc.mercado.domain.Usuario;
+import br.ufpb.dsc.mercado.dto.ChamadoForm;
+import br.ufpb.dsc.mercado.exception.ChamadoNaoEncontradoException;
+import br.ufpb.dsc.mercado.repository.AtivoRepository;
+import br.ufpb.dsc.mercado.repository.ChamadoRepository;
+import br.ufpb.dsc.mercado.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional(readOnly = true)
+public class ChamadoService {
+
+    private final ChamadoRepository chamadoRepository;
+    private final AtivoRepository ativoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final LogAuditoriaService logAuditoriaService;
+    private final EmailService emailService;
+    private final br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository;
+
+    public ChamadoService(ChamadoRepository chamadoRepository, AtivoRepository ativoRepository, UsuarioRepository usuarioRepository, LogAuditoriaService logAuditoriaService, EmailService emailService, br.ufpb.dsc.mercado.repository.PatrimonioRepository patrimonioRepository) {
+        this.chamadoRepository = chamadoRepository;
+        this.ativoRepository = ativoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.logAuditoriaService = logAuditoriaService;
+        this.emailService = emailService;
+        this.patrimonioRepository = patrimonioRepository;
+    }
+
+    public Page<Chamado> listar(Pageable pageable) {
+        return chamadoRepository.findAll(pageable);
+    }
+
+    public Page<Chamado> listarPorCliente(Long clienteId, Pageable pageable) {
+        return chamadoRepository.findByClienteId(clienteId, pageable);
+    }
+
+    public Page<Chamado> listarPorStatus(String status, Pageable pageable) {
+        return chamadoRepository.findByStatus(status, pageable);
+    }
+
+    public Page<Chamado> listarPorClienteEStatus(Long clienteId, String status, Pageable pageable) {
+        return chamadoRepository.findByClienteIdAndStatus(clienteId, status, pageable);
+    }
+
+    public Page<Chamado> listarPorTecnico(Long tecnicoId, Pageable pageable) {
+        return chamadoRepository.findByTecnicoId(tecnicoId, pageable);
+    }
+
+    public Chamado buscarPorId(Long id) {
+        return chamadoRepository.findById(id)
+                .orElseThrow(() -> new ChamadoNaoEncontradoException(id));
+    }
+
+    @Transactional
+    public Chamado criar(ChamadoForm form, Usuario cliente) {
+        br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;
+        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;
+        if (ativo == null && form.patrimonioId() != null) {
+            ativo = ativoRepository.findById(form.patrimonioId()).orElse(null);
+        }
+        if (ativo == null && patrimonio != null) {
+            ativo = patrimonio.getAtivo();
+        }
+
+        Usuario tecnico = form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null;
+        Usuario clienteEntidade = form.clienteId() != null ? usuarioRepository.findById(form.clienteId()).orElse(cliente) : cliente;
+
+        Chamado chamado = new Chamado(
+                form.titulo(),
+                form.descricao(),
+                form.prioridade() != null ? form.prioridade() : "MEDIA",
+                form.status() != null ? form.status() : "ABERTO",
+                patrimonio,
+                tecnico,
+                clienteEntidade
+        );
+        chamado.setAtivo(ativo);
+        chamado.setCategoria(form.categoria());
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("CRIAR", "Chamado", salvo.getId(), "Criado chamado: " + salvo.getTitulo());
+        
+        // Disparar notificação por e-mail (síncrono ou assíncrono dependendo da impl)
+        emailService.enviarNotificacaoChamadoCriado(salvo);
+        
+        return salvo;
+    }
+
+    @Transactional
+    public Chamado atualizar(Long id, ChamadoForm form) {
+        Chamado chamado = buscarPorId(id);
+        chamado.setTitulo(form.titulo());
+        chamado.setDescricao(form.descricao());
+        chamado.setPrioridade(form.prioridade());
+        chamado.setCategoria(form.categoria());
+        if (form.status() != null) {
+            chamado.setStatus(form.status());
+        }
+        
+        br.ufpb.dsc.mercado.domain.Patrimonio patrimonio = form.patrimonioId() != null ? patrimonioRepository.findById(form.patrimonioId()).orElse(null) : null;
+        Ativo ativo = form.ativoId() != null ? ativoRepository.findById(form.ativoId()).orElse(null) : null;
+        if (ativo == null && form.patrimonioId() != null) {
+            ativo = ativoRepository.findById(form.patrimonioId()).orElse(null);
+        }
+        
+        chamado.setPatrimonio(patrimonio);
+        chamado.setAtivo(ativo != null ? ativo : (patrimonio != null ? patrimonio.getAtivo() : null));
+        
+        chamado.setTecnico(form.tecnicoId() != null ? usuarioRepository.findById(form.tecnicoId()).orElse(null) : null);
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("ATUALIZAR", "Chamado", salvo.getId(), "Atualizado chamado: " + salvo.getTitulo());
+        
+        // Disparar notificação por e-mail de atualização
+        emailService.enviarNotificacaoChamadoAtualizado(salvo, "Informações do chamado foram alteradas.");
+
+        return salvo;
+    }
+
+    @Transactional
+    public Chamado alterarStatus(Long id, String status) {
+        Chamado chamado = buscarPorId(id);
+        String statusAntigo = chamado.getStatus();
+        chamado.setStatus(status);
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("ALTERAR_STATUS", "Chamado", salvo.getId(), "Status alterado de " + statusAntigo + " para " + status);
+        
+        // Disparar notificação por e-mail de alteração de status
+        emailService.enviarNotificacaoChamadoAtualizado(salvo, "Status alterado de '" + statusAntigo + "' para '" + status + "'.");
+
+        return salvo;
+    }
+
+    @Transactional
+    public Chamado atribuirTecnico(Long id, Long tecnicoId) {
+        Chamado chamado = buscarPorId(id);
+        Usuario tecnico = tecnicoId != null ? usuarioRepository.findById(tecnicoId).orElse(null) : null;
+        chamado.setTecnico(tecnico);
+        if (tecnico != null && "ABERTO".equals(chamado.getStatus())) {
+            chamado.setStatus("EM_ATENDIMENTO");
+        }
+        Chamado salvo = chamadoRepository.save(chamado);
+        logAuditoriaService.registrar("ATRIBUIR_TECNICO", "Chamado", salvo.getId(), "Técnico atribuído: " + (tecnico != null ? tecnico.getNome() : "Nenhum"));
+        return salvo;
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        Chamado chamado = chamadoRepository.findById(id)
+                .orElseThrow(() -> new ChamadoNaoEncontradoException(id));
+        logAuditoriaService.registrar("EXCLUIR", "Chamado", id, "Excluído chamado: " + chamado.getTitulo());
+        chamadoRepository.deleteById(id);
+    }
+}

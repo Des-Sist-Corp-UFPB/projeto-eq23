@@ -1,0 +1,185 @@
+{
+    "metrics": {
+        "data_received": {
+            "rate": 7498946.402796862,
+            "count": 307079770
+        },
+        "http_reqs": {
+            "count": 11116,
+            "rate": 271.4548347274388
+        },
+        "http_req_receiving": {
+            "p(90)": 292.98922400000004,
+            "p(95)": 393.68729825,
+            "avg": 131.21211918549866,
+            "min": 0.048056,
+            "med": 92.29185899999999,
+            "max": 1610.859338
+        },
+        "group_duration": {
+            "avg": 2544.142109828612,
+            "min": 35.95339,
+            "med": 2342.700749,
+            "max": 8222.832726,
+            "p(90)": 4247.703423200003,
+            "p(95)": 5073.652193999999
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 300
+        },
+        "vus_max": {
+            "value": 300,
+            "min": 300,
+            "max": 300
+        },
+        "http_req_sending": {
+            "med": 0.019577,
+            "max": 6.629306,
+            "p(90)": 0.0359065,
+            "p(95)": 0.0602895,
+            "avg": 0.029239526358402296,
+            "min": 0.006577
+        },
+        "iterations": {
+            "count": 2629,
+            "rate": 64.20068014559523
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 11116,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_req_duration": {
+            "avg": 669.9525832042082,
+            "min": 4.755907,
+            "med": 535.5115725,
+            "max": 4799.900689,
+            "p(90)": 1390.4466400000001,
+            "p(95)": 1729.400562,
+            "thresholds": {
+                "p(95)<1000": true
+            }
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 669.9525832042082,
+            "min": 4.755907,
+            "med": 535.5115725,
+            "max": 4799.900689,
+            "p(90)": 1390.4466400000001,
+            "p(95)": 1729.400562
+        },
+        "data_sent": {
+            "count": 1635346,
+            "rate": 39935.460431106345
+        },
+        "http_req_waiting": {
+            "avg": 538.7112244923541,
+            "min": 3.063399,
+            "med": 405.72168899999997,
+            "max": 4705.608879,
+            "p(90)": 1214.7009515,
+            "p(95)": 1590.3431735
+        },
+        "iteration_duration": {
+            "avg": 3835.733574328251,
+            "min": 1037.029787,
+            "med": 3507.544391,
+            "max": 10784.405469,
+            "p(90)": 6004.384756200002,
+            "p(95)": 7273.1461963999955
+        },
+        "http_req_blocked": {
+            "avg": 0.039771040842029634,
+            "min": 0.001922,
+            "med": 0.0065755,
+            "max": 37.072123,
+            "p(90)": 0.0099465,
+            "p(95)": 0.014593499999999999
+        },
+        "http_req_connecting": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.025290206189276736,
+            "min": 0,
+            "med": 0,
+            "max": 36.957724
+        },
+        "http_req_tls_handshaking": {
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0
+        },
+        "checks": {
+            "passes": 10816,
+            "fails": 0,
+            "value": 1
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "login": {
+                "name": "login",
+                "path": "::login",
+                "id": "a7d10b3a6c9a385ee254f0dbc7f9c8c9",
+                "groups": {},
+                "checks": {
+                        "login: redireciona (302/303)": {
+                            "name": "login: redireciona (302/303)",
+                            "path": "::login::login: redireciona (302/303)",
+                            "id": "3532d5058484c37abb10cf7f4907e9f0",
+                            "passes": 300,
+                            "fails": 0
+                        }
+                    }
+            },
+            "navegacao autenticada": {
+                "path": "::navegacao autenticada",
+                "id": "f2195c35b7649bbcec645c140bf95aa9",
+                "groups": {},
+                "checks": {
+                        "home: 200 e autenticado": {
+                            "path": "::navegacao autenticada::home: 200 e autenticado",
+                            "id": "08fef0f69a146a70625943ba5bc4b808",
+                            "passes": 2629,
+                            "fails": 0,
+                            "name": "home: 200 e autenticado"
+                        },
+                        "lista ativos: 200 e autenticado": {
+                            "id": "37ed83de26ae82ad48151a7566210f40",
+                            "passes": 2629,
+                            "fails": 0,
+                            "name": "lista ativos: 200 e autenticado",
+                            "path": "::navegacao autenticada::lista ativos: 200 e autenticado"
+                        },
+                        "busca ativos: 200 e autenticado": {
+                            "path": "::navegacao autenticada::busca ativos: 200 e autenticado",
+                            "id": "d9a933e9b6ad4a3802bd660efd30ba82",
+                            "passes": 2629,
+                            "fails": 0,
+                            "name": "busca ativos: 200 e autenticado"
+                        },
+                        "lista chamados: 200 e autenticado": {
+                            "name": "lista chamados: 200 e autenticado",
+                            "path": "::navegacao autenticada::lista chamados: 200 e autenticado",
+                            "id": "a122b917b6ef09ee67280798980504d6",
+                            "passes": 2629,
+                            "fails": 0
+                        }
+                    },
+                "name": "navegacao autenticada"
+            }
+        },
+        "checks": {}
+    }
+}

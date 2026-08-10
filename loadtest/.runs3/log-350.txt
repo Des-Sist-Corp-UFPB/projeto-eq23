@@ -1,0 +1,180 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/capacidade.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 350 max VUs, 1m10s max duration (incl. graceful stop):
+              * navegacao: Up to 350 looping VUs for 40s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+
+running (0m00.9s), 033/350 VUs, 0 complete and 0 interrupted iterations
+navegacao   [   2% ] 033/350 VUs  00.9s/40.0s
+
+running (0m01.9s), 068/350 VUs, 7 complete and 0 interrupted iterations
+navegacao   [   5% ] 068/350 VUs  01.9s/40.0s
+
+running (0m02.9s), 102/350 VUs, 18 complete and 0 interrupted iterations
+navegacao   [   7% ] 102/350 VUs  02.9s/40.0s
+
+running (0m03.9s), 137/350 VUs, 20 complete and 0 interrupted iterations
+navegacao   [  10% ] 137/350 VUs  03.9s/40.0s
+
+running (0m04.9s), 172/350 VUs, 30 complete and 0 interrupted iterations
+navegacao   [  12% ] 172/350 VUs  04.9s/40.0s
+
+running (0m05.9s), 207/350 VUs, 37 complete and 0 interrupted iterations
+navegacao   [  15% ] 207/350 VUs  05.9s/40.0s
+
+running (0m06.9s), 242/350 VUs, 50 complete and 0 interrupted iterations
+navegacao   [  17% ] 242/350 VUs  06.9s/40.0s
+
+running (0m07.9s), 278/350 VUs, 63 complete and 0 interrupted iterations
+navegacao   [  20% ] 278/350 VUs  07.9s/40.0s
+
+running (0m08.9s), 312/350 VUs, 79 complete and 0 interrupted iterations
+navegacao   [  22% ] 312/350 VUs  08.9s/40.0s
+
+running (0m09.9s), 347/350 VUs, 91 complete and 0 interrupted iterations
+navegacao   [  25% ] 347/350 VUs  09.9s/40.0s
+
+running (0m10.9s), 350/350 VUs, 103 complete and 0 interrupted iterations
+navegacao   [  27% ] 350/350 VUs  10.9s/40.0s
+
+running (0m11.9s), 350/350 VUs, 117 complete and 0 interrupted iterations
+navegacao   [  30% ] 350/350 VUs  11.9s/40.0s
+
+running (0m12.9s), 350/350 VUs, 145 complete and 0 interrupted iterations
+navegacao   [  32% ] 350/350 VUs  12.9s/40.0s
+
+running (0m13.9s), 350/350 VUs, 156 complete and 0 interrupted iterations
+navegacao   [  35% ] 350/350 VUs  13.9s/40.0s
+
+running (0m14.9s), 350/350 VUs, 203 complete and 0 interrupted iterations
+navegacao   [  37% ] 350/350 VUs  14.9s/40.0s
+
+running (0m15.9s), 350/350 VUs, 253 complete and 0 interrupted iterations
+navegacao   [  40% ] 350/350 VUs  15.9s/40.0s
+
+running (0m16.9s), 350/350 VUs, 347 complete and 0 interrupted iterations
+navegacao   [  42% ] 350/350 VUs  16.9s/40.0s
+
+running (0m17.9s), 350/350 VUs, 427 complete and 0 interrupted iterations
+navegacao   [  45% ] 350/350 VUs  17.9s/40.0s
+
+running (0m18.9s), 350/350 VUs, 529 complete and 0 interrupted iterations
+navegacao   [  47% ] 350/350 VUs  18.9s/40.0s
+
+running (0m19.9s), 350/350 VUs, 582 complete and 0 interrupted iterations
+navegacao   [  50% ] 350/350 VUs  19.9s/40.0s
+
+running (0m20.9s), 350/350 VUs, 653 complete and 0 interrupted iterations
+navegacao   [  52% ] 350/350 VUs  20.9s/40.0s
+
+running (0m21.9s), 350/350 VUs, 765 complete and 0 interrupted iterations
+navegacao   [  55% ] 350/350 VUs  21.9s/40.0s
+
+running (0m22.9s), 350/350 VUs, 882 complete and 0 interrupted iterations
+navegacao   [  57% ] 350/350 VUs  22.9s/40.0s
+
+running (0m23.9s), 350/350 VUs, 959 complete and 0 interrupted iterations
+navegacao   [  60% ] 350/350 VUs  23.9s/40.0s
+
+running (0m24.9s), 350/350 VUs, 1041 complete and 0 interrupted iterations
+navegacao   [  62% ] 350/350 VUs  24.9s/40.0s
+
+running (0m25.9s), 350/350 VUs, 1110 complete and 0 interrupted iterations
+navegacao   [  65% ] 350/350 VUs  25.9s/40.0s
+
+running (0m26.9s), 350/350 VUs, 1183 complete and 0 interrupted iterations
+navegacao   [  67% ] 350/350 VUs  26.9s/40.0s
+
+running (0m27.9s), 350/350 VUs, 1245 complete and 0 interrupted iterations
+navegacao   [  70% ] 350/350 VUs  27.9s/40.0s
+
+running (0m28.9s), 350/350 VUs, 1354 complete and 0 interrupted iterations
+navegacao   [  72% ] 350/350 VUs  28.9s/40.0s
+
+running (0m29.9s), 350/350 VUs, 1458 complete and 0 interrupted iterations
+navegacao   [  75% ] 350/350 VUs  29.9s/40.0s
+
+running (0m30.9s), 350/350 VUs, 1530 complete and 0 interrupted iterations
+navegacao   [  77% ] 350/350 VUs  30.9s/40.0s
+
+running (0m31.9s), 350/350 VUs, 1601 complete and 0 interrupted iterations
+navegacao   [  80% ] 350/350 VUs  31.9s/40.0s
+
+running (0m32.9s), 350/350 VUs, 1710 complete and 0 interrupted iterations
+navegacao   [  82% ] 350/350 VUs  32.9s/40.0s
+
+running (0m33.9s), 350/350 VUs, 1783 complete and 0 interrupted iterations
+navegacao   [  85% ] 350/350 VUs  33.9s/40.0s
+
+running (0m34.9s), 350/350 VUs, 1873 complete and 0 interrupted iterations
+navegacao   [  87% ] 350/350 VUs  34.9s/40.0s
+
+running (0m35.9s), 341/350 VUs, 1951 complete and 0 interrupted iterations
+navegacao   [  90% ] 341/350 VUs  35.9s/40.0s
+
+running (0m36.9s), 309/350 VUs, 2052 complete and 0 interrupted iterations
+navegacao   [  92% ] 309/350 VUs  36.9s/40.0s
+
+running (0m37.9s), 272/350 VUs, 2139 complete and 0 interrupted iterations
+navegacao   [  95% ] 272/350 VUs  37.9s/40.0s
+
+running (0m38.9s), 198/350 VUs, 2245 complete and 0 interrupted iterations
+navegacao   [  97% ] 198/350 VUs  38.9s/40.0s
+
+running (0m39.9s), 088/350 VUs, 2374 complete and 0 interrupted iterations
+navegacao   [ 100% ] 088/350 VUs  39.9s/40.0s
+
+
+  █ THRESHOLDS 
+
+    http_req_duration
+    ✗ 'p(95)<1000' p(95)=2.19s
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 10198   250.178633/s
+    checks_succeeded...: 100.00% 10198 out of 10198
+    checks_failed......: 0.00%   0 out of 10198
+
+    ✓ login: redireciona (302/303)
+    ✓ home: 200 e autenticado
+    ✓ lista ativos: 200 e autenticado
+    ✓ busca ativos: 200 e autenticado
+    ✓ lista chamados: 200 e autenticado
+
+    HTTP
+    http_req_duration..............: avg=889.11ms min=4.3ms med=733.23ms max=5.63s  p(90)=1.73s p(95)=2.19s
+      { expected_response:true }...: avg=889.11ms min=4.3ms med=733.23ms max=5.63s  p(90)=1.73s p(95)=2.19s
+    http_req_failed................: 0.00%  0 out of 10548
+    http_reqs......................: 10548  258.764877/s
+
+    EXECUTION
+    iteration_duration.............: avg=4.81s    min=1.05s med=4.2s     max=14.01s p(90)=8.58s p(95)=9.99s
+    iterations.....................: 2462   60.398097/s
+    vus............................: 88     min=33         max=350
+    vus_max........................: 350    min=350        max=350
+
+    NETWORK
+    data_received..................: 289 MB 7.1 MB/s
+    data_sent......................: 1.6 MB 38 kB/s
+
+
+
+
+running (0m40.8s), 000/350 VUs, 2462 complete and 0 interrupted iterations
+navegacao ✓ [ 100% ] 000/350 VUs  40s
+time="2026-07-01T13:21:58Z" level=error msg="thresholds on metrics 'http_req_duration' have been crossed"

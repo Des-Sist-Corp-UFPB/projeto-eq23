@@ -19,11 +19,13 @@
     <description>Projeto base DSC - UFPB Campus IV</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <!-- Versões de dependências -->
         <testcontainers.version>1.20.4</testcontainers.version>
         <webjars-bootstrap.version>5.3.3</webjars-bootstrap.version>
         <webjars-htmx.version>2.0.4</webjars-htmx.version>
+        <!-- Spring AI 1.0.x é a linha compatível com Spring Boot 3.4.x (1.1.x exige Boot 3.5.x, 2.x exige Boot 4.x) -->
+        <spring-ai.version>1.0.3</spring-ai.version>
         <!-- Versões de plugins SAST/qualidade -->
         <spotbugs-maven-plugin.version>4.8.6.6</spotbugs-maven-plugin.version>
         <findsecbugs-plugin.version>1.13.0</findsecbugs-plugin.version>
@@ -31,6 +33,18 @@
         <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- === WEB === -->
@@ -54,6 +68,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
 
         <!-- === BANCO DE DADOS === -->
@@ -86,6 +104,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- === MCP: expõe operações do sistema como tools para assistentes de IA (Claude, Cursor, etc.) === -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+        </dependency>
+
+        <!-- === IA: classificação de chamados via LiteLLM (proxy multi-provedor da disciplina) ===
+             LiteLLM fala o dialeto da API da OpenAI, então usamos o client OpenAI do Spring AI
+             apontado para spring.ai.openai.base-url = URL do LiteLLM (ver application.yml). -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
         </dependency>
 
         <!-- === FRONTEND: Bootstrap + HTMX via WebJars === -->

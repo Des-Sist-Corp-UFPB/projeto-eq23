@@ -24,15 +24,15 @@ services:
     image: postgres:16-alpine
     container_name: mercado-postgres-dev
     environment:
-      POSTGRES_DB: mercado_dev
-      POSTGRES_USER: mercado
-      POSTGRES_PASSWORD: mercado123
+      POSTGRES_DB: eq23
+      POSTGRES_USER: eq23
+      POSTGRES_PASSWORD: sJX6LspwEeFN0LIPe8U2
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mercado -d mercado_dev"]
+      test: ["CMD-SHELL", "pg_isready -U eq23 -d eq23"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,9 +49,22 @@ services:
     container_name: mercado-app-dev
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mercado_dev
-      SPRING_DATASOURCE_USERNAME: mercado
-      SPRING_DATASOURCE_PASSWORD: mercado123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eq23
+      SPRING_DATASOURCE_USERNAME: eq23
+      SPRING_DATASOURCE_PASSWORD: sJX6LspwEeFN0LIPe8U2
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-http://localhost:3000/script.js}
+      UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-dsc-eq23}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-https://otel.dsc.rodrigor.com}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-otlp}
+      OTEL_METRICS_EXPORTER: ${OTEL_METRICS_EXPORTER:-otlp}
+      OTEL_LOGS_EXPORTER: ${OTEL_LOGS_EXPORTER:-otlp}
+
+
     ports:
       - "8080:8080"
     volumes:
@@ -68,7 +81,7 @@ services:
   # ---------------------------------------------------------------------------
   # Adminer: interface web para o banco de dados
   # Acesse: http://localhost:8888
-  # Servidor: postgres | Banco: mercado_dev | Usuário: mercado | Senha: mercado123
+  # Servidor: postgres | Banco: eq23 | Usuário: eq23 | Senha: sJX6LspwEeFN0LIPe8U2
   # ---------------------------------------------------------------------------
   adminer:
     image: adminer:latest
@@ -96,11 +109,49 @@ services:
     networks:
       - mercado-net
 
+  # ---------------------------------------------------------------------------
+  # Umami Analytics (Self-Hosted)
+  # Acesse o painel: http://localhost:3000 (Login padrão: admin / umami)
+  # ---------------------------------------------------------------------------
+  umami-db:
+    image: postgres:16-alpine
+    container_name: mercado-umami-db
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami_password
+    volumes:
+      - umami-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mercado-net
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: mercado-umami
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://umami:umami_password@umami-db:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: 8d2c3e1f4a5b6c7d8e9f0a1b2c3d4e5f
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    networks:
+      - mercado-net
+
 volumes:
   postgres-dev-data:
   maven-cache:
   trivy-cache:
+  umami-db-data:
 
 networks:
   mercado-net:
     driver: bridge
+

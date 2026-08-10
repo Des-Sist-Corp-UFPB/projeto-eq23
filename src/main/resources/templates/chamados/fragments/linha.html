@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<tr th:fragment="linha"
+    th:id="'chamado-' + ${chamado.id}">
+
+    <!-- ID -->
+    <td class="text-muted small" th:text="${chamado.id}">#1</td>
+
+    <!-- Título / Ativo -->
+    <td>
+        <div class="fw-semibold text-light" th:text="${chamado.titulo}">Título do Chamado</div>
+        <div class="small text-muted" th:if="${chamado.patrimonio != null}">
+            Patrimônio: <span th:text="${chamado.patrimonio.codigo + ' (' + chamado.patrimonio.ativo.nome + ')'}">PAT-001</span>
+        </div>
+        <div class="small text-muted" th:if="${chamado.patrimonio == null and chamado.ativo != null}">
+            Ativo: <span th:text="${chamado.ativo.nome}">Ativo</span>
+        </div>
+        <div class="small text-muted fst-italic" th:if="${chamado.patrimonio == null and chamado.ativo == null}">
+            Sem ativo/patrimônio associado
+        </div>
+    </td>
+
+    <!-- Cliente (Fonte branca text-light) -->
+    <td class="fw-semibold text-light" th:text="${chamado.cliente != null ? chamado.cliente.nome : 'Sem Cliente'}">Cliente</td>
+
+    <!-- Prioridade -->
+    <td>
+        <span th:if="${chamado.prioridade == 'BAIXA'}" class="badge bg-secondary">Baixa</span>
+        <span th:if="${chamado.prioridade == 'MEDIA'}" class="badge bg-info">Média</span>
+        <span th:if="${chamado.prioridade == 'ALTA'}" class="badge bg-warning text-dark">Alta</span>
+        <span th:if="${chamado.prioridade == 'CRITICA'}" class="badge bg-danger">Crítica</span>
+    </td>
+
+    <!-- Status -->
+    <td class="text-center">
+        <span th:if="${chamado.status == 'NAO_INICIADO' or chamado.status == 'ABERTO'}" class="badge bg-secondary">Não Iniciado</span>
+        <span th:if="${chamado.status == 'EM_ANDAMENTO' or chamado.status == 'EM_ATENDIMENTO'}" class="badge bg-primary">Em Andamento</span>
+        <span th:if="${chamado.status == 'PARADO'}" class="badge bg-warning text-dark">Parado</span>
+        <span th:if="${chamado.status == 'RESOLVIDO'}" class="badge bg-success">Resolvido</span>
+        <span th:if="${chamado.status == 'FECHADO'}" class="badge bg-dark">Fechado</span>
+    </td>
+
+    <!-- Ações -->
+    <td class="text-center">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Ações">
+            
+            <!-- Quick status update (somente para administradores) -->
+            <div class="btn-group btn-group-sm" role="group" sec:authorize="hasAnyRole('ADMIN', 'TECNICO')">
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Mudar Status">
+                    Status
+                </button>
+                <ul class="dropdown-menu">
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=NAO_INICIADO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Não Iniciado</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=EM_ANDAMENTO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Em Andamento</button></li>
+                    <li><button class="dropdown-item" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=PARADO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Parado</button></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button class="dropdown-item text-success" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=RESOLVIDO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Resolvido</button></li>
+                    <li><button class="dropdown-item text-secondary" th:attr="hx-put='/chamados/' + ${chamado.id} + '/status?status=FECHADO', hx-target='#chamado-' + ${chamado.id}" hx-swap="outerHTML">Fechar</button></li>
+                </ul>
+            </div>
+
+            <!-- Editar chamado -->
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    th:attr="hx-get='/chamados/' + ${chamado.id} + '/editar'"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                    title="Editar chamado">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                     class="bi bi-pencil" viewBox="0 0 16 16">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                </svg>
+            </button>
+
+            <!-- Excluir chamado -->
+            <button type="button"
+                    class="btn btn-outline-danger"
+                    th:attr="hx-delete='/chamados/' + ${chamado.id},
+                             hx-target='#chamado-' + ${chamado.id},
+                             hx-confirm='Confirma a exclusão do chamado &quot;' + ${chamado.titulo} + '&quot;?'"
+                    hx-swap="outerHTML"
+                    title="Excluir chamado"
+                    sec:authorize="hasRole('ADMIN')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                     class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>
+            </button>
+        </div>
+    </td>
+
+</tr>
+
+</body>
+</html>

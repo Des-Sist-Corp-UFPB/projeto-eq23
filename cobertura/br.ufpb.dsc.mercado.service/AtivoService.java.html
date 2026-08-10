@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AtivoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mercado</a> &gt; <a href="index.source.html" class="el_package">br.ufpb.dsc.mercado.service</a> &gt; <span class="el_source">AtivoService.java</span></div><h1>AtivoService.java</h1><pre class="source lang-java linenums">package br.ufpb.dsc.mercado.service;
+
+import br.ufpb.dsc.mercado.domain.Ativo;
+import br.ufpb.dsc.mercado.dto.AtivoForm;
+import br.ufpb.dsc.mercado.exception.AtivoNaoEncontradoException;
+import br.ufpb.dsc.mercado.repository.AtivoRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+@Service
+@Transactional(readOnly = true)
+public class AtivoService {
+
+    private final AtivoRepository ativoRepository;
+    private final LogAuditoriaService logAuditoriaService;
+
+<span class="fc" id="L20">    public AtivoService(AtivoRepository ativoRepository, LogAuditoriaService logAuditoriaService) {</span>
+<span class="fc" id="L21">        this.ativoRepository = ativoRepository;</span>
+<span class="fc" id="L22">        this.logAuditoriaService = logAuditoriaService;</span>
+<span class="fc" id="L23">    }</span>
+
+    public Page&lt;Ativo&gt; listar(Pageable pageable) {
+<span class="nc" id="L26">        return ativoRepository.findAll(pageable);</span>
+    }
+
+    public Page&lt;Ativo&gt; buscar(String busca, Pageable pageable) {
+<span class="fc" id="L30">        boolean temBusca = StringUtils.hasText(busca);</span>
+
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (temBusca) {</span>
+<span class="nc" id="L33">            return ativoRepository.findByNomeContainingIgnoreCase(busca.trim(), pageable);</span>
+        } else {
+<span class="fc" id="L35">            return ativoRepository.findAll(pageable);</span>
+        }
+    }
+
+    public Ativo buscarPorId(Long id) {
+<span class="fc" id="L40">        return ativoRepository.findById(id)</span>
+<span class="fc" id="L41">                .orElseThrow(() -&gt; new AtivoNaoEncontradoException(id));</span>
+    }
+
+    @Transactional
+    public Ativo criar(AtivoForm form) {
+<span class="fc" id="L46">        Ativo ativo = new Ativo(</span>
+<span class="fc" id="L47">                form.nome(),</span>
+<span class="fc" id="L48">                form.descricao(),</span>
+<span class="fc" id="L49">                form.numeroSerie(),</span>
+<span class="fc" id="L50">                form.status()</span>
+        );
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (form.patrimonios() != null) {</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">            for (var pForm : form.patrimonios()) {</span>
+<span class="nc bnc" id="L54" title="All 4 branches missed.">                if (org.springframework.util.StringUtils.hasText(pForm.codigo()) &amp;&amp; org.springframework.util.StringUtils.hasText(pForm.numeroSerie())) {</span>
+<span class="nc" id="L55">                    ativo.addPatrimonio(new br.ufpb.dsc.mercado.domain.Patrimonio(pForm.codigo().trim(), pForm.numeroSerie().trim(), ativo));</span>
+                }
+<span class="nc" id="L57">            }</span>
+        }
+<span class="fc" id="L59">        Ativo salvo = ativoRepository.save(ativo);</span>
+<span class="fc" id="L60">        logAuditoriaService.registrar(&quot;CRIAR&quot;, &quot;Ativo&quot;, salvo.getId(), &quot;Criado ativo: &quot; + salvo.getNome());</span>
+<span class="fc" id="L61">        return salvo;</span>
+    }
+
+    @Transactional
+    public Ativo atualizar(Long id, AtivoForm form) {
+<span class="fc" id="L66">        Ativo ativo = buscarPorId(id);</span>
+<span class="fc" id="L67">        ativo.setNome(form.nome());</span>
+<span class="fc" id="L68">        ativo.setDescricao(form.descricao());</span>
+<span class="fc" id="L69">        ativo.setNumeroSerie(form.numeroSerie());</span>
+<span class="fc" id="L70">        ativo.setStatus(form.status());</span>
+        
+<span class="fc" id="L72">        ativo.getPatrimonios().clear();</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (form.patrimonios() != null) {</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            for (var pForm : form.patrimonios()) {</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">                if (org.springframework.util.StringUtils.hasText(pForm.codigo()) &amp;&amp; org.springframework.util.StringUtils.hasText(pForm.numeroSerie())) {</span>
+<span class="nc" id="L76">                    ativo.addPatrimonio(new br.ufpb.dsc.mercado.domain.Patrimonio(pForm.codigo().trim(), pForm.numeroSerie().trim(), ativo));</span>
+                }
+<span class="nc" id="L78">            }</span>
+        }
+        
+<span class="fc" id="L81">        Ativo salvo = ativoRepository.save(ativo);</span>
+<span class="fc" id="L82">        logAuditoriaService.registrar(&quot;ATUALIZAR&quot;, &quot;Ativo&quot;, salvo.getId(), &quot;Atualizado ativo: &quot; + salvo.getNome());</span>
+<span class="fc" id="L83">        return salvo;</span>
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+<span class="fc" id="L88">        Ativo ativo = ativoRepository.findById(id)</span>
+<span class="fc" id="L89">                .orElseThrow(() -&gt; new AtivoNaoEncontradoException(id));</span>
+<span class="fc" id="L90">        logAuditoriaService.registrar(&quot;EXCLUIR&quot;, &quot;Ativo&quot;, id, &quot;Excluído ativo: &quot; + ativo.getNome());</span>
+<span class="fc" id="L91">        ativoRepository.deleteById(id);</span>
+<span class="fc" id="L92">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

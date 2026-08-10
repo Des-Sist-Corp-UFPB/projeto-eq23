@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Fragmento HTMX (out-of-band): não é inserido no lugar do botão que o chamou —
+  cada elemento abaixo tem hx-swap-oob="true" e substitui o elemento de MESMO id
+  já presente no formulário (ver chamados/abrir.html).
+-->
+<th:block th:fragment="sugestao">
+
+    <select id="categoria" name="categoria" class="form-select" hx-swap-oob="true">
+        <option value="" th:selected="${sugestao == null}">-- Nenhuma --</option>
+        <option value="HARDWARE" th:selected="${sugestao != null and sugestao.categoria() == 'HARDWARE'}">Hardware</option>
+        <option value="SOFTWARE" th:selected="${sugestao != null and sugestao.categoria() == 'SOFTWARE'}">Software</option>
+        <option value="REDE" th:selected="${sugestao != null and sugestao.categoria() == 'REDE'}">Rede</option>
+        <option value="ACESSO" th:selected="${sugestao != null and sugestao.categoria() == 'ACESSO'}">Acesso</option>
+        <option value="OUTRO" th:selected="${sugestao != null and sugestao.categoria() == 'OUTRO'}">Outro</option>
+    </select>
+
+    <select id="prioridade" name="prioridade" class="form-select" hx-swap-oob="true" th:if="${sugestao != null}">
+        <option value="BAIXA" th:selected="${sugestao.prioridade() == 'BAIXA'}">Baixa</option>
+        <option value="MEDIA" th:selected="${sugestao.prioridade() == 'MEDIA'}">Média</option>
+        <option value="ALTA" th:selected="${sugestao.prioridade() == 'ALTA'}">Alta</option>
+        <option value="CRITICA" th:selected="${sugestao.prioridade() == 'CRITICA'}">Crítica (Interrupção total)</option>
+    </select>
+
+    <div id="sugestao-ia-msg" hx-swap-oob="true"
+         th:classappend="${sugestao != null} ? 'text-info' : 'text-warning'"
+         class="form-text mt-1">
+        <span th:if="${sugestao != null}"
+              th:text="'Sugestão da IA: ' + ${sugestao.justificativa()} + ' Confira antes de enviar.'">Sugestão</span>
+        <span th:if="${sugestao == null}">
+            Não foi possível obter uma sugestão da IA agora — preencha categoria e prioridade manualmente.
+        </span>
+    </div>
+
+</th:block>
+
+</body>
+</html>
